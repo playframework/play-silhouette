@@ -1,14 +1,4 @@
-**This repository is a fork for the [main repository](https://github.com/mohiva/play-silhouette) which is no longer maintained.**
-
-**This fork is for maintenance only, without any new features. The goal is to fix vulnerabilities and to update dependencies when required.**
-
-
-Silhouette 
-==========
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.mohiva/play-silhouette_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.mohiva/play-silhouette_2.12) [![Build Status](https://travis-ci.org/mohiva/play-silhouette.png)](https://travis-ci.org/mohiva/play-silhouette) [![Coverage Status](https://coveralls.io/repos/mohiva/play-silhouette/badge.svg?branch=master&service=github)](https://coveralls.io/github/mohiva/play-silhouette?branch=master) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mohiva/play-silhouette?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![OpenCollective](https://opencollective.com/silhouette/backers/badge.svg)](#backers) 
-[![OpenCollective](https://opencollective.com/silhouette/sponsors/badge.svg)](#sponsors)
-
+# Silhouette 
 
 **Silhouette** is an authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes.
 
@@ -16,7 +6,7 @@ See [the project documentation] for more information.
 
 ## Support
 
-If you have question regarding Silhouette, please use the [chat] (still open) or the [forum] (closed). **Please do not use the issue tracker for questions!**
+If you have question regarding Silhouette, please use the [chat]. **Please do not use the issue tracker for questions!**
 
 ## Contribution
 
@@ -32,3 +22,5 @@ The code is licensed under [Apache License v2.0] and the documentation under [CC
 [contributing guide]: CONTRIBUTING.md
 [Apache License v2.0]: http://www.apache.org/licenses/LICENSE-2.0
 [CC BY 3.0]: http://creativecommons.org/licenses/by/3.0/
+
+**This repository is a fork for the [main repository](https://github.com/mohiva/play-silhouette) which is no longer maintained. Thank you very much to previous maintainer Christian Kaps (@akkie) for all the work you've done to bring us to this point. This library was made fantastic and we are looking to continue along the path you set for us.**
