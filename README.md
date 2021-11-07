@@ -1,4 +1,7 @@
-This repository is not longer maintained. All the related resources like the documentation and the forum will be closed.
+**This repository is a fork for the [main repository](https://github.com/mohiva/play-silhouette) which is no longer maintained.**
+
+**This fork is for maintenance only, without any new features. The goal is to fix vulnerabilities and to update dependencies when required.**
+
 
 Silhouette 
 ==========
@@ -13,7 +16,7 @@ See [the project documentation] for more information.
 
 ## Support
 
-If you have question regarding Silhouette, please use the [chat] or the [forum]. **Please do not use the issue tracker for questions!**
+If you have question regarding Silhouette, please use the [chat] (still open) or the [forum] (closed). **Please do not use the issue tracker for questions!**
 
 ## Contribution
 
@@ -23,7 +26,7 @@ Please read the [contributing guide] before you contribute. It contains very use
 
 The code is licensed under [Apache License v2.0] and the documentation under [CC BY 3.0].
 
-[the project documentation]: http://www.silhouette.rocks/docs
+[the project documentation]: https://silhouette.readme.io/
 [chat]: https://gitter.im/mohiva/play-silhouette
 [forum]: http://discourse.silhouette.rocks/
 [contributing guide]: CONTRIBUTING.md

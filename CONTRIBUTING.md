@@ -32,6 +32,14 @@ After submitting your pull request, please [watch the result] of the automated T
 errors or inconsistencies.
 
 
+Known issue
+---------------------
+
+Please use the scripts under the `scripts` directory to launch sbt.
+
+You'll need sbt-launch 0.13.8 to start the scripts, it's available here: https://scala.jfrog.io/artifactory/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/jars/sbt-launch.jar
+
+
 License and Copyright
 ---------------------
 
