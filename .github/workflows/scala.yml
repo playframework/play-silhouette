@@ -18,5 +18,9 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
-    - name: Run tests
-      run: sbt test
+    - name: Validating code formatting
+      run: sbt clean scalariformFormat test:scalariformFormat build:scalariformFormat
+    - name: Testing and generating documentation
+      run: sbt clean coverage test doc coverageReport
+    - name: Aggregate coverage from sub-projects
+      run: sbt coverageAggregate
