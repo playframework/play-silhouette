@@ -39,6 +39,9 @@ Please use the scripts under the `scripts` directory to launch sbt.
 
 You'll need sbt-launch 0.13.8 to start the scripts, it's available here: https://scala.jfrog.io/artifactory/ivy-releases/org.scala-sbt/sbt-launch/0.13.8/jars/sbt-launch.jar
 
+If you use SBT 1.5.x, start sbt with ./scripts/sbt -Dsbt.boot.directory=/tmp/boot1 -Dsbt.launcher.coursier=false 
+If you get a weird issue (cannot redefine component. ID: org.scala-sbt-compiler-interface-0.13.18-bin_2...), remove the /tmp/boot1 directory.
+
 
 License and Copyright
 ---------------------
