@@ -40,8 +40,8 @@ object Dependencies {
     }
 
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.1"
-    val jwtCore = "com.atlassian.jwt" % "jwt-core" % "2.0.5"
-    val jwtApi = "com.atlassian.jwt" % "jwt-api" % "2.0.5"
+    val jwtCore = "com.atlassian.jwt" % "jwt-core" % "2.1.0"
+    val jwtApi = "com.atlassian.jwt" % "jwt-api" % "2.1.0"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "4.2.5"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % "2.6.14"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.4.1"
