@@ -23,4 +23,4 @@ The code is licensed under [Apache License v2.0] and the documentation under [CC
 [Apache License v2.0]: http://www.apache.org/licenses/LICENSE-2.0
 [CC BY 3.0]: http://creativecommons.org/licenses/by/3.0/
 
-**This repository is a fork for the [main repository](https://github.com/mohiva/play-silhouette) which is no longer maintained. Thank you very much to previous maintainer Christian Kaps (@akkie) and all contributors for the work you've done to bring us to this point. This library was made fantastic and we are looking to continue along the path you set for us.**
+**This repository is a fork for the [main repository](https://github.com/mohiva/play-silhouette) which is no longer maintained. Thank you very much to previous maintainer Christian Kaps ([@akkie](https://github.com/akkie)) and all contributors for the work you've done to bring us to this point. This library was made fantastic and we are looking to continue along the path you set for us.**
