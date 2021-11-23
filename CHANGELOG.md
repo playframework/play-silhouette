@@ -1,13 +1,30 @@
-## 6.0.1
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- Migration from TravisCI to GitHub script from [@ndeverge](https://github.com/ndeverge).
+- Cross compilation on CI from [@ndeverge](https://github.com/ndeverge).
+- Notes on running startup scripts with sbt v1.5.x from [@ndeverge](https://github.com/ndeverge).
+
+### Changed
+- Updated atlassian jwt dependencies to address CVE
+- CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+## [6.0.1]
 
 - Update to Play 2.7.3
 - Add support for Scala 2.13
 
-## 6.0
+## [6.0]
 
 - Update to Play 2.7
 
-## 5.0
+## [5.0]
 
 - Update to Play 2.6
 - Handling of OAuth2 based user state with the help of the new social state handler implementation (thanks to @Saheb)
@@ -15,7 +32,7 @@
 - Better error messages for OAuth2 based errors
 - Remove Clef support
 
-## 4.0 (2016-07-14)
+## [4.0] - 2016-07-14
 
 - Update to Play 2.5
 - Removed Play Messages instance from Event, Authorization and ErrorHandler types. The I18nSupport trait should be used instead, to get the Messages instance for the current request
@@ -41,7 +58,7 @@
 - Define meaningful interface for password re-hashing (thanks @alexmojaki)
 - Play Framework independent crypto implementation
 
-## 3.0 (2015-07-14)
+## [3.0] - 2015-07-14
 
 - Update to Play 2.4
 - Stateless and non-stateless CookieAuthenticator
@@ -49,7 +66,7 @@
 - Use scala.concurrent.duration.FiniteDuration instead of Int for duration based values
 - A lot of API enhancements
 
-## 2.0 (2015-03-28)
+## [2.0] - 2015-03-28
 
 - Use lazy val to initialize SecureRandom, so that initialization occurs also async
 - Refactor authenticators and add BearerTokenAuthenticator, JWTAuthenticator, SessionAuthenticator and DummyAuthenticator
@@ -71,10 +88,10 @@
 - Add OpenID providers Steam and Yahoo
 - Better error handling
 
-## 1.0 (2014-06-12)
+## [1.0] - 2014-06-12
 
 - First release for Play 2.3
 
-## 0.9 (2014-06-12)
+## [0.9] 2014-06-12
 
 - First release for Play 2.2
