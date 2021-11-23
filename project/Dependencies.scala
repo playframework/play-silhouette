@@ -23,7 +23,7 @@ object Dependencies {
   object Library {
 
     object Play {
-      val version = play.core.PlayVersion.current
+      val version: String = play.core.PlayVersion.current
       val ws = "com.typesafe.play" %% "play-ws" % version
       val cache = "com.typesafe.play" %% "play-cache" % version
       val test = "com.typesafe.play" %% "play-test" % version
@@ -39,6 +39,7 @@ object Dependencies {
       val mock = "org.specs2" %% "specs2-mock" % version
     }
 
+    val argon2 = "de.mkammerer" % "argon2-jvm" % "2.11"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.1"
     val jwtCore = "com.atlassian.jwt" % "jwt-core" % "2.1.0"
     val jwtApi = "com.atlassian.jwt" % "jwt-api" % "2.1.0"
