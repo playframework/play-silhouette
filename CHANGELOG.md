@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration from TravisCI to GitHub script from [@ndeverge](https://github.com/ndeverge).
 - Cross compilation on CI from [@ndeverge](https://github.com/ndeverge).
 - Notes on running startup scripts with sbt v1.5.x from [@ndeverge](https://github.com/ndeverge).
+- Argon2 password hasher from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Argon2 password hasher tests from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 - Updated atlassian jwt dependencies to address CVE
