@@ -6,15 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Updated atlassian jwt dependencies to address CVE from [@dspasojevic](https://github.com/dspasojevic).
+
 ### Added
 - Migration from TravisCI to GitHub script from [@ndeverge](https://github.com/ndeverge).
 - Cross compilation on CI from [@ndeverge](https://github.com/ndeverge).
 - Notes on running startup scripts with sbt v1.5.x from [@ndeverge](https://github.com/ndeverge).
 - Argon2 password hasher from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Argon2 password hasher tests from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- v7.0.0 release notes to CHANGELOG.md from [@ndeverge](https://github.com/ndeverge).
 
 ### Changed
-- Updated atlassian jwt dependencies to address CVE
 - CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ## [7.0.0]
