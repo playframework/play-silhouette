@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated atlassian jwt dependencies to address CVE
 - CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
+## [7.0.0]
+
+- Update to Play 2.8.1
+
 ## [6.0.1]
 
 - Update to Play 2.7.3
