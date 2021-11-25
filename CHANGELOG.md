@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Maven publishing information from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Version to 7.0.1-SNAPSHOT from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ## [7.0.0]
 

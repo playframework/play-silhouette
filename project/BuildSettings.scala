@@ -1,6 +1,4 @@
 /**
- * Copyright 2015 Mohiva Organisation (license at mohiva dot com)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -20,7 +18,7 @@ import com.typesafe.sbt.SbtGit.git
 import com.typesafe.sbt.SbtSite.SiteKeys._
 import com.typesafe.sbt.SbtSite.site
 import sbt.Keys._
-import sbt._
+import sbt.{Def, _}
 import sbtunidoc.ScalaUnidocPlugin.autoImport._
 
 
@@ -58,8 +56,8 @@ object BasicSettings extends AutoPlugin {
   )
 
   override def projectSettings = Seq(
-    organization := "com.mohiva",
-    version := "7.0.0",
+    organization := "io.github.honeycomb-cheesecake",
+    version := "7.0.1-SNAPSHOT",
     resolvers ++= Dependencies.resolvers,
     scalaVersion := "2.13.1",
     crossScalaVersions := Seq("2.13.1", "2.12.10"),
@@ -105,7 +103,7 @@ object CodeFormatter extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def projectSettings = defaultScalariformSettings ++ prefs ++
+  override def projectSettings: Seq[Setting[_]] = defaultScalariformSettings ++ prefs ++
     inConfig(BuildConfig)(configScalariformSettings) ++
     inConfig(BuildSbtConfig)(configScalariformSettings) ++
     Seq(
@@ -132,7 +130,7 @@ object Doc extends AutoPlugin {
     autoAPIMappings := true,
     apiURL := Some(url(s"http://api.silhouette.mohiva.com/${version.value}/")),
     apiMappings ++= {
-      implicit val cp = (fullClasspath in Compile).value
+      implicit val cp: Classpath = (fullClasspath in Compile).value
       Map(
         jarFor("com.typesafe.play", "play") -> url(s"http://www.playframework.com/documentation/${PlayVersion.current}/api/scala/"),
         scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")
@@ -168,7 +166,7 @@ object APIDoc {
 
   lazy val files = Seq(file("CNAME"))
 
-  lazy val settings =
+  lazy val settings: Seq[Setting[_]] =
     site.settings ++
     ghpages.settings ++
     Seq(
@@ -188,7 +186,7 @@ object APIDoc {
         IO.copy(betterMappings)
         updatedRepository.value
       },
-      git.remoteRepo := "git@github.com:mohiva/play-silhouette.git"
+      git.remoteRepo := "git@github.com:honeycomb-cheesecake/play-silhouette.git"
     )
 }
 
@@ -203,27 +201,27 @@ object Publish extends AutoPlugin {
 
   private val pom = {
     <scm>
-      <url>git@github.com:mohiva/play-silhouette.git</url>
-      <connection>scm:git:git@github.com:mohiva/play-silhouette.git</connection>
+      <url>git@github.com:honeycomb-cheesecake/play-silhouette.git</url>
+      <connection>scm:git:git@github.com:honeycomb-cheesecake/play-silhouette.git</connection>
     </scm>
       <developers>
         <developer>
-          <id>akkie</id>
-          <name>Christian Kaps</name>
-          <url>http://mohiva.com</url>
+          <id>honeycomb-cheesecake</id>
+          <name>Simon Ramzi</name>
+          <url>https://github.com/honeycomb-cheesecake</url>
         </developer>
         <developer>
-          <id>fernandoacorreia</id>
-          <name>Fernando Correia</name>
-          <url>http://www.fernandocorreia.info/</url>
+          <id>ndeverge</id>
+          <name>Nicolas Deverge</name>
+          <url>https://github.com/ndeverge</url>
         </developer>
       </developers>
   }
 
-  override def projectSettings = sonatypeSettings ++ Seq(
+  override def projectSettings: Seq[Def.Setting[_]] = sonatypeSettings ++ Seq(
     description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes",
-    homepage := Some(url("http://www.silhouette.rocks/")),
-    licenses := Seq("Apache License" -> url("https://github.com/mohiva/play-silhouette/blob/master/LICENSE")),
+    homepage := Some(url("https://silhouette.readme.io/")),
+    licenses := Seq("Apache License" -> url("https://github.com/honeycomb-cheesecake/play-silhouette/blob/master/LICENSE")),
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
