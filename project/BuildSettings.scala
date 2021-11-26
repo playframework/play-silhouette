@@ -204,18 +204,18 @@ object Publish extends AutoPlugin {
       <url>git@github.com:honeycomb-cheesecake/play-silhouette.git</url>
       <connection>scm:git:git@github.com:honeycomb-cheesecake/play-silhouette.git</connection>
     </scm>
-      <developers>
-        <developer>
-          <id>honeycomb-cheesecake</id>
-          <name>Simon Ramzi</name>
-          <url>https://github.com/honeycomb-cheesecake</url>
-        </developer>
-        <developer>
-          <id>ndeverge</id>
-          <name>Nicolas Deverge</name>
-          <url>https://github.com/ndeverge</url>
-        </developer>
-      </developers>
+    <developers>
+      <developer>
+        <id>honeycomb-cheesecake</id>
+        <name>Simon Ramzi</name>
+        <url>https://github.com/honeycomb-cheesecake</url>
+      </developer>
+      <developer>
+        <id>ndeverge</id>
+        <name>Nicolas Deverge</name>
+        <url>https://github.com/ndeverge</url>
+      </developer>
+    </developers>
   }
 
   override def projectSettings: Seq[Def.Setting[_]] = sonatypeSettings ++ Seq(

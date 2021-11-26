@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - Updated atlassian jwt dependencies to address CVE from [@dspasojevic](https://github.com/dspasojevic).
 
+### Fix
+- Explicit [Sonatype repository publishing links](https://s01.oss.sonatype.org/) for each silhouette module build.sbt file to adhere to changes outlined [by Sonatype](https://central.sonatype.org/publish/publish-guide/#releasing-to-central) from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
 ### Added
 - Migration from TravisCI to GitHub script from [@ndeverge](https://github.com/ndeverge).
 - Cross compilation on CI from [@ndeverge](https://github.com/ndeverge).
@@ -16,9 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Argon2 password hasher from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Argon2 password hasher tests from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - v7.0.0 release notes to CHANGELOG.md from [@ndeverge](https://github.com/ndeverge).
+- PUBLISHING.md outline to explain how libraries are release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 - CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- CONTRIBUTING.md to have up to date information and links from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Maven publishing information from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Version to 7.0.1-SNAPSHOT from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
