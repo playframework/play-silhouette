@@ -8,3 +8,5 @@ libraryDependencies ++= Seq(
 )
 
 enablePlugins(Doc)
+
+publishTo := Some("Sonatype Nexus Repository Manager" at "https://s01.oss.sonatype.org/content/repositories/snapshots/")

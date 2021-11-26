@@ -1,6 +1,6 @@
 package com.honeycombcheesecake.play.silhouette.password
 
-import com.mohiva.play.silhouette.api.util.{PasswordHasher, PasswordInfo}
+import com.mohiva.play.silhouette.api.util.{ PasswordHasher, PasswordInfo }
 import de.mkammerer.argon2.Argon2
 import de.mkammerer.argon2.Argon2Factory
 import de.mkammerer.argon2.Argon2Factory.Argon2Types
@@ -17,11 +17,11 @@ import scala.util.matching.Regex
  * @param parallelism parallelism degree which defines the number of threads.
  */
 class Argon2PasswordHasher(
-                            argon2Type: String = "argon2id",
-                            memory: Int = 65536,
-                            iterations: Int = 5,
-                            parallelism: Int = 1
-                          ) extends PasswordHasher {
+  argon2Type: String = "argon2id",
+  memory: Int = 65536,
+  iterations: Int = 5,
+  parallelism: Int = 1
+) extends PasswordHasher {
 
   import Argon2PasswordHasher._
 
@@ -30,7 +30,7 @@ class Argon2PasswordHasher(
   private lazy val argon2: Argon2 = argon2Type match {
     case "argon2d" => createArgon2(ARGON2d)
     case "argon2i" => createArgon2(ARGON2i)
-    case _ => createArgon2(ARGON2id)
+    case _         => createArgon2(ARGON2id)
   }
 
   /**
