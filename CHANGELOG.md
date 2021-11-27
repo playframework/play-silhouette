@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Argon2 password hasher tests from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - v7.0.0 release notes to CHANGELOG.md from [@ndeverge](https://github.com/ndeverge).
 - PUBLISHING.md outline to explain how libraries are release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Installation information to README.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 - CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
