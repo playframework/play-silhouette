@@ -21,4 +21,12 @@ unmanagedSourceDirectories in Compile += {
   baseDirectory.value / (if(Util.priorTo213(scalaVersion.value)) "app-2.13-" else "app-2.13+")
 }
 
-publishTo := Some("Sonatype Nexus Repository Manager" at "https://s01.oss.sonatype.org/content/repositories/snapshots/")
+val repo: String = "https://s01.oss.sonatype.org"
+publishTo := {
+  if(version.value.endsWith("-SNAPSHOT")) {
+    Some("Sonatype Nexus Repository Manager" at s"$repo/content/repositories/snapshots/")
+  }
+  else {
+    Some("Sonatype Nexus Repository Manager" at s"$repo/service/local/staging/deploy/maven2/")
+  }
+}
