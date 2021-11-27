@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.1] - 2021-11-27
+
 ### Security
 - Updated Atlassian JWT dependencies to address [CVE-2019-17195](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17195) from [@dspasojevic](https://github.com/dspasojevic).
 - Upgrading to Play 2.8.8 to address [CVE-2020-12480](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-12480) from [@ndeverge](https://github.com/ndeverge).
