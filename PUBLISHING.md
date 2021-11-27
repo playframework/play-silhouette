@@ -19,7 +19,10 @@ You will need the following tooling to release play-silhouette, where more detai
 
 ## Publish Stages
 
-- Update the project version number in `project/BuildSettings.scala` to the next version in accordance with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ensuring that there is no trailing `-SNAPSHOT` to permit a production release.
-- Run tests with `sbt + test` to run a cross-platform (Scala 2.12.x and 2.13.x) test suite and ensure that all pass.
-- Release library artefacts with `sbt + publishSigned` to release play-silhouette to the world!
-- Update the project version number in `project/BuildSettings.scala` to the next version with `-SNAPSHOT` appended for the next development releases.
+1. Update the project version number in `project/BuildSettings.scala` to the next version in accordance with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ensuring that there is no trailing `-SNAPSHOT` to permit a production release.
+2. Tag the release with the updated project version using Git.
+3. Push changes and tags to central repository.
+4. Run tests with `sbt + test` to run a cross-platform (Scala 2.12.x and 2.13.x) test suite and ensure that all pass.
+5. Release library artefacts with `sbt + publishSigned` to release play-silhouette to the world!
+6. Update the project version number in `project/BuildSettings.scala` to the next version with `-SNAPSHOT` appended for the next development releases.
+7. Push changes to central repository.
