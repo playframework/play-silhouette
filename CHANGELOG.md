@@ -6,16 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Commit steps to PUBLISHING.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Snapshot management to PUBLISHING.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Changed
+
+- Spacing to v7.0.1 sections from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
 ## [7.0.1] - 2021-11-27
 
 ### Security
+
 - Updated Atlassian JWT dependencies to address [CVE-2019-17195](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17195) from [@dspasojevic](https://github.com/dspasojevic).
 - Upgrading to Play 2.8.8 to address [CVE-2020-12480](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-12480) from [@ndeverge](https://github.com/ndeverge).
 
 ### Fix
+
 - Explicit [Sonatype repository publishing links](https://s01.oss.sonatype.org/) for each silhouette module build.sbt file to adhere to changes outlined [by Sonatype](https://central.sonatype.org/publish/publish-guide/#releasing-to-central) from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Added
+
 - Migration from TravisCI to GitHub script from [@ndeverge](https://github.com/ndeverge).
 - Cross compilation on CI from [@ndeverge](https://github.com/ndeverge).
 - Notes on running startup scripts with sbt v1.5.x from [@ndeverge](https://github.com/ndeverge).
@@ -26,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Installation information to README.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
+
 - CHANGELOG.md to [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format for new releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - CONTRIBUTING.md to have up to date information and links from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Maven publishing information from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).

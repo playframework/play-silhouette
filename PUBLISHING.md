@@ -19,10 +19,15 @@ You will need the following tooling to release play-silhouette, where more detai
 
 ## Publish Stages
 
-1. Update the project version number in `project/BuildSettings.scala` to the next version in accordance with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ensuring that there is no trailing `-SNAPSHOT` to permit a production release.
-2. Tag the release with the updated project version using Git.
-3. Push changes and tags to central repository.
-4. Run tests with `sbt + test` to run a cross-platform (Scala 2.12.x and 2.13.x) test suite and ensure that all pass.
-5. Release library artefacts with `sbt + publishSigned` to release play-silhouette to the world!
-6. Update the project version number in `project/BuildSettings.scala` to the next version with `-SNAPSHOT` appended for the next development releases.
-7. Push changes to central repository.
+1. (With `-SNAPSHOT`) Run tests with `sbt + test` to run a cross-platform (Scala 2.12.x and 2.13.x) test suite and ensure that all pass.
+2. Publish library artefacts with `sbt + publishSigned` as the final update to the current snapshot.
+3. Update the project version number in `project/BuildSettings.scala` to the next version in accordance with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ensuring that there is no trailing `-SNAPSHOT` to permit a production release.
+4. Add version and publishing information to CHANGELOG.md.
+5. Commit changes.
+6. Tag the release with the updated project version using Git.
+7. Push changes and tags to central repository.
+8. Release library artefacts with `sbt + publishSigned` to release play-silhouette to the world!
+9. Update the project version number in `project/BuildSettings.scala` to the next version with `-SNAPSHOT` appended for the next development releases.
+10. Commit changes.
+11. Publish library artefacts with `sbt + publishSigned` as the first update to the current snapshot.
+12. Push changes to central repository.
