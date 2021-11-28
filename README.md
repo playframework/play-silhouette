@@ -1,7 +1,11 @@
 # Silhouette
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.honeycomb-cheesecake/play-silhouette_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.honeycomb-cheesecake/play-silhouette_2.13)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg?style=for-the-badge)](https://gitter.im/mohiva/play-silhouette)
+
+| Build | Version
+| ----- | ----- |
+| Scala 2.13.x | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.honeycomb-cheesecake/play-silhouette_2.13/badge.svg?style=for-the-badge)](https://maven-badges.herokuapp.com/maven-central/io.github.honeycomb-cheesecake/play-silhouette_2.13) |
+| Scala 2.12.x | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.honeycomb-cheesecake/play-silhouette_2.12/badge.svg?style=for-the-badge)](https://maven-badges.herokuapp.com/maven-central/io.github.honeycomb-cheesecake/play-silhouette_2.12) |
 
 **Silhouette** is an authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes.
 
