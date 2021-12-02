@@ -1,8 +1,7 @@
 # Silhouette
 
-[![Gitter](https://img.shields.io/badge/Gitter-Join%20Chat-blue?style=for-the-badge&color=informational)](https://gitter.im/mohiva/play-silhouette)
-
 [![Scala CI](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml/badge.svg)](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml)
+[![Gitter](https://img.shields.io/badge/Gitter-Join%20Chat-blue?color=informational)](https://gitter.im/mohiva/play-silhouette)
 
 | Module | Scala 2.13.x | Scala 2.12.x |
 | ------ | ------------ | ------------ |
