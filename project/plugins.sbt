@@ -1,7 +1,7 @@
 // Comment to get more information during initialization
 logLevel := Level.Warn
 
-addSbtPlugin(dependency = "com.typesafe.play" % "sbt-plugin" % "2.8.8")
+addSbtPlugin(dependency = "com.typesafe.play" % "sbt-plugin" % "2.8.11")
 
 addSbtPlugin(dependency = "org.scoverage" % "sbt-scoverage" % "1.6.1")
 
