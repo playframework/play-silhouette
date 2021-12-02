@@ -2,6 +2,8 @@
 
 [![Gitter](https://img.shields.io/badge/Gitter-Join%20Chat-blue?style=for-the-badge&color=informational)](https://gitter.im/mohiva/play-silhouette)
 
+[![Scala CI](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml/badge.svg)](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml)
+
 | Module | Scala 2.13.x | Scala 2.12.x |
 | ------ | ------------ | ------------ |
 | **play-silhouette** | [![Maven Central](https://img.shields.io/maven-central/v/io.github.honeycomb-cheesecake/play-silhouette_2.13.svg?label=Maven%20Central%202.13&style=for-the-badge&logo=scala&color=brightgreen&logoColor=green)](https://search.maven.org/search?q=g:%22io.github.honeycomb-cheesecake%22%20AND%20a:%22play-silhouette_2.13%22) | [![Maven Central](https://img.shields.io/maven-central/v/io.github.honeycomb-cheesecake/play-silhouette_2.12.svg?label=Maven%20Central%202.12&style=for-the-badge&logo=scala&color=brightgreen&logoColor=green)](https://search.maven.org/search?q=g:%22io.github.honeycomb-cheesecake%22%20AND%20a:%22play-silhouette_2.12%22) |
