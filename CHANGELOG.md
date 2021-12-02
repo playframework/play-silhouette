@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.2] - 2021-12-02
+
 ### Added
 
 - Commit steps to PUBLISHING.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
@@ -14,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Spacing to v7.0.1 sections from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Play framework version to 2.8.11 (note that Play 2.8.10 introduces a binary incompatibility by updating scala-java8-compat as pointed out by [@zmerr](https://github.com/zmerr)) from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ## [7.0.1] - 2021-11-27
 
