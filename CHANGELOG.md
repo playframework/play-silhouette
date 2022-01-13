@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Spacing to v7.0.1 sections from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Upgrading Play framework version to 2.8.13 from [@ndeverge](https://github.com/ndeverge).
 
 
