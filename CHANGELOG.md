@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated Atlassian JWT dependencies to address [CVE-2021-27568](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27568) from [@lenin122](https://github.com/lenin122)
 - Upgrading Play framework version to 2.8.13 from [@ndeverge](https://github.com/ndeverge).
 
 
