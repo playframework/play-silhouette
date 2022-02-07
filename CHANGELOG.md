@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.3] - 2022-02-07
+
 ### Changed
 
 - Updated Atlassian JWT dependencies to address [CVE-2021-27568](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-27568) from [@lenin122](https://github.com/lenin122)
