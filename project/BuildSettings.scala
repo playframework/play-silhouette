@@ -57,7 +57,7 @@ object BasicSettings extends AutoPlugin {
 
   override def projectSettings = Seq(
     organization := "io.github.honeycomb-cheesecake",
-    version := "7.0.4-SNAPSHOT",
+    version := "7.0.4",
     resolvers ++= Dependencies.resolvers,
     scalaVersion := "2.13.1",
     crossScalaVersions := Seq("2.13.1", "2.12.10"),
