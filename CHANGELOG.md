@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
 - Removing the `provided` for JWT API from [@ndeverge](https://github.com/ndeverge).
 
 ## [7.0.3] - 2022-02-07
