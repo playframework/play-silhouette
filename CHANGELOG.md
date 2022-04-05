@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.5] - 2022-04-05
+
 ### Changed
 
 -  Upgrading Play framework version to 2.8.14 from [@ndeverge](https://github.com/ndeverge).
