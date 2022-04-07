@@ -80,7 +80,7 @@ trait BaseLinkedInProvider extends OAuth2Provider {
   override protected def buildProfile(authInfo: OAuth2Info): Future[Profile] = {
     Future.sequence(Seq(getPartialProfile(urls("api"), authInfo), getPartialProfile(urls("email"), authInfo), getPartialProfile(urls("photo"), authInfo))).flatMap {
       partial =>
-        val array: JsValue = JsObject(Seq("api" -> partial(0), "email" -> partial(1), "photo" -> partial(2)))
+        val array: JsValue = JsObject(Seq("api" -> partial.head, "email" -> partial(1), "photo" -> partial(2)))
         profileParser.parse(array, authInfo)
     }
   }
@@ -103,8 +103,8 @@ class LinkedInProfileParser extends SocialProfileParser[JsValue, CommonSocialPro
     val firstName = (json \ "api" \ "localizedFirstName").asOpt[String]
     val lastName = (json \ "api" \ "localizedLastName").asOpt[String]
     val fullName = Some(firstName.getOrElse("") + " " + lastName.getOrElse("")).map(_.trim)
-    val avatarURL = (json \\ "identifier")(0).asOpt[String]
-    val email = (json \\ "emailAddress")(0).asOpt[String]
+    val avatarURL = (json \\ "identifier").headOption.map(_.as[String])
+    val email = (json \\ "emailAddress").headOption.map(_.as[String])
 
     CommonSocialProfile(
       loginInfo = LoginInfo(ID, userID),
