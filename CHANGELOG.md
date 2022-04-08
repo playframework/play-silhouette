@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-  Upgrading Play framework version to 2.8.15 from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
 ## [7.0.5] - 2022-04-05
 
 ### Changed
