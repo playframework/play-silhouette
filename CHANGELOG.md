@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.7] - 2022-04-11
+
+### Fixed
+
+- Fixed LinkedInProfileParser throwing error when user has no image set from [@hpolkowski](https://github.com/hpolkowski).
+
 ## [7.0.6] - 2022-04-08
 
 ### Changed
