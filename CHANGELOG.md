@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Code warnings from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Added
+
+- Sbt release plugin to facilitate project releases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Scapegoat stage to release process and github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Dependency check stage to release process and github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Dependency updates stage where build will fail with updates to release process and github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Coveralls integration back into github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Changed
+
+- Updated dependencies to latest from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Project build definitions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Package definition from com.mohiva.silhouette.play to io.github.honeycombcheesecake.play from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Split github actions into build and test phases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Removed
+
+- Support for cross-building with scala 2.12 series as is now in maintenance mode and getting ready for scala 3 integration from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
 ## [7.0.7] - 2022-04-11
 
 ### Fixed
