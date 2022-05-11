@@ -41,6 +41,9 @@ jobs:
 
   test:
 
+    needs:
+      - build
+
     strategy:
       fail-fast: false
       matrix:
@@ -68,6 +71,9 @@ jobs:
 
   deploy-snapshot-artifact:
 
+    needs:
+      - test
+
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +95,9 @@ jobs:
         run: sbt +publishSigned
 
   deploy-production-artifact:
+
+    needs:
+      - test
 
     strategy:
       fail-fast: false
