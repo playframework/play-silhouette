@@ -22,13 +22,12 @@ package io.github.honeycombcheesecake.play.silhouette.impl.services
 import java.net.URLEncoder._
 import java.security.MessageDigest
 import javax.inject.Inject
-
 import io.github.honeycombcheesecake.play.silhouette.api.Logger
 import io.github.honeycombcheesecake.play.silhouette.api.services.AvatarService
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ ExecutionContextProvider, HTTPLayer }
 import io.github.honeycombcheesecake.play.silhouette.impl.services.GravatarService._
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 /**
  * Retrieves avatar URLs from the Gravatar service.
@@ -42,7 +41,7 @@ class GravatarService @Inject() (httpLayer: HTTPLayer, settings: GravatarService
   /**
    * The execution context to handle the asynchronous operations.
    */
-  override implicit val executionContext = httpLayer.executionContext
+  override implicit val executionContext: ExecutionContext = httpLayer.executionContext
 
   /**
    * Retrieves the URL for the given email address.
@@ -77,7 +76,7 @@ class GravatarService @Inject() (httpLayer: HTTPLayer, settings: GravatarService
    */
   private def hash(email: String): Option[String] = {
     val s = email.trim.toLowerCase
-    if (s.length > 0) {
+    if (s.nonEmpty) {
       Some(MessageDigest.getInstance(MD5).digest(s.getBytes).map("%02x".format(_)).mkString)
     } else {
       None

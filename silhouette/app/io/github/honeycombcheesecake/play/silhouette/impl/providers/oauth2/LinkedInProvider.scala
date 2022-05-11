@@ -70,6 +70,7 @@ trait BaseLinkedInProvider extends OAuth2Provider {
       }
     }
   }
+
   /**
    * Builds the social profile.
    *
@@ -77,11 +78,17 @@ trait BaseLinkedInProvider extends OAuth2Provider {
    * @return On success the build social profile, otherwise a failure.
    */
   override protected def buildProfile(authInfo: OAuth2Info): Future[Profile] = {
-    Future.sequence(Seq(getPartialProfile(urls("api"), authInfo), getPartialProfile(urls("email"), authInfo), getPartialProfile(urls("photo"), authInfo))).flatMap {
-      partial =>
-        val array: JsValue = JsObject(Seq("api" -> partial.head, "email" -> partial(1), "photo" -> partial(2)))
-        profileParser.parse(array, authInfo)
-    }
+    Future
+      .sequence(Seq(getPartialProfile(urls("api"), authInfo), getPartialProfile(urls("email"), authInfo), getPartialProfile(urls("photo"), authInfo)))
+      .flatMap { partial =>
+        (partial.headOption, partial.lift(1), partial.lift(2)) match {
+          case (Some(api), Some(email), Some(photo)) =>
+            val array: JsValue = JsObject(Seq("api" -> api, "email" -> email, "photo" -> photo))
+            profileParser.parse(array, authInfo)
+          case _ =>
+            Future.failed(throw new ProfileRetrievalException("Error retrieving LinkedIn profile."))
+        }
+      }
   }
 }
 

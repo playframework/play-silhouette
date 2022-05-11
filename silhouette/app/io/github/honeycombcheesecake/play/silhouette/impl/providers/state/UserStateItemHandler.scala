@@ -73,10 +73,10 @@ class UserStateItemHandler[S <: SocialStateItem](item: S)(
    * This method should check if the [[serialize]] method of this handler can serialize the given
    * unserialized state item.
    *
-   * @param item The item to check for.
+   * @param socialStateItem The item to check for.
    * @return `Some[Item]` casted state item if the handler can handle the given state item, `None` otherwise.
    */
-  override def canHandle(item: SocialStateItem): Option[Item] = item match {
+  override def canHandle(socialStateItem: SocialStateItem): Option[Item] = socialStateItem match {
     case i: Item => Some(i)
     case _ => None
   }
@@ -87,35 +87,35 @@ class UserStateItemHandler[S <: SocialStateItem](item: S)(
    * This method should check if the [[unserialize]] method of this handler can unserialize the given
    * serialized state item.
    *
-   * @param item    The item to check for.
+   * @param itemStructure    The item to check for.
    * @param request The request instance to get additional data to validate against.
    * @tparam B The type of the request body.
    * @return True if the handler can handle the given state item, false otherwise.
    */
-  override def canHandle[B](item: ItemStructure)(implicit request: ExtractableRequest[B]): Boolean = item.id == ID
+  override def canHandle[B](itemStructure: ItemStructure)(implicit request: ExtractableRequest[B]): Boolean = itemStructure.id == ID
 
   /**
    * Returns a serialized value of the state item.
    *
-   * @param item The state item to serialize.
+   * @param itemStructure The state item to serialize.
    * @return The serialized state item.
    */
-  override def serialize(item: Item): ItemStructure = ItemStructure(ID, Json.toJson(item))
+  override def serialize(itemStructure: Item): ItemStructure = ItemStructure(ID, Json.toJson(itemStructure))
 
   /**
    * Unserializes the state item.
    *
-   * @param item    The state item to unserialize.
+   * @param itemStructure    The state item to unserialize.
    * @param request The request instance to get additional data to validate against.
    * @param ec      The execution context to handle the asynchronous operations.
    * @tparam B The type of the request body.
    * @return The unserialized state item.
    */
-  override def unserialize[B](item: ItemStructure)(
+  override def unserialize[B](itemStructure: ItemStructure)(
     implicit
     request: ExtractableRequest[B],
     ec: ExecutionContext): Future[Item] = {
-    Future.fromTry(Try(item.data.as[S]))
+    Future.fromTry(Try(itemStructure.data.as[S]))
   }
 }
 
