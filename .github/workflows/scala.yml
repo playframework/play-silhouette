@@ -100,7 +100,7 @@ jobs:
           NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          SBT_CREDENTIALS: ${{ secrets.SBT_CREDENTIALS }}
+          SBT_CREDENTIALS: ${{ HOME }}/.sbt/sonatype_credentials
 
   deploy-production-artifact:
 
