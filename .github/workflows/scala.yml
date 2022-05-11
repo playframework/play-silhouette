@@ -91,8 +91,16 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
+      - name: Add Sonatype Nexus Credentials
+        run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
       - name: Release Play Silhouette
         run: sbt +publishSigned
+        env:
+          NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
+          NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          SBT_CREDENTIALS: ${{ secrets.SBT_CREDENTIALS }}
 
   deploy-production-artifact:
 
@@ -116,5 +124,13 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
+      - name: Add Sonatype Nexus Credentials
+        run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
       - name: Release Play Silhouette
         run: sbt +sonatypeBundleRelease
+        env:
+          NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
+          NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          SBT_CREDENTIALS: ${{ HOME }}/.sbt/sonatype_credentials
