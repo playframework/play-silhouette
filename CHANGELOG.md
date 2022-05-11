@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependency check stage to release process and github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Dependency updates stage where build will fail with updates to release process and github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Coveralls integration back into github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Publishing step to github action for CI from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 

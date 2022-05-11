@@ -2,9 +2,13 @@ name: Scala CI
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+    tags:
+      - v*.*.*
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
 jobs:
   build:
@@ -19,8 +23,9 @@ jobs:
       JDK_VERSION: ${{ matrix.jdk }}
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set Up JDK 11
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
@@ -46,8 +51,9 @@ jobs:
       JDK_VERSION:  ${{ matrix.jdk }}
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set Up JDK 11
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
@@ -59,3 +65,47 @@ jobs:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: Scala ${{ matrix.scala }}
+
+  deploy-snapshot-artifact:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        jdk: [ 11 ]
+
+    runs-on: ubuntu-latest
+    env:
+      JDK_VERSION: ${{ matrix.jdk }}
+    if: startsWith(github.ref, 'ref/tags/v')
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.jdk }}
+      - name: Release Play Silhouette
+        run: sbt +publishSigned
+
+  deploy-production-artifact:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        jdk: [ 11 ]
+
+    runs-on: ubuntu-latest
+    env:
+      JDK_VERSION: ${{ matrix.jdk }}
+    if: startsWith(github.ref, 'ref/tags/v')
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Set Up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.jdk }}
+      - name: Release Play Silhouette
+        run: sbt +sonatypeBundleRelease
