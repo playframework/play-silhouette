@@ -82,7 +82,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JDK_VERSION: ${{ matrix.jdk }}
-    if: startsWith(github.ref, 'ref/tags/v')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
