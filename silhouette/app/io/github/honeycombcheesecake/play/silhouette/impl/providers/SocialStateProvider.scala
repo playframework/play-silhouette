@@ -235,6 +235,7 @@ class DefaultSocialStateHandler(val handlers: Set[SocialStateItemHandler], signe
    * @param ec The execution context to handle the asynchronous operations.
    * @return The social state for all handlers.
    */
+  @SuppressWarnings(Array("UnnecessaryConversion"))
   override def state(implicit ec: ExecutionContext): Future[SocialState] = {
     Future.sequence(handlers.map(_.item)).map(items => SocialState(items.toSet))
   }

@@ -89,7 +89,8 @@ lazy val root = (project in file("."))
     publish / skip := true,
     publishLocal := {},
     publishM2 := {},
-    publishArtifact := false
+    publishArtifact := false,
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
 
 lazy val silhouette = (project in file("silhouette"))
@@ -112,7 +113,8 @@ lazy val silhouette = (project in file("silhouette"))
         Library.scalaGuice % Test,
         Library.akkaTestkit % Test
       ),
-    resolvers ++= Dependencies.resolvers
+    resolvers ++= Dependencies.resolvers,
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .enablePlugins(PlayScala)
 
@@ -130,7 +132,8 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
       Library.Specs2.matcherExtra % Test,
       Library.Specs2.mock % Test,
       Library.scalaGuice % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette % "compile->compile;test->test")
 
@@ -143,7 +146,8 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
       Library.updates ++ Seq(
       Library.googleAuth,
       Library.Play.specs2 % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette % "compile->compile;test->test")
 
@@ -157,7 +161,8 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
       Library.updates ++ Seq(
       Library.Specs2.core % Test,
       Library.Specs2.matcherExtra % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
 
@@ -170,7 +175,8 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
       Library.updates ++ Seq(
       Library.argon2,
       Library.Specs2.core % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
 
@@ -183,7 +189,8 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
       Library.updates ++ Seq(
       Library.jbcrypt,
       Library.Specs2.core % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
 
@@ -200,7 +207,8 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
       Library.Specs2.matcherExtra % Test,
       Library.Specs2.mock % Test,
       Library.scalaGuice % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
 
@@ -218,7 +226,8 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
       Library.Specs2.mock % Test,
       Library.scalaGuice % Test,
       Library.akkaTestkit % Test
-    )
+    ),
+    scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .enablePlugins(PlayScala)
   .dependsOn(silhouette)

@@ -39,12 +39,12 @@ trait BaseYahooProvider extends OpenIDProvider {
    *
    * @return The provider ID.
    */
-  override val id = ID
+  override val id: String = ID
 
   /**
    * Defines the URLs that are needed to retrieve the profile data.
    */
-  override protected val urls = Map[String, String]()
+  override protected val urls: Map[String, String] = Map.empty
 
   /**
    * Builds the social profile.
@@ -68,7 +68,7 @@ class YahooProfileParser extends SocialProfileParser[Unit, CommonSocialProfile, 
    * @param authInfo The auth info received from the provider.
    * @return The social profile from given result.
    */
-  override def parse(data: Unit, authInfo: OpenIDInfo) = Future.successful {
+  override def parse(data: Unit, authInfo: OpenIDInfo): Future[CommonSocialProfile] = Future.successful {
     CommonSocialProfile(
       loginInfo = LoginInfo(ID, authInfo.id),
       fullName = authInfo.attributes.get("fullname"),
@@ -106,7 +106,7 @@ class YahooProvider(
    * @param f A function which gets the settings passed and returns different settings.
    * @return An instance of the provider initialized with new settings.
    */
-  override def withSettings(f: (Settings) => Settings) = {
+  override def withSettings(f: Settings => Settings): YahooProvider = {
     new YahooProvider(httpLayer, service.withSettings(f), f(settings))
   }
 }

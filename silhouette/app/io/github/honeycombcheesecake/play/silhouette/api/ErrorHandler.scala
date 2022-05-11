@@ -199,6 +199,7 @@ trait DefaultErrorHandler
 
   protected def toJsonError(message: String): JsObject = Json.obj(fields = "success" -> false, "message" -> message)
 
+  @SuppressWarnings(Array("NullParameter", "VariableShadowing"))
   protected def toXmlError(message: String): Elem = <response><success>false</success><message>{ message }</message></response>
 
   protected def toPlainTextError(message: String): String = message

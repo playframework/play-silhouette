@@ -155,6 +155,7 @@ object CookieAuthenticator extends Logger {
  * @param clock                The clock implementation.
  * @param executionContext     The execution context to handle the asynchronous operations.
  */
+@SuppressWarnings(Array("UnusedMethodParameter"))
 class CookieAuthenticatorService(
   settings: CookieAuthenticatorSettings,
   repository: Option[AuthenticatorRepository[CookieAuthenticator]],
