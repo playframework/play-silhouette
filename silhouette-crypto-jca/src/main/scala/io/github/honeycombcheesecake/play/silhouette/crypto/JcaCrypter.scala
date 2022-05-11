@@ -43,7 +43,7 @@ class JcaCrypter(settings: JcaCrypterSettings) extends Crypter {
    * @return The encrypted string.
    */
   override def encrypt(value: String): String = {
-    val keySpec = secretKeyWithSha256(settings.key, "AES")
+    val keySpec = secretKeyWithSha256(settings.key)
     val cipher = Cipher.getInstance("AES/CTR/NoPadding")
     cipher.init(Cipher.ENCRYPT_MODE, keySpec)
     val encryptedValue = cipher.doFinal(value.getBytes("UTF-8"))
@@ -64,14 +64,14 @@ class JcaCrypter(settings: JcaCrypterSettings) extends Crypter {
     value.split("-", 2) match {
       case Array(version, data) if version == "1" => decryptVersion1(data, settings.key)
       case Array(version, _) => throw new CryptoException(UnknownVersion.format(version))
-      case v => throw new CryptoException(UnexpectedFormat)
+      case _ => throw new CryptoException(UnexpectedFormat)
     }
   }
 
   /**
    * Generates the SecretKeySpec, given the private key and the algorithm.
    */
-  private def secretKeyWithSha256(privateKey: String, algorithm: String) = {
+  private def secretKeyWithSha256(privateKey: String, algorithm: String = "AES") = {
     val messageDigest = MessageDigest.getInstance("SHA-256")
     messageDigest.update(privateKey.getBytes("UTF-8"))
     // max allowed length in bits / (8 bits to a byte)
@@ -85,7 +85,7 @@ class JcaCrypter(settings: JcaCrypterSettings) extends Crypter {
    */
   private def decryptVersion1(value: String, privateKey: String): String = {
     val data = Base64.getDecoder.decode(value)
-    val keySpec = secretKeyWithSha256(privateKey, "AES")
+    val keySpec = secretKeyWithSha256(privateKey)
     val cipher = Cipher.getInstance("AES/CTR/NoPadding")
     val blockSize = cipher.getBlockSize
     val iv = data.slice(0, blockSize)
@@ -100,10 +100,10 @@ class JcaCrypter(settings: JcaCrypterSettings) extends Crypter {
  */
 object JcaCrypter {
 
-  val UnderlyingIVBug = "[Silhouette][JcaCrypter] Cannot get IV! There must be a bug in your underlying JCE " +
+  val UnderlyingIVBug: String = "[Silhouette][JcaCrypter] Cannot get IV! There must be a bug in your underlying JCE " +
     "implementation; The AES/CTR/NoPadding transformation should always provide an IV"
-  val UnexpectedFormat = "[Silhouette][JcaCrypter] Unexpected format; expected [VERSION]-[ENCRYPTED STRING]"
-  val UnknownVersion = "[Silhouette][JcaCrypter] Unknown version: %s"
+  val UnexpectedFormat: String = "[Silhouette][JcaCrypter] Unexpected format; expected [VERSION]-[ENCRYPTED STRING]"
+  val UnknownVersion: String = "[Silhouette][JcaCrypter] Unknown version: %s"
 }
 
 /**
@@ -111,4 +111,4 @@ object JcaCrypter {
  *
  * @param key The encryption key.
  */
-case class JcaCrypterSettings(key: String)
+final case class JcaCrypterSettings(key: String)

@@ -29,7 +29,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.{ Authenticato
 import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticatorService._
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc._
 import play.api.mvc.request.{ Cell, RequestAttrKey }
 
@@ -88,7 +88,7 @@ object CookieAuthenticator extends Logger {
   /**
    * Converts the CookieAuthenticator to Json and vice versa.
    */
-  implicit val jsonFormat = Json.format[CookieAuthenticator]
+  implicit val jsonFormat: OFormat[CookieAuthenticator] = Json.format[CookieAuthenticator]
 
   /**
    * Serializes the authenticator.
@@ -101,7 +101,7 @@ object CookieAuthenticator extends Logger {
   def serialize(
     authenticator: CookieAuthenticator,
     signer: Signer,
-    authenticatorEncoder: AuthenticatorEncoder) = {
+    authenticatorEncoder: AuthenticatorEncoder): String = {
 
     signer.sign(authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
   }
@@ -121,7 +121,7 @@ object CookieAuthenticator extends Logger {
 
     signer.extract(str) match {
       case Success(data) => buildAuthenticator(authenticatorEncoder.decode(data))
-      case Failure(e) => Failure(new AuthenticatorException(InvalidCookieSignature.format(ID), e))
+      case Failure(e) => Failure(new AuthenticatorException(InvalidCookieSignature.format(ID), Some(e)))
     }
   }
 
@@ -137,7 +137,7 @@ object CookieAuthenticator extends Logger {
         case Left(error) => Failure(new AuthenticatorException(InvalidJsonFormat.format(ID, error)))
         case Right(authenticator) => Success(authenticator)
       }
-      case Failure(error) => Failure(new AuthenticatorException(InvalidJson.format(ID, str), error))
+      case Failure(error) => Failure(new AuthenticatorException(InvalidJson.format(ID, str), Some(error)))
     }
   }
 }
@@ -188,7 +188,7 @@ class CookieAuthenticatorService(
         cookieMaxAge = settings.cookieMaxAge,
         fingerprint = if (settings.useFingerprinting) Some(fingerprintGenerator.generate) else None)
     }.recover {
-      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), e)
+      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), Some(e))
     }
   }
 
@@ -222,7 +222,7 @@ class CookieAuthenticatorService(
         case None => Future.successful(None)
       }
     }.recover {
-      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), e)
+      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), Some(e))
     }
   }
 
@@ -253,7 +253,7 @@ class CookieAuthenticatorService(
         httpOnly = settings.httpOnlyCookie,
         sameSite = settings.sameSite)
     }.recover {
-      case e => throw new AuthenticatorInitializationException(InitError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorInitializationException(InitError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -328,7 +328,7 @@ class CookieAuthenticatorService(
         httpOnly = settings.httpOnlyCookie,
         sameSite = settings.sameSite))))
     }).recover {
-      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -350,7 +350,7 @@ class CookieAuthenticatorService(
     }).flatMap { _ =>
       create(authenticator.loginInfo).flatMap(init)
     }.recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -370,7 +370,7 @@ class CookieAuthenticatorService(
     request: RequestHeader): Future[AuthenticatorResult] = {
 
     renew(authenticator).flatMap(v => embed(v, result)).recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -397,7 +397,7 @@ class CookieAuthenticatorService(
         domain = settings.cookieDomain,
         secure = settings.secureCookie)))
     }.recover {
-      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), Some(e))
     }
   }
 }
@@ -445,4 +445,4 @@ case class CookieAuthenticatorSettings(
   useFingerprinting: Boolean = true,
   cookieMaxAge: Option[FiniteDuration] = None,
   authenticatorIdleTimeout: Option[FiniteDuration] = None,
-  authenticatorExpiry: FiniteDuration = 12 hours)
+  authenticatorExpiry: FiniteDuration = 12.hours)

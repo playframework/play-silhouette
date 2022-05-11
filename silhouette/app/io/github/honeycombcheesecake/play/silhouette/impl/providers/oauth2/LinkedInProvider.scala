@@ -45,12 +45,12 @@ trait BaseLinkedInProvider extends OAuth2Provider {
   /**
    * The provider ID.
    */
-  override val id = ID
+  override val id: String = ID
 
   /**
    * Defines the URLs that are needed to retrieve the profile data.
    */
-  override protected val urls = Map(
+  override protected val urls: Map[String, String] = Map(
     "api" -> settings.apiURL.getOrElse(API),
     "email" -> settings.customProperties.getOrElse("emailURL", EMAIL),
     "photo" -> settings.customProperties.getOrElse("photoURL", PHOTO))
@@ -97,7 +97,7 @@ class LinkedInProfileParser extends SocialProfileParser[JsValue, CommonSocialPro
    * @param authInfo The auth info to query the provider again for additional data.
    * @return The social profile from given result.
    */
-  override def parse(json: JsValue, authInfo: OAuth2Info) = Future.successful {
+  override def parse(json: JsValue, authInfo: OAuth2Info): Future[CommonSocialProfile] = Future.successful {
     val userID = (json \ "api" \ "id").as[String]
     val firstName = (json \ "api" \ "localizedFirstName").asOpt[String]
     val lastName = (json \ "api" \ "localizedLastName").asOpt[String]
@@ -144,7 +144,7 @@ class LinkedInProvider(
    * @param f A function which gets the settings passed and returns different settings.
    * @return An instance of the provider initialized with new settings.
    */
-  override def withSettings(f: (Settings) => Settings) = new LinkedInProvider(httpLayer, stateHandler, f(settings))
+  override def withSettings(f: Settings => Settings) = new LinkedInProvider(httpLayer, stateHandler, f(settings))
 }
 
 /**

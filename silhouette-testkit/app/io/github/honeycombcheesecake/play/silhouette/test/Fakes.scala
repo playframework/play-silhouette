@@ -16,7 +16,6 @@
 package io.github.honeycombcheesecake.play.silhouette.test
 
 import java.util.UUID
-
 import io.github.honeycombcheesecake.play.silhouette.api._
 import io.github.honeycombcheesecake.play.silhouette.api.crypto.{ Base64AuthenticatorEncoder, Signer }
 import io.github.honeycombcheesecake.play.silhouette.api.repositories.AuthenticatorRepository
@@ -30,6 +29,7 @@ import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.runtime.universe._
+import scala.util
 import scala.util.Success
 
 /**
@@ -37,7 +37,7 @@ import scala.util.Success
  *
  * @param loginInfo The linked login info for an identity.
  */
-case class FakeIdentity(loginInfo: LoginInfo) extends Identity
+final case class FakeIdentity(loginInfo: LoginInfo) extends Identity
 
 /**
  * A fake identity service implementation which can handle a predefined list of identities.
@@ -117,7 +117,7 @@ class FakeAuthenticatorRepository[T <: StorableAuthenticator] extends Authentica
 /**
  * A fake session authenticator service.
  */
-case class FakeSessionAuthenticatorService() extends SessionAuthenticatorService(
+case object FakeSessionAuthenticatorService extends SessionAuthenticatorService(
   SessionAuthenticatorSettings(),
   new DefaultFingerprintGenerator(),
   new Base64AuthenticatorEncoder,
@@ -127,12 +127,12 @@ case class FakeSessionAuthenticatorService() extends SessionAuthenticatorService
 /**
  * A fake cookie authenticator service.
  */
-case class FakeCookieAuthenticatorService() extends CookieAuthenticatorService(
+case object FakeCookieAuthenticatorService extends CookieAuthenticatorService(
   CookieAuthenticatorSettings(),
   None,
   new Signer {
-    def sign(data: String) = data
-    def extract(message: String) = Success(message)
+    def sign(data: String): String = data
+    def extract(message: String): util.Try[String] = Success(message)
   },
   new DefaultCookieHeaderEncoding(),
   new Base64AuthenticatorEncoder,
@@ -143,7 +143,7 @@ case class FakeCookieAuthenticatorService() extends CookieAuthenticatorService(
 /**
  * A fake bearer token authenticator service.
  */
-case class FakeBearerTokenAuthenticatorService() extends BearerTokenAuthenticatorService(
+case object FakeBearerTokenAuthenticatorService extends BearerTokenAuthenticatorService(
   BearerTokenAuthenticatorSettings(),
   new FakeAuthenticatorRepository[BearerTokenAuthenticator],
   new SecureRandomIDGenerator(),
@@ -152,7 +152,7 @@ case class FakeBearerTokenAuthenticatorService() extends BearerTokenAuthenticato
 /**
  * A fake JWT authenticator service.
  */
-case class FakeJWTAuthenticatorService() extends JWTAuthenticatorService(
+case object FakeJWTAuthenticatorService extends JWTAuthenticatorService(
   JWTAuthenticatorSettings(sharedSecret = UUID.randomUUID().toString),
   None,
   new Base64AuthenticatorEncoder,
@@ -162,7 +162,7 @@ case class FakeJWTAuthenticatorService() extends JWTAuthenticatorService(
 /**
  * A fake Dummy authenticator service.
  */
-case class FakeDummyAuthenticatorService() extends DummyAuthenticatorService
+case object FakeDummyAuthenticatorService extends DummyAuthenticatorService
 
 /**
  * A fake authenticator service factory.
@@ -177,11 +177,11 @@ object FakeAuthenticatorService {
    */
   def apply[T <: Authenticator: TypeTag](): AuthenticatorService[T] = {
     (typeOf[T] match {
-      case t if t <:< typeOf[SessionAuthenticator] => FakeSessionAuthenticatorService()
-      case t if t <:< typeOf[CookieAuthenticator] => FakeCookieAuthenticatorService()
-      case t if t <:< typeOf[BearerTokenAuthenticator] => FakeBearerTokenAuthenticatorService()
-      case t if t <:< typeOf[JWTAuthenticator] => FakeJWTAuthenticatorService()
-      case t if t <:< typeOf[DummyAuthenticator] => FakeDummyAuthenticatorService()
+      case t if t <:< typeOf[SessionAuthenticator] => FakeSessionAuthenticatorService
+      case t if t <:< typeOf[CookieAuthenticator] => FakeCookieAuthenticatorService
+      case t if t <:< typeOf[BearerTokenAuthenticator] => FakeBearerTokenAuthenticatorService
+      case t if t <:< typeOf[JWTAuthenticator] => FakeJWTAuthenticatorService
+      case t if t <:< typeOf[DummyAuthenticator] => FakeDummyAuthenticatorService
       case _ => throw new Exception("Invalid type specified.")
     }).asInstanceOf[AuthenticatorService[T]]
   }
@@ -194,8 +194,7 @@ object FakeAuthenticatorService {
  * @param id The ID of the authenticator.
  * @param isValid True if the authenticator is valid, false otherwise.
  */
-case class FakeAuthenticator(loginInfo: LoginInfo, id: String = UUID.randomUUID().toString, isValid: Boolean = true)
-  extends StorableAuthenticator
+final case class FakeAuthenticator(loginInfo: LoginInfo, id: String = UUID.randomUUID().toString, isValid: Boolean = true) extends StorableAuthenticator
 
 /**
  * A fake authenticator factory.
@@ -226,9 +225,9 @@ object FakeAuthenticator {
  * @param tt The type tag of the authenticator type.
  * @tparam E The type of the environment.
  */
-case class FakeEnvironment[E <: Env](
+final case class FakeEnvironment[E <: Env](
   identities: Seq[(LoginInfo, E#I)],
-  requestProviders: Seq[RequestProvider] = Seq(),
+  requestProviders: Seq[RequestProvider] = Seq.empty,
   eventBus: EventBus = EventBus())(
   implicit
   val executionContext: ExecutionContext,

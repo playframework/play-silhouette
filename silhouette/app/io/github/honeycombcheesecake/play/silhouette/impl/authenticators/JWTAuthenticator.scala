@@ -151,7 +151,7 @@ object JWTAuthenticator {
           customClaims = if (customClaims.keys.isEmpty) None else Some(customClaims))
       }
     }.recover {
-      case e => throw new AuthenticatorException(InvalidJWTToken.format(ID, str), e)
+      case e => throw new AuthenticatorException(InvalidJWTToken.format(ID, str), Some(e))
     }
   }
 
@@ -210,7 +210,7 @@ object JWTAuthenticator {
       case Failure(error) =>
         // This error can occur if an authenticator was serialized with the setting encryptSubject=true
         // and deserialized with the setting encryptSubject=false
-        Failure(new AuthenticatorException(JsonParseError.format(ID, str), error))
+        Failure(new AuthenticatorException(JsonParseError.format(ID, str), Some(error)))
     }
   }
 }
@@ -254,7 +254,7 @@ class JWTAuthenticatorService(
         expirationDateTime = now + settings.authenticatorExpiry,
         idleTimeout = settings.authenticatorIdleTimeout)
     }.recover {
-      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), e)
+      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), Some(e))
     }
   }
 
@@ -277,7 +277,7 @@ class JWTAuthenticatorService(
       }
       case None => Future.successful(None)
     }.recover {
-      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), e)
+      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), Some(e))
     }
   }
 
@@ -293,7 +293,7 @@ class JWTAuthenticatorService(
     repository.fold(Future.successful(authenticator))(_.add(authenticator)).map { a =>
       serialize(a, authenticatorEncoder, settings)
     }.recover {
-      case e => throw new AuthenticatorInitializationException(InitError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorInitializationException(InitError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -352,7 +352,7 @@ class JWTAuthenticatorService(
     repository.fold(Future.successful(authenticator))(_.update(authenticator)).map { a =>
       AuthenticatorResult(result.withHeaders(settings.fieldName -> serialize(a, authenticatorEncoder, settings)))
     }.recover {
-      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -371,7 +371,7 @@ class JWTAuthenticatorService(
     repository.fold(Future.successful(()))(_.remove(authenticator.id)).flatMap { _ =>
       create(authenticator.loginInfo).map(_.copy(customClaims = authenticator.customClaims)).flatMap(init)
     }.recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -391,7 +391,7 @@ class JWTAuthenticatorService(
     request: RequestHeader): Future[AuthenticatorResult] = {
 
     renew(authenticator).flatMap(v => embed(v, result)).recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -409,7 +409,7 @@ class JWTAuthenticatorService(
     repository.fold(Future.successful(()))(_.remove(authenticator.id)).map { _ =>
       AuthenticatorResult(result)
     }.recover {
-      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), Some(e))
     }
   }
 }
@@ -435,7 +435,7 @@ object JWTAuthenticatorService {
   /**
    * The reserved claims used by the authenticator.
    */
-  val ReservedClaims = Seq("jti", "iss", "sub", "iat", "exp")
+  val ReservedClaims: Seq[String] = Seq("jti", "iss", "sub", "iat", "exp")
 }
 
 /**

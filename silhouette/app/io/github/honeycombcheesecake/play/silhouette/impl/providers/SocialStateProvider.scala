@@ -275,12 +275,12 @@ class DefaultSocialStateHandler(val handlers: Set[SocialStateItemHandler], signe
     request: ExtractableRequest[B],
     ec: ExecutionContext): Future[SocialState] = {
     if (handlers.isEmpty) {
-      Future.successful(SocialState(Set()))
+      Future.successful(SocialState(Set.empty))
     } else {
-      Future.fromTry(signer.extract(state)).flatMap { state =>
-        state.split('.').toList match {
+      Future.fromTry(signer.extract(state)).flatMap { st =>
+        st.split('.').toList match {
           case Nil | List("") =>
-            Future.successful(SocialState(Set()))
+            Future.successful(SocialState(Set.empty))
           case items =>
             Future.sequence {
               items.map {
@@ -307,9 +307,9 @@ class DefaultSocialStateHandler(val handlers: Set[SocialStateItemHandler], signe
    * @see [[PublishableSocialStateItemHandler]]
    */
   override def publish[B](result: Result, state: SocialState)(implicit request: ExtractableRequest[B]): Result = {
-    handlers.collect { case h: PublishableSocialStateItemHandler => h }.foldLeft(result) { (r, handler) =>
-      state.items.foldLeft(r) { (r, item) =>
-        handler.canHandle(item).map(item => handler.publish(item, r)).getOrElse(r)
+    handlers.collect { case h: PublishableSocialStateItemHandler => h }.foldLeft(result) { (req, handler) =>
+      state.items.foldLeft(req) { (r, item) =>
+        handler.canHandle(item).map(it => handler.publish(it, r)).getOrElse(r)
       }
     }
   }

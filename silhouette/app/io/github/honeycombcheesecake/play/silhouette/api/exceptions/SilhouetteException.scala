@@ -18,5 +18,5 @@ package io.github.honeycombcheesecake.play.silhouette.api.exceptions
 /**
  * A marker exception for the Silhouette project.
  */
-class SilhouetteException(msg: String, cause: Throwable = null)
-  extends Exception(msg, cause)
+class SilhouetteException(msg: String, cause: Option[Throwable] = None)
+  extends Exception(msg, cause.orNull)

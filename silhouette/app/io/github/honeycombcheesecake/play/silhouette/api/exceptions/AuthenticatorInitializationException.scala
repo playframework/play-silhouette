@@ -21,5 +21,5 @@ package io.github.honeycombcheesecake.play.silhouette.api.exceptions
  * @param msg The exception message.
  * @param cause The exception cause.
  */
-class AuthenticatorInitializationException(msg: String, cause: Throwable = null)
+class AuthenticatorInitializationException(msg: String, cause: Option[Throwable] = None)
   extends AuthenticatorException(msg, cause)

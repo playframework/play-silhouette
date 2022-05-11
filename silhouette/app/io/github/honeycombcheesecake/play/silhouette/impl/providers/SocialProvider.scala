@@ -16,7 +16,6 @@
 package io.github.honeycombcheesecake.play.silhouette.impl.providers
 
 import java.net.URI
-
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ ExecutionContextProvider, ExtractableRequest, HTTPLayer }
 import io.github.honeycombcheesecake.play.silhouette.api.{ AuthInfo, LoginInfo, Provider }
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.ProfileRetrievalException
@@ -24,7 +23,7 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialProfil
 import org.apache.commons.lang3.reflect.TypeUtils
 import play.api.mvc.{ RequestHeader, Result }
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.ClassTag
 
 /**
@@ -55,7 +54,7 @@ trait SocialProvider extends Provider with SocialProfileBuilder with ExecutionCo
   /**
    * The execution context to handle the asynchronous operations.
    */
-  override implicit val executionContext = httpLayer.executionContext
+  override implicit val executionContext: ExecutionContext = httpLayer.executionContext
 
   /**
    * Gets the provider settings.
@@ -94,12 +93,12 @@ trait SocialProvider extends Provider with SocialProfileBuilder with ExecutionCo
    * @param authInfo The auth info for which the profile information should be retrieved.
    * @return The profile information for the given auth info.
    */
-  def retrieveProfile(authInfo: A): Future[Profile] = {
-    buildProfile(authInfo).recoverWith {
-      case e if !e.isInstanceOf[ProfileRetrievalException] =>
-        Future.failed(new ProfileRetrievalException(UnspecifiedProfileError.format(id), e))
-    }
-  }
+  def retrieveProfile(authInfo: A): Future[Profile] =
+    buildProfile(authInfo)
+      .recoverWith {
+        case e: ProfileRetrievalException => Future.failed(e)
+        case e => Future.failed(new ProfileRetrievalException(UnspecifiedProfileError.format(id), Some(e)))
+      }
 
   /**
    * Resolves the url to be absolute relative to the request.

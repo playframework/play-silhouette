@@ -31,7 +31,7 @@ trait SilhouetteEvent
  * @param request The request header for the associated request.
  * @tparam I The type of the identity.
  */
-case class SignUpEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
+final case class SignUpEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
 
 /**
  * An event which will be published after an identity logged in.
@@ -40,7 +40,7 @@ case class SignUpEvent[I <: Identity](identity: I, request: RequestHeader) exten
  * @param request The request header for the associated request.
  * @tparam I The type of the identity.
  */
-case class LoginEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
+final case class LoginEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
 
 /**
  * An event which will be published after an identity logged out.
@@ -49,7 +49,7 @@ case class LoginEvent[I <: Identity](identity: I, request: RequestHeader) extend
  * @param request The request header for the associated request.
  * @tparam I The type of the identity.
  */
-case class LogoutEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
+final case class LogoutEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
 
 /**
  * An event which will be published if a request passes authentication.
@@ -58,14 +58,14 @@ case class LogoutEvent[I <: Identity](identity: I, request: RequestHeader) exten
  * @param request The request header for the associated request.
  * @tparam I The type of the identity.
  */
-case class AuthenticatedEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
+final case class AuthenticatedEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
 
 /**
  * An event which will be published if a request did not pass authentication.
  *
  * @param request The request header for the associated request.
  */
-case class NotAuthenticatedEvent(request: RequestHeader) extends SilhouetteEvent
+final case class NotAuthenticatedEvent(request: RequestHeader) extends SilhouetteEvent
 
 /**
  * An event which will be published if a request did not pass authorization.
@@ -74,7 +74,7 @@ case class NotAuthenticatedEvent(request: RequestHeader) extends SilhouetteEvent
  * @param request The request header for the associated request.
  * @tparam I The type of the identity.
  */
-case class NotAuthorizedEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
+final case class NotAuthorizedEvent[I <: Identity](identity: I, request: RequestHeader) extends SilhouetteEvent
 
 /**
  * An event bus implementation which uses a class based lookup classification.

@@ -93,7 +93,7 @@ class DefaultUserAwareRequest[E <: Env, B](
  * @param environment The environment instance to handle the request.
  * @tparam E The type of the environment.
  */
-case class UserAwareRequestHandlerBuilder[E <: Env](environment: Environment[E])
+final case class UserAwareRequestHandlerBuilder[E <: Env](environment: Environment[E])
   extends RequestHandlerBuilder[E, ({ type R[B] = UserAwareRequest[E, B] })#R] {
 
   /**
@@ -105,7 +105,7 @@ case class UserAwareRequestHandlerBuilder[E <: Env](environment: Environment[E])
    * @tparam T The type of the data included in the handler result.
    * @return A handler result.
    */
-  override def invokeBlock[B, T](block: UserAwareRequest[E, B] => Future[HandlerResult[T]])(implicit request: Request[B]) = {
+  override def invokeBlock[B, T](block: UserAwareRequest[E, B] => Future[HandlerResult[T]])(implicit request: Request[B]): Future[HandlerResult[T]] = {
     handleAuthentication.flatMap {
       // A valid authenticator was found and the identity may be exists
       case (Some(authenticator), identity) if authenticator.extract.isValid =>
@@ -152,7 +152,7 @@ class DefaultUserAwareRequestHandler extends UserAwareRequestHandler {
    * @tparam E The type of the environment.
    * @return A user-aware request handler builder.
    */
-  override def apply[E <: Env](environment: Environment[E]) = UserAwareRequestHandlerBuilder[E](environment)
+  override def apply[E <: Env](environment: Environment[E]): UserAwareRequestHandlerBuilder[E] = UserAwareRequestHandlerBuilder[E](environment)
 }
 
 /**
@@ -163,7 +163,7 @@ class DefaultUserAwareRequestHandler extends UserAwareRequestHandler {
  * @tparam E The type of the environment.
  * @tparam P The type of the request body.
  */
-case class UserAwareActionBuilder[E <: Env, P](
+final case class UserAwareActionBuilder[E <: Env, P](
   requestHandler: UserAwareRequestHandlerBuilder[E],
   parser: BodyParser[P]) extends ActionBuilder[({ type R[B] = UserAwareRequest[E, B] })#R, P] {
 
@@ -176,9 +176,9 @@ case class UserAwareActionBuilder[E <: Env, P](
    * @return The result to send to the client.
    */
   override def invokeBlock[B](request: Request[B], block: UserAwareRequest[E, B] => Future[Result]) = {
-    implicit val ec = executionContext
-    requestHandler(request) { r =>
-      block(r).map(r => HandlerResult(r))
+    implicit val ec: ExecutionContext = executionContext
+    requestHandler(request) { req =>
+      block(req).map(r => HandlerResult(r))
     }.map(_.result)
   }
 
@@ -232,7 +232,7 @@ class DefaultUserAwareAction @Inject() (
    * @tparam E The type of the environment.
    * @return A user-aware action builder.
    */
-  override def apply[E <: Env](environment: Environment[E]) =
+  override def apply[E <: Env](environment: Environment[E]): UserAwareActionBuilder[E, AnyContent] =
     UserAwareActionBuilder[E, AnyContent](requestHandler[E](environment), bodyParser)
 }
 

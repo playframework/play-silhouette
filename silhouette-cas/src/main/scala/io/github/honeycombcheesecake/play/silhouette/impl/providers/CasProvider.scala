@@ -15,22 +15,26 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.impl.providers
 
-import java.net.URL
+import io.github.honeycombcheesecake
+import io.github.honeycombcheesecake.play.silhouette
 
+import java.net.URL
 import io.github.honeycombcheesecake.play.silhouette.api.exceptions.ConfigurationException
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ ExtractableRequest, HTTPLayer }
 import io.github.honeycombcheesecake.play.silhouette.api.{ AuthInfo, Logger, LoginInfo }
+import io.github.honeycombcheesecake.play.silhouette.impl
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.ProfileRetrievalException
+import io.github.honeycombcheesecake.play.silhouette.impl.providers
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.CasProvider._
 import org.jasig.cas.client.Protocol
 import org.jasig.cas.client.authentication.AttributePrincipal
 import org.jasig.cas.client.validation.{ AbstractUrlBasedTicketValidator, _ }
 import play.api.mvc.{ Result, Results }
+import io.github.honeycombcheesecake.play
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
-
 import scala.jdk.CollectionConverters._
 
 /**
@@ -38,7 +42,7 @@ import scala.jdk.CollectionConverters._
  *
  * @param ticket The ticket.
  */
-case class CasInfo(ticket: String) extends AuthInfo
+final case class CasInfo(ticket: String) extends AuthInfo
 
 /**
  * Base CAS provider.
@@ -66,7 +70,7 @@ trait BaseCasProvider extends SocialProvider with CasProviderConstants with Logg
   /**
    * The provider ID.
    */
-  override val id = ID
+  override val id: String = ID
 
   /**
    * The CAS client instance.
@@ -127,7 +131,7 @@ class CasProfileParser
    * @param authInfo  The auth info to query the provider again for additional data.
    * @return The CAS profile from given result.
    */
-  def parse(principal: AttributePrincipal, authInfo: CasInfo) = Future.successful {
+  def parse(principal: AttributePrincipal, authInfo: CasInfo): Future[CommonSocialProfile] = Future.successful {
     val attr = principal.getAttributes
 
     logger.debug("AttributePrincipal, attributes:")
@@ -171,7 +175,7 @@ class CasProvider(
    * @param f A function which gets the settings passed and returns different settings.
    * @return An instance of the provider initialized with new settings.
    */
-  override def withSettings(f: (Settings) => Settings) = {
+  override def withSettings(f: Settings => Settings): CasProvider = {
     new CasProvider(httpLayer, f(settings), client.withSettings(f))
   }
 }
@@ -209,7 +213,7 @@ trait CasProviderConstants {
  * @param samlTimeTolerance Adjust to accommodate clock drift between client/server, increasing tolerance has security consequences.
  * @param protocol The protocol supported by the CAS server @see [[CasProtocol]].
  */
-case class CasSettings(
+final case class CasSettings(
   casURL: String,
   redirectURL: String,
   encoding: String = "UTF-8",
@@ -267,19 +271,19 @@ class CasClient(settings: CasSettings) extends Logger {
   /**
    * The CAS protocol.
    */
-  lazy val protocol = CasProtocol(settings.protocol)
+  lazy val protocol: CasProtocol = CasProtocol(settings.protocol)
 
   /**
    * The CAS validator.
    */
-  lazy val validator = protocol.ticketValidatorFactory(settings)
+  lazy val validator: TicketValidator = protocol.ticketValidatorFactory(settings)
 
   /**
    * The redirect URL.
    *
    * Based on org.jasig.cas.client.util.CommonUtils, which causes a compilation error when pulled in.
    */
-  lazy val redirectURL = {
+  lazy val redirectURL: String = {
     val svcParamName = protocol.protocol.getServiceParameterName
     val cbURL = java.net.URLEncoder.encode(settings.redirectURL, settings.encoding)
     s"${settings.casURL}${if (settings.casURL.contains("?")) "&" else "?"}$svcParamName=$cbURL"
@@ -302,7 +306,7 @@ class CasClient(settings: CasSettings) extends Logger {
    * @param f A function which gets the settings passed and returns different settings.
    * @return An instance of the client initialized with new settings.
    */
-  def withSettings(f: (CasSettings) => CasSettings): CasClient = new CasClient(f(settings))
+  def withSettings(f: CasSettings => CasSettings): CasClient = new CasClient(f(settings))
 }
 
 /**
@@ -319,7 +323,7 @@ object CasClient {
 /**
  * The CAS protocol.
  */
-case class CasProtocol(protocol: Protocol, ticketValidatorFactory: CasSettings => TicketValidator)
+final case class CasProtocol(protocol: Protocol, ticketValidatorFactory: CasSettings => TicketValidator)
 
 /**
  * CasProtocol companion object.
@@ -334,15 +338,15 @@ case class CasProtocol(protocol: Protocol, ticketValidatorFactory: CasSettings =
  */
 object CasProtocol extends Enumeration {
 
-  val CAS10 = Value("CAS10")
-  val CAS20 = Value("CAS20")
-  val CAS30 = Value("CAS30")
-  val SAML = Value("SAML")
+  val CAS10: providers.CasProtocol.Value = Value("CAS10")
+  val CAS20: impl.providers.CasProtocol.Value = Value("CAS20")
+  val CAS30: silhouette.impl.providers.CasProtocol.Value = Value("CAS30")
+  val SAML: play.silhouette.impl.providers.CasProtocol.Value = Value("SAML")
 
   /**
    * The default cas protocol.
    */
-  val Default = CAS30
+  val Default: honeycombcheesecake.play.silhouette.impl.providers.CasProtocol.Value = CAS30
 
   /**
    * Creates a protocol based on the protocol.
@@ -359,7 +363,7 @@ object CasProtocol extends Enumeration {
       result.setTolerance(settings.samlTimeTolerance.toMillis)
       result
     })
-    case _ => throw new CasException("Unsupported value specified.")
+    case _ => new CasProtocol(Protocol.CAS3, casValidatorWithEncoding(new Cas30ServiceTicketValidator(_)))
   }
 
   /**

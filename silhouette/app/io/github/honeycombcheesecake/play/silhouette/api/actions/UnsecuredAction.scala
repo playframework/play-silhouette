@@ -32,7 +32,7 @@ import scala.concurrent.{ ExecutionContext, Future }
  * @param errorHandler The instance of the unsecured error handler.
  * @tparam E The type of the environment.
  */
-case class UnsecuredRequestHandlerBuilder[E <: Env](
+final case class UnsecuredRequestHandlerBuilder[E <: Env](
   environment: Environment[E],
   errorHandler: UnsecuredErrorHandler)
   extends RequestHandlerBuilder[E, Request] {
@@ -40,10 +40,10 @@ case class UnsecuredRequestHandlerBuilder[E <: Env](
   /**
    * Creates an unsecured action handler builder with a new error handler in place.
    *
-   * @param errorHandler An error handler instance.
+   * @param unsecuredErrorHandler An error handler instance.
    * @return An unsecured action handler builder with a new error handler in place.
    */
-  def apply(errorHandler: UnsecuredErrorHandler) = UnsecuredRequestHandlerBuilder[E](environment, errorHandler)
+  def apply(unsecuredErrorHandler: UnsecuredErrorHandler): UnsecuredRequestHandlerBuilder[E] = UnsecuredRequestHandlerBuilder[E](environment, unsecuredErrorHandler)
 
   /**
    * Invokes the block.
@@ -54,7 +54,7 @@ case class UnsecuredRequestHandlerBuilder[E <: Env](
    * @tparam T The type of the data included in the handler result.
    * @return A handler result.
    */
-  override def invokeBlock[B, T](block: Request[B] => Future[HandlerResult[T]])(implicit request: Request[B]) = {
+  override def invokeBlock[B, T](block: Request[B] => Future[HandlerResult[T]])(implicit request: Request[B]): Future[HandlerResult[T]] = {
     handleAuthentication.flatMap {
       // A user is authenticated. The request will be forbidden
       case (Some(authenticator), Some(identity)) =>
@@ -113,7 +113,7 @@ class DefaultUnsecuredRequestHandler @Inject() (val errorHandler: UnsecuredError
    * @tparam E The type of the environment.
    * @return A unsecured request handler builder.
    */
-  override def apply[E <: Env](environment: Environment[E]) =
+  override def apply[E <: Env](environment: Environment[E]): UnsecuredRequestHandlerBuilder[E] =
     UnsecuredRequestHandlerBuilder[E](environment, errorHandler)
 }
 
@@ -125,7 +125,7 @@ class DefaultUnsecuredRequestHandler @Inject() (val errorHandler: UnsecuredError
  * @tparam E The type of the environment.
  * @tparam P The type of the request body.
  */
-case class UnsecuredActionBuilder[E <: Env, P](
+final case class UnsecuredActionBuilder[E <: Env, P](
   requestHandler: UnsecuredRequestHandlerBuilder[E],
   parser: BodyParser[P]) extends ActionBuilder[Request, P] {
 
@@ -135,7 +135,7 @@ case class UnsecuredActionBuilder[E <: Env, P](
    * @param errorHandler An error handler instance.
    * @return A unsecured action builder.
    */
-  def apply(errorHandler: UnsecuredErrorHandler) = UnsecuredActionBuilder[E, P](requestHandler(errorHandler), parser)
+  def apply(errorHandler: UnsecuredErrorHandler): UnsecuredActionBuilder[E, P] = UnsecuredActionBuilder[E, P](requestHandler(errorHandler), parser)
 
   /**
    * Invokes the block.
@@ -146,8 +146,8 @@ case class UnsecuredActionBuilder[E <: Env, P](
    * @return A handler result.
    */
   override def invokeBlock[B](request: Request[B], block: Request[B] => Future[Result]) = {
-    implicit val ec = executionContext
-    implicit val req = request
+    implicit val ec: ExecutionContext = executionContext
+    implicit val req: Request[B] = request
     val b = (r: Request[B]) => block(r).map(r => HandlerResult(r))
 
     requestHandler(request)(b).map(_.result).recoverWith(requestHandler.errorHandler.exceptionHandler)
@@ -203,7 +203,7 @@ class DefaultUnsecuredAction @Inject() (
    * @tparam E The type of the environment.
    * @return An unsecured action builder.
    */
-  override def apply[E <: Env](environment: Environment[E]) =
+  override def apply[E <: Env](environment: Environment[E]): UnsecuredActionBuilder[E, AnyContent] =
     UnsecuredActionBuilder[E, AnyContent](requestHandler[E](environment), bodyParser)
 }
 

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Code warnings from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Tranche of scapegoat results from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Added
 

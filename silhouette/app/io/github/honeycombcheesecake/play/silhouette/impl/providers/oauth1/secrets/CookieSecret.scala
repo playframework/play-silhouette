@@ -16,14 +16,13 @@
 package io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets
 
 import javax.inject.Inject
-
-import io.github.honeycombcheesecake.play.silhouette.api.crypto.{ Signer, Crypter }
+import io.github.honeycombcheesecake.play.silhouette.api.crypto.{ Crypter, Signer }
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, ExtractableRequest }
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.OAuth1TokenSecretException
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecretProvider._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ OAuth1Info, OAuth1TokenSecret, OAuth1TokenSecretProvider }
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc.{ Cookie, Result }
 
 import scala.concurrent.duration._
@@ -40,7 +39,7 @@ object CookieSecret {
   /**
    * Converts the [[CookieSecret]]] to Json and vice versa.
    */
-  implicit val jsonFormat = Json.format[CookieSecret]
+  implicit val jsonFormat: OFormat[CookieSecret] = Json.format[CookieSecret]
 
   /**
    * Returns a serialized value of the secret.
@@ -50,7 +49,7 @@ object CookieSecret {
    * @param crypter The crypter implementation.
    * @return A serialized value of the secret.
    */
-  def serialize(secret: CookieSecret, signer: Signer, crypter: Crypter) = {
+  def serialize(secret: CookieSecret, signer: Signer, crypter: Crypter): String = {
     signer.sign(crypter.encrypt(Json.toJson(secret).toString()))
   }
 
@@ -65,7 +64,7 @@ object CookieSecret {
   def unserialize(str: String, signer: Signer, crypter: Crypter): Try[CookieSecret] = {
     signer.extract(str) match {
       case Success(data) => buildSecret(crypter.decrypt(data))
-      case Failure(e) => Failure(new OAuth1TokenSecretException(InvalidCookieSignature, e))
+      case Failure(e) => Failure(new OAuth1TokenSecretException(InvalidCookieSignature, Some(e)))
     }
   }
 
@@ -81,7 +80,7 @@ object CookieSecret {
         case Left(error) => Failure(new OAuth1TokenSecretException(InvalidSecretFormat.format(error)))
         case Right(authenticator) => Success(authenticator)
       }
-      case Failure(error) => Failure(new OAuth1TokenSecretException(InvalidJson.format(str), error))
+      case Failure(error) => Failure(new OAuth1TokenSecretException(InvalidJson.format(str), Some(error)))
     }
   }
 }
@@ -99,7 +98,7 @@ case class CookieSecret(value: String, expirationDate: DateTime) extends OAuth1T
    *
    * @return True if the secret is expired, false otherwise.
    */
-  override def isExpired = expirationDate.isBeforeNow
+  override def isExpired: Boolean = expirationDate.isBeforeNow
 }
 
 /**
@@ -165,7 +164,7 @@ class CookieSecretProvider @Inject() (
    * @tparam B The type of the request body.
    * @return The result to send to the client.
    */
-  override def publish[B](result: Result, secret: CookieSecret)(implicit request: ExtractableRequest[B]) = {
+  override def publish[B](result: Result, secret: CookieSecret)(implicit request: ExtractableRequest[B]): Result = {
     result.withCookies(Cookie(
       name = settings.cookieName,
       value = CookieSecret.serialize(secret, signer, crypter),
@@ -212,4 +211,4 @@ case class CookieSecretSettings(
   secureCookie: Boolean = true,
   httpOnlyCookie: Boolean = true,
   sameSite: Option[Cookie.SameSite] = Some(Cookie.SameSite.Lax),
-  expirationTime: FiniteDuration = 5 minutes)
+  expirationTime: FiniteDuration = 5.minutes)

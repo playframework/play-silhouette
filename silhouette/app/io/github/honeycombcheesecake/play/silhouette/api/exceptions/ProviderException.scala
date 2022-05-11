@@ -21,5 +21,5 @@ package io.github.honeycombcheesecake.play.silhouette.api.exceptions
  * @param msg The exception message.
  * @param cause The exception cause.
  */
-class ProviderException(msg: String, cause: Throwable = null)
+class ProviderException(msg: String, cause: Option[Throwable] = None)
   extends SilhouetteException(msg, cause)

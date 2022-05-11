@@ -25,7 +25,7 @@ import play.api.libs.json.Json
  * @param providerID The ID of the provider.
  * @param providerKey A unique key which identifies a user on this provider (userID, email, ...).
  */
-case class LoginInfo(providerID: String, providerKey: String)
+final case class LoginInfo(providerID: String, providerKey: String)
 
 /**
  * The companion object of the login info.

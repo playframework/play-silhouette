@@ -24,7 +24,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, Extractab
 import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, ExpirableAuthenticator, Logger, LoginInfo }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
 import org.joda.time.DateTime
-import play.api.libs.json.Json
+import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc._
 import play.api.mvc.request.{ Cell, RequestAttrKey }
 
@@ -71,7 +71,7 @@ object SessionAuthenticator extends Logger {
   /**
    * Converts the SessionAuthenticator to Json and vice versa.
    */
-  implicit val jsonFormat = Json.format[SessionAuthenticator]
+  implicit val jsonFormat: OFormat[SessionAuthenticator] = Json.format[SessionAuthenticator]
 
   /**
    * Serializes the authenticator.
@@ -80,7 +80,7 @@ object SessionAuthenticator extends Logger {
    * @param authenticatorEncoder The authenticator encoder.
    * @return The serialized authenticator.
    */
-  def serialize(authenticator: SessionAuthenticator, authenticatorEncoder: AuthenticatorEncoder) = {
+  def serialize(authenticator: SessionAuthenticator, authenticatorEncoder: AuthenticatorEncoder): String = {
     authenticatorEncoder.encode(Json.toJson(authenticator).toString())
   }
 
@@ -107,7 +107,7 @@ object SessionAuthenticator extends Logger {
         case Left(error) => Failure(new AuthenticatorException(InvalidJsonFormat.format(ID, error)))
         case Right(authenticator) => Success(authenticator)
       }
-      case Failure(error) => Failure(new AuthenticatorException(JsonParseError.format(ID, str), error))
+      case Failure(error) => Failure(new AuthenticatorException(JsonParseError.format(ID, str), Some(error)))
     }
   }
 }
@@ -150,7 +150,7 @@ class SessionAuthenticatorService(
         idleTimeout = settings.authenticatorIdleTimeout,
         fingerprint = if (settings.useFingerprinting) Some(fingerprintGenerator.generate) else None)
     }).recover {
-      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), e)
+      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), Some(e))
     }
   }
 
@@ -177,7 +177,7 @@ class SessionAuthenticatorService(
         }
       }
     }.recover {
-      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), e)
+      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), Some(e))
     }
   }
 
@@ -251,7 +251,7 @@ class SessionAuthenticatorService(
     Future.fromTry(Try {
       AuthenticatorResult(result.addingToSession(settings.sessionKey -> serialize(authenticator, authenticatorEncoder)))
     }.recover {
-      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), Some(e))
     })
   }
 
@@ -271,7 +271,7 @@ class SessionAuthenticatorService(
     request: RequestHeader): Future[Session] = {
 
     create(authenticator.loginInfo).flatMap(init).recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -291,7 +291,7 @@ class SessionAuthenticatorService(
     request: RequestHeader): Future[AuthenticatorResult] = {
 
     renew(authenticator).flatMap(v => embed(v, result)).recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -309,7 +309,7 @@ class SessionAuthenticatorService(
     Future.fromTry(Try {
       AuthenticatorResult(result.removingFromSession(settings.sessionKey))
     }.recover {
-      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), Some(e))
     })
   }
 }
@@ -344,4 +344,4 @@ case class SessionAuthenticatorSettings(
   sessionKey: String = "authenticator",
   useFingerprinting: Boolean = true,
   authenticatorIdleTimeout: Option[FiniteDuration] = None,
-  authenticatorExpiry: FiniteDuration = 12 hours)
+  authenticatorExpiry: FiniteDuration = 12.hours)

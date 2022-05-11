@@ -98,7 +98,7 @@ class DefaultSecuredRequest[E <: Env, B](
  * @param authorization Maybe an authorization instance.
  * @tparam E The type of the environment.
  */
-case class SecuredRequestHandlerBuilder[E <: Env](
+final case class SecuredRequestHandlerBuilder[E <: Env](
   environment: Environment[E],
   errorHandler: SecuredErrorHandler,
   authorization: Option[Authorization[E#I, E#A]])
@@ -107,20 +107,20 @@ case class SecuredRequestHandlerBuilder[E <: Env](
   /**
    * Creates a secured action handler builder with a new error handler in place.
    *
-   * @param errorHandler An error handler instance.
+   * @param securedErrorHandler An error handler instance.
    * @return A secured action handler builder with a new error handler in place.
    */
-  def apply(errorHandler: SecuredErrorHandler) =
-    SecuredRequestHandlerBuilder[E](environment, errorHandler, authorization)
+  def apply(securedErrorHandler: SecuredErrorHandler): SecuredRequestHandlerBuilder[E] =
+    SecuredRequestHandlerBuilder[E](environment, securedErrorHandler, authorization)
 
   /**
    * Creates a secured action handler builder with an authorization in place.
    *
-   * @param authorization An authorization object that checks if the user is authorized to invoke the action.
+   * @param specifiedAuthorization An authorization object that checks if the user is authorized to invoke the action.
    * @return A secured action handler builder with an authorization in place.
    */
-  def apply(authorization: Authorization[E#I, E#A]) =
-    SecuredRequestHandlerBuilder[E](environment, errorHandler, Some(authorization))
+  def apply(specifiedAuthorization: Authorization[E#I, E#A]): SecuredRequestHandlerBuilder[E] =
+    SecuredRequestHandlerBuilder[E](environment, errorHandler, Some(specifiedAuthorization))
 
   /**
    * Invokes the block.
@@ -217,7 +217,7 @@ class DefaultSecuredRequestHandler @Inject() (val errorHandler: SecuredErrorHand
    * @tparam E The type of the environment.
    * @return A secured request handler builder.
    */
-  override def apply[E <: Env](environment: Environment[E]) =
+  override def apply[E <: Env](environment: Environment[E]): SecuredRequestHandlerBuilder[E] =
     SecuredRequestHandlerBuilder[E](environment, errorHandler, None)
 }
 
@@ -229,7 +229,7 @@ class DefaultSecuredRequestHandler @Inject() (val errorHandler: SecuredErrorHand
  * @tparam E The type of the environment.
  * @tparam P The type of the request body.
  */
-case class SecuredActionBuilder[E <: Env, P](
+final case class SecuredActionBuilder[E <: Env, P](
   requestHandler: SecuredRequestHandlerBuilder[E],
   parser: BodyParser[P]) extends ActionBuilder[({ type R[B] = SecuredRequest[E, B] })#R, P] {
 
@@ -239,7 +239,7 @@ case class SecuredActionBuilder[E <: Env, P](
    * @param errorHandler An error handler instance.
    * @return A secured action builder.
    */
-  def apply(errorHandler: SecuredErrorHandler) = SecuredActionBuilder[E, P](requestHandler(errorHandler), parser)
+  def apply(errorHandler: SecuredErrorHandler): SecuredActionBuilder[E, P] = SecuredActionBuilder[E, P](requestHandler(errorHandler), parser)
 
   /**
    * Creates a secured action builder with an authorization in place.
@@ -247,7 +247,7 @@ case class SecuredActionBuilder[E <: Env, P](
    * @param authorization An authorization object that checks if the user is authorized to invoke the action.
    * @return A secured action builder.
    */
-  def apply(authorization: Authorization[E#I, E#A]) = SecuredActionBuilder[E, P](requestHandler(authorization), parser)
+  def apply(authorization: Authorization[E#I, E#A]): SecuredActionBuilder[E, P] = SecuredActionBuilder[E, P](requestHandler(authorization), parser)
 
   /**
    * Invokes the block.
@@ -258,8 +258,8 @@ case class SecuredActionBuilder[E <: Env, P](
    * @return A handler result.
    */
   override def invokeBlock[B](request: Request[B], block: SecuredRequest[E, B] => Future[Result]) = {
-    implicit val ec = executionContext
-    implicit val req = request
+    implicit val ec: ExecutionContext = executionContext
+    implicit val req: Request[B] = request
     val b = (r: SecuredRequest[E, B]) => block(r).map(r => HandlerResult(r))
 
     requestHandler(request)(b).map(_.result).recoverWith(requestHandler.errorHandler.exceptionHandler)
@@ -315,7 +315,7 @@ class DefaultSecuredAction @Inject() (
    * @tparam E The type of the environment.
    * @return A secured action builder.
    */
-  override def apply[E <: Env](environment: Environment[E]) =
+  override def apply[E <: Env](environment: Environment[E]): SecuredActionBuilder[E, AnyContent] =
     SecuredActionBuilder[E, AnyContent](requestHandler[E](environment), bodyParser)
 }
 

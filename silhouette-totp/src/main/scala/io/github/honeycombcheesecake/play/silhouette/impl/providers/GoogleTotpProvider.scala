@@ -37,7 +37,7 @@ import scala.jdk.CollectionConverters._
  * @param scratchCodes A sequence of hashed scratch (or recovery) codes, which can be
  *                     used each once and as alternative to verification codes.
  */
-case class GoogleTotpInfo(sharedKey: String, scratchCodes: Seq[PasswordInfo]) extends AuthInfo
+final case class GoogleTotpInfo(sharedKey: String, scratchCodes: Seq[PasswordInfo]) extends AuthInfo
 
 /**
  * TOTP authentication credentials data including plain recovery codes and URL to the
@@ -49,7 +49,7 @@ case class GoogleTotpInfo(sharedKey: String, scratchCodes: Seq[PasswordInfo]) ex
  *                          is provided for the user to secure save the first time.
  * @param qrUrl             The QR-code that matches this shared key for first time activation
  */
-case class GoogleTotpCredentials(totpInfo: GoogleTotpInfo, scratchCodesPlain: Seq[String], qrUrl: String)
+final case class GoogleTotpCredentials(totpInfo: GoogleTotpInfo, scratchCodesPlain: Seq[String], qrUrl: String)
 
 /**
  * Google's TOTP authentication concrete provider implementation.

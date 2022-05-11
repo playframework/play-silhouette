@@ -118,4 +118,4 @@ object JcaSigner {
  * @param pepper Constant prepended and appended to the data before signing. When using one key for multiple purposes,
  *               using a specific pepper reduces some risks arising from this.
  */
-case class JcaSignerSettings(key: String, pepper: String = "-mohiva-silhouette-signer-")
+final case class JcaSignerSettings(key: String, pepper: String = "-mohiva-silhouette-signer-")

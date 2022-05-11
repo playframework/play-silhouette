@@ -34,6 +34,11 @@ import scala.concurrent.{ ExecutionContext, Future }
 trait OAuth1Provider extends SocialProvider with OAuth1Constants with Logger {
 
   /**
+   * The OAuth1 service implementation.
+   */
+  protected val service: OAuth1Service
+
+  /**
    * Check if services uses 1.0a specification because it address the session fixation attack identified
    * in the OAuth Core 1.0 specification.
    *
@@ -59,11 +64,6 @@ trait OAuth1Provider extends SocialProvider with OAuth1Constants with Logger {
   type Settings = OAuth1Settings
 
   /**
-   * The OAuth1 service implementation.
-   */
-  protected val service: OAuth1Service
-
-  /**
    * The OAuth1 token secret provider implementation.
    */
   protected val tokenSecretProvider: OAuth1TokenSecretProvider
@@ -85,7 +85,7 @@ trait OAuth1Provider extends SocialProvider with OAuth1Constants with Logger {
           service.retrieveAccessToken(OAuth1Info(token, tokenSecret.value), verifier).map { info =>
             Right(info)
           }.recover {
-            case e => throw new UnexpectedResponseException(ErrorAccessToken.format(id), e)
+            case e => throw new UnexpectedResponseException(ErrorAccessToken.format(id), Some(e))
           }
         }
         // The oauth_verifier field is not in the request.
@@ -98,7 +98,7 @@ trait OAuth1Provider extends SocialProvider with OAuth1Constants with Logger {
             Left(tokenSecretProvider.publish(redirect, tokenSecret))
           }
         }.recover {
-          case e => throw new UnexpectedResponseException(ErrorRequestToken.format(id), e)
+          case e => throw new UnexpectedResponseException(ErrorRequestToken.format(id), Some(e))
         }
       }
     }

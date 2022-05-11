@@ -23,5 +23,5 @@ import io.github.honeycombcheesecake.play.silhouette.api.exceptions.ProviderExce
  * @param msg The exception message.
  * @param cause The exception cause.
  */
-class OAuth1TokenSecretException(msg: String, cause: Throwable = null)
+class OAuth1TokenSecretException(msg: String, cause: Option[Throwable] = None)
   extends ProviderException(msg, cause)

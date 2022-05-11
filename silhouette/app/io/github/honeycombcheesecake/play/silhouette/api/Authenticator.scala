@@ -77,7 +77,7 @@ object Authenticator {
        * @param duration The duration to add.
        * @return A date/time instance with the added duration.
        */
-      def +(duration: FiniteDuration) = {
+      def +(duration: FiniteDuration): DateTime = {
         dateTime.plusSeconds(duration.toSeconds.toInt)
       }
 
@@ -87,7 +87,7 @@ object Authenticator {
        * @param duration The duration to subtract.
        * @return A date/time instance with the subtracted duration.
        */
-      def -(duration: FiniteDuration) = {
+      def -(duration: FiniteDuration): DateTime = {
         dateTime.minusSeconds(duration.toSeconds.toInt)
       }
     }
@@ -132,7 +132,7 @@ trait ExpirableAuthenticator extends Authenticator {
    *
    * @return True if the authenticator isn't expired and isn't timed out.
    */
-  override def isValid = !isExpired && !isTimedOut
+  override def isValid: Boolean = !isExpired && !isTimedOut
 
   /**
    * Checks if the authenticator is expired. This is an absolute timeout since the creation of
@@ -140,7 +140,7 @@ trait ExpirableAuthenticator extends Authenticator {
    *
    * @return True if the authenticator is expired, false otherwise.
    */
-  def isExpired = expirationDateTime.isBeforeNow
+  def isExpired: Boolean = expirationDateTime.isBeforeNow
 
   /**
    * Checks if the time elapsed since the last time the authenticator was used, is longer than
@@ -148,5 +148,8 @@ trait ExpirableAuthenticator extends Authenticator {
    *
    * @return True if sliding window expiration is activated and the authenticator is timed out, false otherwise.
    */
-  def isTimedOut = idleTimeout.isDefined && (lastUsedDateTime + idleTimeout.get).isBeforeNow
+  def isTimedOut: Boolean = idleTimeout match {
+    case Some(idle) => (lastUsedDateTime + idle).isBeforeNow
+    case _ => false
+  }
 }

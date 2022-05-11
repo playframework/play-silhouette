@@ -28,7 +28,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.AuthInfo
  * @param password The hashed password.
  * @param salt The optional salt used when hashing.
  */
-case class PasswordInfo(
+final case class PasswordInfo(
   hasher: String,
   password: String,
   salt: Option[String] = None) extends AuthInfo
@@ -100,7 +100,7 @@ trait PasswordHasher {
  * @param current The current password hasher used by the application.
  * @param deprecated The deprecated list of password hashers.
  */
-case class PasswordHasherRegistry(current: PasswordHasher, deprecated: Seq[PasswordHasher] = Seq()) {
+final case class PasswordHasherRegistry(current: PasswordHasher, deprecated: Seq[PasswordHasher] = Seq.empty) {
 
   /**
    * Returns the complete list of supported password hashers.

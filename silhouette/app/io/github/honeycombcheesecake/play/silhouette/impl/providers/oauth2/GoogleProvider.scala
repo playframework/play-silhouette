@@ -89,21 +89,25 @@ class GoogleProfileParser extends SocialProfileParser[JsValue, CommonSocialProfi
    * @param authInfo The auth info to query the provider again for additional data.
    * @return The social profile from given result.
    */
-  override def parse(json: JsValue, authInfo: OAuth2Info) = Future.successful {
-    val userID = primaryValue(json, "names", "id").get
-    val fullName = primaryValue(json, "names", "displayName")
-    val firstName = primaryValue(json, "names", "givenName")
-    val lastName = primaryValue(json, "names", "familyName")
-    val email = primaryValue(json, "emailAddresses", "value")
-    val avatarURL = primaryValueWithDefault(json, "photos", "url", "default")
+  override def parse(json: JsValue, authInfo: OAuth2Info): Future[CommonSocialProfile] = primaryValue(json, level1 = "names", level2 = "id") match {
 
-    CommonSocialProfile(
-      loginInfo = LoginInfo(ID, userID),
-      firstName = firstName,
-      lastName = lastName,
-      fullName = fullName,
-      avatarURL = avatarURL,
-      email = email)
+    case Some(userID) => Future.successful {
+      val fullName = primaryValue(json = json, level1 = "names", level2 = "displayName")
+      val firstName = primaryValue(json, level1 = "names", level2 = "givenName")
+      val lastName = primaryValue(json, level1 = "names", level2 = "familyName")
+      val email = primaryValue(json, level1 = "emailAddresses", level2 = "value")
+      val avatarURL = primaryValueWithDefault(json, level1 = "photos", valueName = "url", defaultName = "default")
+
+      CommonSocialProfile(
+        loginInfo = LoginInfo(ID, userID),
+        firstName = firstName,
+        lastName = lastName,
+        fullName = fullName,
+        avatarURL = avatarURL,
+        email = email)
+    }
+
+    case _ => Future.failed(throw new ProfileRetrievalException("Error retrieving Google profile."))
   }
 
   /**

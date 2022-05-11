@@ -20,6 +20,7 @@
 package io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1
 
 import io.github.honeycombcheesecake.play.silhouette.api.LoginInfo
+import io.github.honeycombcheesecake.play.silhouette.api.exceptions.ProviderException
 import io.github.honeycombcheesecake.play.silhouette.api.util.HTTPLayer
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.ProfileRetrievalException
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
@@ -44,12 +45,12 @@ trait BaseXingProvider extends OAuth1Provider {
   /**
    * The provider ID.
    */
-  override val id = ID
+  override val id: String = ID
 
   /**
    * Defines the URLs that are needed to retrieve the profile data.
    */
-  override protected val urls = Map("api" -> settings.apiURL.getOrElse(API))
+  override protected val urls: Map[String, String] = Map("api" -> settings.apiURL.getOrElse(API))
 
   /**
    * Builds the social profile.
@@ -83,22 +84,27 @@ class XingProfileParser extends SocialProfileParser[JsValue, CommonSocialProfile
    * @param authInfo The auth info to query the provider again for additional data.
    * @return The social profile from given result.
    */
-  override def parse(json: JsValue, authInfo: OAuth1Info) = Future.successful {
-    val users = (json \ "users").as[Seq[JsObject]].head
-    val userID = (users \ "id").as[String]
-    val firstName = (users \ "first_name").asOpt[String]
-    val lastName = (users \ "last_name").asOpt[String]
-    val fullName = (users \ "display_name").asOpt[String]
-    val avatarURL = (users \ "photo_urls" \ "large").asOpt[String]
-    val email = (users \ "active_email").asOpt[String]
+  override def parse(json: JsValue, authInfo: OAuth1Info): Future[CommonSocialProfile] = (json \ "users").as[Seq[JsObject]].headOption match {
 
-    CommonSocialProfile(
-      loginInfo = LoginInfo(ID, userID),
-      firstName = firstName,
-      lastName = lastName,
-      fullName = fullName,
-      avatarURL = avatarURL,
-      email = email)
+    case Some(users) => Future.successful {
+
+      val userID = (users \ "id").as[String]
+      val firstName = (users \ "first_name").asOpt[String]
+      val lastName = (users \ "last_name").asOpt[String]
+      val fullName = (users \ "display_name").asOpt[String]
+      val avatarURL = (users \ "photo_urls" \ "large").asOpt[String]
+      val email = (users \ "active_email").asOpt[String]
+
+      CommonSocialProfile(
+        loginInfo = LoginInfo(ID, userID),
+        firstName = firstName,
+        lastName = lastName,
+        fullName = fullName,
+        avatarURL = avatarURL,
+        email = email)
+    }
+
+    case _ => Future.failed(new ProviderException("Xing profile parse error."))
   }
 }
 
@@ -133,7 +139,7 @@ class XingProvider(
    * @param f A function which gets the settings passed and returns different settings.
    * @return An instance of the provider initialized with new settings.
    */
-  override def withSettings(f: (Settings) => Settings) = {
+  override def withSettings(f: Settings => Settings): XingProvider = {
     new XingProvider(httpLayer, service.withSettings(f), tokenSecretProvider, f(settings))
   }
 }

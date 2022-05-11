@@ -18,5 +18,5 @@ package io.github.honeycombcheesecake.play.silhouette.api.exceptions
 /**
  * An exception for all authenticator related errors.
  */
-class AuthenticatorException(msg: String, cause: Throwable = null)
+class AuthenticatorException(msg: String, cause: Option[Throwable] = None)
   extends SilhouetteException(msg, cause)

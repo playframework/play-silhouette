@@ -29,7 +29,7 @@ import scala.concurrent.{ ExecutionContext, Future }
  *
  * @param loginInfo The linked login info for an identity.
  */
-case class DummyAuthenticator(loginInfo: LoginInfo) extends Authenticator {
+final case class DummyAuthenticator(loginInfo: LoginInfo) extends Authenticator {
 
   /**
    * The Type of the generated value an authenticator will be serialized to.

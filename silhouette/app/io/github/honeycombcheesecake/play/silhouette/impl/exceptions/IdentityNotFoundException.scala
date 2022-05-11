@@ -23,5 +23,5 @@ import io.github.honeycombcheesecake.play.silhouette.api.exceptions.ProviderExce
  * @param msg The exception message.
  * @param cause The exception cause.
  */
-class IdentityNotFoundException(msg: String, cause: Throwable = null)
+class IdentityNotFoundException(msg: String, cause: Option[Throwable] = None)
   extends ProviderException(msg, cause)

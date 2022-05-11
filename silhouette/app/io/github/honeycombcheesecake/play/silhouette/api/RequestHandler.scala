@@ -32,7 +32,7 @@ import scala.concurrent.Future
  * @param data Additional data to transport in the result.
  * @tparam T The type of the data.
  */
-case class HandlerResult[+T](result: Result, data: Option[T] = None)
+final case class HandlerResult[+T](result: Result, data: Option[T] = None)
 
 /**
  * Base implementation for building request handlers.

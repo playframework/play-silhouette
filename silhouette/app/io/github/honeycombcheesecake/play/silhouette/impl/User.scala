@@ -31,7 +31,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.{ Identity, LoginInfo }
  * @param email Maybe the email of the authenticated provider.
  * @param avatarURL Maybe the avatar URL of the authenticated provider.
  */
-case class User(
+final case class User(
   loginInfo: LoginInfo,
   firstName: Option[String],
   lastName: Option[String],

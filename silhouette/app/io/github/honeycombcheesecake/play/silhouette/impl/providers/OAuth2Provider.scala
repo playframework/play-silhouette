@@ -93,7 +93,7 @@ trait OAuth2Provider extends SocialStateProvider with OAuth2Constants with Logge
   /**
    * A list with headers to send to the API.
    */
-  protected val headers: Seq[(String, String)] = Seq()
+  protected val headers: Seq[(String, String)] = Seq.empty
 
   /**
    * The default access token response code.
@@ -193,15 +193,15 @@ trait OAuth2Provider extends SocialStateProvider with OAuth2Constants with Logge
    * Handles the authorization step of the OAuth2 flow.
    *
    * @tparam B The type of the request body.
-   * @param stateHandler The state handler to use.
+   * @param socialStateHandler The state handler to use.
    * @param request The request.
    * @return The redirect to the authorization URL of the OAuth2 provider.
    */
-  protected def handleAuthorizationFlow[B](stateHandler: SocialStateHandler)(
+  protected def handleAuthorizationFlow[B](socialStateHandler: SocialStateHandler)(
     implicit
     request: ExtractableRequest[B]): Future[Result] = {
-    stateHandler.state.map { state =>
-      val serializedState = stateHandler.serialize(state)
+    socialStateHandler.state.map { state =>
+      val serializedState = socialStateHandler.serialize(state)
       val stateParam = if (serializedState.isEmpty) List() else List(State -> serializedState)
       val redirectParam = settings.redirectURL match {
         case Some(rUri) => List((RedirectURI, resolveCallbackURL(rUri)))
@@ -216,7 +216,7 @@ trait OAuth2Provider extends SocialStateProvider with OAuth2Constants with Logge
       val url = settings.authorizationURL.getOrElse {
         throw new ConfigurationException(AuthorizationURLUndefined.format(id))
       } + encodedParams.mkString("?", "&", "")
-      val redirect = stateHandler.publish(Results.Redirect(url), state)
+      val redirect = socialStateHandler.publish(Results.Redirect(url), state)
       logger.debug("[Silhouette][%s] Use authorization URL: %s".format(id, settings.authorizationURL))
       logger.debug("[Silhouette][%s] Redirecting to: %s".format(id, url))
       redirect

@@ -54,7 +54,7 @@ trait OpenIDProvider extends SocialProvider with OpenIDConstants with Logger {
     request.extractString(Mode) match {
       // Tries to verify the user after the provider has redirected back to the application
       case Some(_) => service.verifiedID.map(info => Right(info)).recover {
-        case e => throw new UnexpectedResponseException(ErrorVerification.format(id, e.getMessage), e)
+        case e => throw new UnexpectedResponseException(ErrorVerification.format(id, e.getMessage), Some(e))
       }
       // Starts the OpenID authentication process
       case None =>
@@ -65,7 +65,7 @@ trait OpenIDProvider extends SocialProvider with OpenIDConstants with Logger {
           logger.debug("[Silhouette][%s] Redirecting to: %s".format(id, url))
           Left(redirect)
         }.recover {
-          case e => throw new UnexpectedResponseException(ErrorRedirectURL.format(id, e.getMessage), e)
+          case e => throw new UnexpectedResponseException(ErrorRedirectURL.format(id, e.getMessage), Some(e))
         }
     }
   }

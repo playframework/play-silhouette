@@ -19,13 +19,14 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.api
 
-import io.github.honeycombcheesecake.play.silhouette.api.exceptions.{ NotAuthorizedException, NotAuthenticatedException }
+import io.github.honeycombcheesecake.play.silhouette.api.exceptions.{ NotAuthenticatedException, NotAuthorizedException }
 import play.api.http.{ ContentTypes, Status }
 import play.api.i18n.{ I18nSupport, Messages }
-import play.api.libs.json.Json
+import play.api.libs.json.{ JsObject, Json }
 import play.api.mvc._
 
 import scala.concurrent._
+import scala.xml.Elem
 
 /**
  * Silhouette error handler.
@@ -47,14 +48,14 @@ sealed trait ErrorHandler {
 trait NotAuthenticatedErrorHandler extends ErrorHandler {
 
   /**
-   * Exception handler which translates an [io.github.honeycombcheesecake.play.silhouette.api.exceptions.NotAuthenticatedException]]
+   * Exception handler which translates an [[io.github.honeycombcheesecake.play.silhouette.api.exceptions.NotAuthenticatedException]]
    * into a 401 Unauthorized result.
    *
    * @param request The request header.
    * @return A partial function which maps an exception to a Play result.
    */
   def exceptionHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
-    case e: NotAuthenticatedException => onNotAuthenticated
+    case _: NotAuthenticatedException => onNotAuthenticated
   }
 
   /**
@@ -81,7 +82,7 @@ trait NotAuthorizedErrorHandler extends ErrorHandler {
    * @return A partial function which maps an exception to a Play result.
    */
   def exceptionHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
-    case e: NotAuthorizedException => onNotAuthorized
+    case _: NotAuthorizedException => onNotAuthorized
   }
 
   /**
@@ -110,7 +111,7 @@ trait DefaultNotAuthenticatedErrorHandler
    * @param request The request header.
    * @return A partial function which maps an exception to a Play result.
    */
-  override def exceptionHandler(implicit request: RequestHeader) = {
+  override def exceptionHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
     case e: NotAuthenticatedException =>
       logger.info(e.getMessage, e)
       super.exceptionHandler(request)(e)
@@ -122,7 +123,7 @@ trait DefaultNotAuthenticatedErrorHandler
    * @param request The request header.
    * @return The result to send to the client.
    */
-  override def onNotAuthenticated(implicit request: RequestHeader) = {
+  override def onNotAuthenticated(implicit request: RequestHeader): Future[Result] = {
     logger.debug("[Silhouette] Unauthenticated user trying to access '%s'".format(request.uri))
     produceResponse(Unauthorized, Messages("silhouette.not.authenticated"))
   }
@@ -143,7 +144,7 @@ trait DefaultNotAuthorizedErrorHandler
    * @param request The request header.
    * @return A partial function which maps an exception to a Play result.
    */
-  override def exceptionHandler(implicit request: RequestHeader) = {
+  override def exceptionHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
     case e: NotAuthorizedException =>
       logger.info(e.getMessage, e)
       super.exceptionHandler(request)(e)
@@ -155,7 +156,7 @@ trait DefaultNotAuthorizedErrorHandler
    * @param request The request header.
    * @return The result to send to the client.
    */
-  override def onNotAuthorized(implicit request: RequestHeader) = {
+  override def onNotAuthorized(implicit request: RequestHeader): Future[Result] = {
     logger.debug("[Silhouette] Unauthorized user trying to access '%s'".format(request.uri))
     produceResponse(Forbidden, Messages("silhouette.not.authorized"))
   }
@@ -194,14 +195,11 @@ trait DefaultErrorHandler
     })
   }
 
-  protected def toHtmlError(message: String) =
-    s"<html><head><title>$message</title></head><body>$message</body></html>"
+  protected def toHtmlError(message: String) = s"<html><head><title>$message</title></head><body>$message</body></html>"
 
-  protected def toJsonError(message: String) =
-    Json.obj("success" -> false, "message" -> message)
+  protected def toJsonError(message: String): JsObject = Json.obj(fields = "success" -> false, "message" -> message)
 
-  protected def toXmlError(message: String) =
-    <response><success>false</success><message>{ message }</message></response>
+  protected def toXmlError(message: String): Elem = <response><success>false</success><message>{ message }</message></response>
 
-  protected def toPlainTextError(message: String) = message
+  protected def toPlainTextError(message: String): String = message
 }

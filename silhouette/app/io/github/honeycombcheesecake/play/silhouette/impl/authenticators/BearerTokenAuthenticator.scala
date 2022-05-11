@@ -95,7 +95,7 @@ class BearerTokenAuthenticatorService(
         expirationDateTime = now + settings.authenticatorExpiry,
         idleTimeout = settings.authenticatorIdleTimeout)
     }.recover {
-      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), e)
+      case e => throw new AuthenticatorCreationException(CreateError.format(ID, loginInfo), Some(e))
     }
   }
 
@@ -111,7 +111,7 @@ class BearerTokenAuthenticatorService(
       case Some(token) => repository.find(token)
       case None => Future.successful(None)
     }.recover {
-      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), e)
+      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), Some(e))
     }
   }
 
@@ -127,7 +127,7 @@ class BearerTokenAuthenticatorService(
     repository.add(authenticator).map { a =>
       a.id
     }.recover {
-      case e => throw new AuthenticatorInitializationException(InitError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorInitializationException(InitError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -187,7 +187,7 @@ class BearerTokenAuthenticatorService(
     repository.update(authenticator).map { _ =>
       AuthenticatorResult(result)
     }.recover {
-      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorUpdateException(UpdateError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -209,7 +209,7 @@ class BearerTokenAuthenticatorService(
     repository.remove(authenticator.id).flatMap { _ =>
       create(authenticator.loginInfo).flatMap(init)
     }.recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -229,7 +229,7 @@ class BearerTokenAuthenticatorService(
     request: RequestHeader): Future[AuthenticatorResult] = {
 
     renew(authenticator).flatMap(v => embed(v, result)).recover {
-      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorRenewalException(RenewError.format(ID, authenticator), Some(e))
     }
   }
 
@@ -247,7 +247,7 @@ class BearerTokenAuthenticatorService(
     repository.remove(authenticator.id).map { _ =>
       AuthenticatorResult(result)
     }.recover {
-      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), e)
+      case e => throw new AuthenticatorDiscardingException(DiscardError.format(ID, authenticator), Some(e))
     }
   }
 }
