@@ -63,8 +63,8 @@ jobs:
           sbt +publishSigned
         env:
           NEXUS_HOST: s01.oss.sonatype.org
-          NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
-          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PASSWORD:  FAKE
+          NEXUS_USER: FAKE
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
 
   deploy-production-artifact:
