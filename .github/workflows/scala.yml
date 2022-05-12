@@ -47,7 +47,10 @@ jobs:
         run: export SBT_CREDENTIALS=${HOME}/.sbt/.sonatype_credentials
       - id: ryhfp5fnf9zuszg6
         name: Add Sonatype Nexus Credentials
-        run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
+        run: |
+          mkdir --parents ${HOME}/.sbt/1.0
+          printf 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
+          printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential
         env:
           NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
           NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
