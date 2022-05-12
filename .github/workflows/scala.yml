@@ -46,10 +46,12 @@ jobs:
         name: Add Sonatype Nexus Credentials
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
-          echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
-          printf "realm=Sonatype Nexus Repository Manager\nhost=s01.oss.sonatype.org\nuser=WRONG\npassword=WRONG\n" > ${HOME}/.sbt/sonatype_credential
+          echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential_FAKE")' > ${HOME}/.sbt/1.0/sonatype.sbt
+          printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential_FAKE
       - id: jsdfhsdfghsdf
         run: cat ${HOME}/.sbt/1.0/sonatype.sbt
+      - id: GOHOLNPON
+        run: cat ${HOME}/.sbt/sonatype_credential_FAKE
       - id: asdfadsfasdf
         run: ls ${HOME}/.sbt
       - id: asdfadsfasdgadfg
@@ -57,7 +59,7 @@ jobs:
       - id: e96a98y39upwt364
         name: Release Play Silhouette
         run: |
-          export SBT_CREDENTIALS=${HOME}/.sbt/sonatype_credential
+          export SBT_CREDENTIALS=${HOME}/.sbt/sonatype_credential_FAKE
           sbt +publishSigned
         env:
           NEXUS_HOST: s01.oss.sonatype.org
