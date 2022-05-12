@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependency updates stage where build will fail with updates to release process and github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Coveralls integration back into github actions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Publishing step to github action for CI from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Create GitHub release step for tagged versions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Publishing environment variables for CI deployment from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Import of GPG key step to github action for CI from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Disabled line for cross-build with scala 3 when supported by play from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
