@@ -46,7 +46,6 @@ jobs:
         name: Add Sonatype Nexus Credentials
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
-          echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
           printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential
       - id: e96a98y39upwt364
         name: Release Play Silhouette

@@ -48,6 +48,8 @@ ThisBuild / publishTo := {
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
 ThisBuild / scapegoatVersion := "1.4.13"
 
+credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")
+
 dependencyCheckAssemblyAnalyzerEnabled := Some(false)
 dependencyCheckFormat := "ALL"
 dependencyCheckSkipTestScope := true
