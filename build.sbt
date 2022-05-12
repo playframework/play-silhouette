@@ -3,7 +3,8 @@ import sbt.CrossVersion
 
 lazy val repo: String = "https://s01.oss.sonatype.org"
 lazy val scala213: String = "2.13.8"
-lazy val supportedScalaVersions: Seq[String] = Seq(scala213)
+lazy val scala31: String = "3.1.2" // Ready for cross build, currently not yet supported by play.
+lazy val supportedScalaVersions: Seq[String] = Seq(scala213 /*, scala31*/)
 
 ThisBuild / description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes"
 ThisBuild / homepage := Some(url("https://silhouette.readme.io/"))
