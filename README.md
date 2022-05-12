@@ -1,6 +1,7 @@
 # Silhouette
 
 [![Scala CI](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml/badge.svg)](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml)
+[![Coverage Status](https://coveralls.io/repos/github/honeycomb-cheesecake/play-silhouette/badge.svg?branch=master)](https://coveralls.io/github/honeycomb-cheesecake/play-silhouette?branch=master)
 [![Gitter](https://img.shields.io/badge/Gitter-Join%20Chat-blue?color=informational)](https://gitter.im/mohiva/play-silhouette)
 
 | Module | Scala 2.13.x | Scala 2.12.x |
