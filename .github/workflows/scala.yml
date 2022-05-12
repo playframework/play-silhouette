@@ -119,10 +119,13 @@ jobs:
         run: |
           mkdir --parents ${HOME}${SBT_USER_FOLDER_PATH}
           printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}${SBT_USER_FOLDER_PATH}${SONATYPE_CREDENTIALS_FILE}
+          ls ${HOME}${SBT_USER_FOLDER_PATH}
       - id: e96a98y39upwt364
         name: Release Play Silhouette
         run: |
           export SBT_CREDENTIALS=${HOME}${SBT_USER_FOLDER_PATH}${SONATYPE_CREDENTIALS_FILE}
+          echo ${SBT_CREDENTIALS}
+          ls ${HOME}${SBT_USER_FOLDER_PATH}
           sbt +publishSigned
         env:
           NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
