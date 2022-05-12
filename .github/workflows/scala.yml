@@ -176,7 +176,7 @@ jobs:
         run: sbt +sonatypeBundleRelease
         env:
           PGP_PASSPHRASE: ${{ secrets.PASSPHRASE }}
-      - id: jh7dbids4opgiu3i
+      - id: jh7dbids4opgiu3j
         name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
