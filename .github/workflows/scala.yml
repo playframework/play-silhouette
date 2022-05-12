@@ -47,9 +47,9 @@ jobs:
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
           echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential_FAKE")' > ${HOME}/.sbt/1.0/sonatype.sbt
-          export HOST=${NEXUS_HOST}
-          export PASSWORD=${NEXUS_PASSWORD}
-          export USER=${NEXUS_USER}
+          export HOST=HOST
+          export PASSWORD=PASSWORD
+          export USER=USER
           printf "realm=Sonatype Nexus Repository Manager\nhost=${HOST}\nuser=${USER}\npassword=${PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential_FAKE
       - id: jsdfhsdfghsdf
         run: cat ${HOME}/.sbt/1.0/sonatype.sbt
