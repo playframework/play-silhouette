@@ -93,7 +93,7 @@ jobs:
 
     env:
       JDK_VERSION: ${{ matrix.jdk }}
-      SBT_CREDENTIALS: ${{ HOME }}/.sbt/.sonatype_credentials
+      SBT_CREDENTIAL_PATH: /.sbt/.sonatype_credentials
 
     if: ${{ github.event_name == 'push' }}
 
@@ -115,10 +115,12 @@ jobs:
           passphrase: ${{ secrets.PASSPHRASE }}
       - id: ryhfp5fnf9zuszg6
         name: Add Sonatype Nexus Credentials
-        run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
+        run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}${SBT_CREDENTIAL_PATH}
       - id: e96a98y39upwt364
         name: Release Play Silhouette
-        run: sbt +publishSigned
+        run: |
+          export SBT_CREDENTIALS=${HOME}${SBT_CREDENTIAL_PATH}
+          sbt +publishSigned
         env:
           NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
           NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
