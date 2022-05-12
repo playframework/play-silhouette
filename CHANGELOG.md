@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project build definitions from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Package definition from com.mohiva.silhouette.play to io.github.honeycombcheesecake.play from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Split github actions into build and test phases from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Pull request template so it points to the honeycomb-cheesecake repository from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Removed
 
