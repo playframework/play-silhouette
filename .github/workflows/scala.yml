@@ -46,30 +46,19 @@ jobs:
         name: Add Sonatype Nexus Credentials
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
-          echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential_FAKE")' > ${HOME}/.sbt/1.0/sonatype.sbt
-          echo -e "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential_FAKE
-      - id: jhohoi
-        run: echo ${NEXUS_HOST}
-      - id: jhohoiuhiouh
-        run: echo -e "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n"
-      - id: jsdfhsdfghsdf
-        run: cat ${HOME}/.sbt/1.0/sonatype.sbt
-      - id: GOHOLNPON
-        run: cat ${HOME}/.sbt/sonatype_credential_FAKE
-      - id: asdfadsfasdf
-        run: ls ${HOME}/.sbt
-      - id: asdfadsfasdgadfg
-        run: ls ${HOME}/.sbt/1.0
+          printf 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
+          printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential
+        env:
+          NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
+          NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
       - id: e96a98y39upwt364
         name: Release Play Silhouette
         run: |
-          export SBT_CREDENTIALS=${HOME}/.sbt/sonatype_credential_FAKE
+          export SBT_CREDENTIALS=${HOME}/.sbt/sonatype_credential
           sbt +publishSigned
         env:
-          NEXUS_HOST: s01.oss.sonatype.org
-          NEXUS_PASSWORD:  FAKE
-          NEXUS_USER: FAKE
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_PASSPHRASE: ${{ secrets.PASSPHRASE }}
 
   deploy-production-artifact:
 
