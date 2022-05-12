@@ -90,8 +90,12 @@ jobs:
         jdk: [ 11 ]
 
     runs-on: ubuntu-latest
+
     env:
       JDK_VERSION: ${{ matrix.jdk }}
+
+    if: ${{ github.event_name == "push" }}
+
     steps:
       - id: ks4ayzne88xenjnp
         name: Checkout Code
@@ -136,7 +140,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       JDK_VERSION: ${{ matrix.jdk }}
-    if: startsWith(github.ref, 'ref/tags/v')
+
+    if: ${{ github.event_name == "push" && startsWith(github.ref, 'ref/tags/v') }}
+
     steps:
       - id: zfkcyysr2ncsk66z
         name: Checkout Code
