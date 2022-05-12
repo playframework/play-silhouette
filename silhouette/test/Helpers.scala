@@ -15,8 +15,8 @@
  */
 package test
 
-import com.mohiva.play.silhouette.api.AuthInfo
-import com.mohiva.play.silhouette.impl.providers.{ SocialProfile, SocialStateItem, StatefulAuthInfo }
+import io.github.honeycombcheesecake.play.silhouette.api.AuthInfo
+import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ SocialProfile, SocialStateItem, StatefulAuthInfo }
 import org.specs2.execute.{ AsResult, Result => Specs2Result }
 import org.specs2.matcher.{ JsonMatchers, MatchResult }
 import org.specs2.mock.Mockito
@@ -139,8 +139,7 @@ trait SocialStateProviderSpec[A <: AuthInfo, S <: SocialStateItem] extends Socia
    * @return A specs2 match result.
    */
   def statefulResult(providerResult: Future[Either[PlayResult, StatefulAuthInfo[A, S]]])(
-    b: Future[PlayResult] => MatchResult[_]
-  ) = {
+    b: Future[PlayResult] => MatchResult[_]) = {
     await(providerResult) must beLeft[PlayResult].like {
       case result => b(Future.successful(result))
     }
@@ -154,8 +153,7 @@ trait SocialStateProviderSpec[A <: AuthInfo, S <: SocialStateItem] extends Socia
    * @return A specs2 match result.
    */
   def statefulAuthInfo(providerResult: Future[Either[PlayResult, StatefulAuthInfo[A, S]]])(
-    b: StatefulAuthInfo[A, S] => MatchResult[_]
-  ) = {
+    b: StatefulAuthInfo[A, S] => MatchResult[_]) = {
     await(providerResult) must beRight[StatefulAuthInfo[A, S]].like {
       case info => b(info)
     }
@@ -176,7 +174,7 @@ object Helper {
   def loadJson(file: String): JsValue = {
     Option(this.getClass.getResourceAsStream("/" + file.stripPrefix("/"))) match {
       case Some(is) => Json.parse(Source.fromInputStream(is)(Codec.UTF8).mkString)
-      case None     => throw new Exception("Cannot load file: " + file)
+      case None => throw new Exception("Cannot load file: " + file)
     }
   }
 }
