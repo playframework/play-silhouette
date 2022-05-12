@@ -48,6 +48,8 @@ jobs:
           mkdir --parents ${HOME}/.sbt/1.0
           echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential_FAKE")' > ${HOME}/.sbt/1.0/sonatype.sbt
           echo -e "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential_FAKE
+      - id: jhohoi
+        run: echo ${NEXUS_HOST}
       - id: jhohoiuhiouh
         run: echo -e "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n"
       - id: jsdfhsdfghsdf
