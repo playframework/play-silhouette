@@ -11,78 +11,8 @@ on:
       - master
 
 jobs:
-  build:
-
-    strategy:
-      fail-fast: false
-      matrix:
-        jdk: [ 8, 11, 17 ]
-
-    runs-on: ubuntu-latest
-    env:
-      JDK_VERSION: ${{ matrix.jdk }}
-
-    steps:
-      - id: apeezqkvp99yhsev
-        name: Checkout Code
-        uses: actions/checkout@v3
-      - id: e6dq6rbrsdx9vfnw
-        name: Set Up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: ${{ matrix.jdk }}
-      - id: czc3c36wxhuvscex
-        name: Validating Code Formatting
-        run: sbt clean scalariformFormat test:scalariformFormat
-      - id: beyvek5dzffcpr7p
-        name: Static Code Check
-        run: sbt scapegoat
-      - id: eyv27ug23k32wwde
-        name: Checking Dependencies for Known Vulnerabilities
-        run: sbt clean dependencyCheckAggregate
-      - id: wwb3dhxdujnhq4kw
-        name: Checking Dependencies for Updated Versions
-        run: sbt clean dependencyUpdates
-
-  test:
-
-    needs:
-      - build
-
-    strategy:
-      fail-fast: false
-      matrix:
-        jdk: [ 8, 11, 17]
-
-    runs-on: ubuntu-latest
-    env:
-      JDK_VERSION:  ${{ matrix.jdk }}
-
-    steps:
-      - id: nc5h82tg2ctfff5r
-        name: Checkout Code
-        uses: actions/checkout@v3
-      - id: actnu7yynjhkfrb2
-        name: Set Up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: ${{ matrix.jdk }}
-      - id: yv6cqy6a86ep9fj2
-        name: Testing and Generating Documentation
-        run: sbt clean coverage +test doc coverageReport
-      - id: gepa3detnavjje5a
-        name: Aggregate Coverage from Sub-Projects and Upload to Coveralls
-        run: sbt +coverageAggregate coveralls
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: Scala ${{ matrix.scala }}
 
   deploy-snapshot-artifact:
-
-    needs:
-      - test
 
     strategy:
       fail-fast: false
@@ -132,9 +62,6 @@ jobs:
           PGP_PASSPHRASE: ${{ secrets.PASSPHRASE }}
 
   deploy-production-artifact:
-
-    needs:
-      - test
 
     strategy:
       fail-fast: false
