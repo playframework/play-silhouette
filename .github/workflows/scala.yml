@@ -51,7 +51,6 @@ jobs:
       - id: e96a98y39upwt364
         name: Release Play Silhouette
         run: |
-          export SBT_CREDENTIALS=${HOME}/.sbt/sonatype_credential
           sbt +publishSigned
         env:
           NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
