@@ -24,7 +24,7 @@ jobs:
     env:
       JDK_VERSION: ${{ matrix.jdk }}
 
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == "push" }}
 
     steps:
       - id: ks4ayzne88xenjnp
@@ -70,7 +70,7 @@ jobs:
     env:
       JDK_VERSION: ${{ matrix.jdk }}
 
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'ref/tags/v') }}
+    if: ${{ github.event_name == "push" && startsWith(github.ref, 'ref/tags/v') }}
 
     steps:
       - id: zfkcyysr2ncsk66z
