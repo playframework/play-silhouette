@@ -47,7 +47,7 @@ jobs:
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
           echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
-          printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential
+          printf "realm=Sonatype Nexus Repository Manager\nhost=s01.oss.sonatype.org\nuser=WRONG\npassword=WRONG\n" > ${HOME}/.sbt/sonatype_credential
       - id: jsdfhsdfghsdf
         run: cat ${HOME}/.sbt/1.0/sonatype.sbt
       - id: asdfadsfasdf
@@ -61,8 +61,8 @@ jobs:
           sbt +publishSigned
         env:
           NEXUS_HOST: s01.oss.sonatype.org
-          NEXUS_PASSWORD:  WRONG
-          NEXUS_USER: WRONG
+          NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
 
   deploy-production-artifact:
