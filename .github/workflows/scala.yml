@@ -180,6 +180,6 @@ jobs:
         name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "silhouette[^\/]*\/target\/scala-2\.13\/ivy-.*\.xml,silhouette[^\/]*\/target\/scala-2\.13\/play-silhouette.*"
+          artifacts: 'silhouette[^\/]*\/target\/scala-2\.13\/ivy-.*\.xml,silhouette[^\/]*\/target\/scala-2\.13\/play-silhouette.*'
           bodyFile: CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
