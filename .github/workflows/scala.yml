@@ -58,7 +58,7 @@ jobs:
           export SBT_CREDENTIALS=${HOME}/.sbt/sonatype_credential
           sbt +publishSigned
         env:
-          NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
+          NEXUS_HOST: s01.oss.sonatype.org
           NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
