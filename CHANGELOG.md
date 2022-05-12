@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Publishing environment variables for CI deployment from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Import of GPG key step to github action for CI from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Disabled line for cross-build with scala 3 when supported by play from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Coveralls badge to README.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 
