@@ -61,9 +61,6 @@ jobs:
 
   deploy-production-artifact:
 
-    needs:
-      - test
-
     strategy:
       fail-fast: false
       matrix:
