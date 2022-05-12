@@ -23,25 +23,25 @@ jobs:
       JDK_VERSION: ${{ matrix.jdk }}
 
     steps:
-      - id: ba49042d-b1ba-4ac8-8285-afbbbcf7341a
+      - id: apeezqkvp99yhsev
         name: Checkout Code
         uses: actions/checkout@v3
-      - id: 085f86d6-a63b-4941-87e9-87c5d2db7ce9
+      - id: e6dq6rbrsdx9vfnw
         name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
-      - id: e9a09924-9b45-4466-8d47-96b221929139
+      - id: czc3c36wxhuvscex
         name: Validating Code Formatting
         run: sbt clean scalariformFormat test:scalariformFormat build:scalariformFormat
-      - id: 2999a8ef-29fa-44ef-ae4c-636a26b6f227
+      - id: beyvek5dzffcpr7p
         name: Static Code Check
         run: sbt scapegoat
-      - id: 3c98551e-7341-4c0b-a10b-2f3b07f2ca06
+      - id: eyv27ug23k32wwde
         name: Checking Dependencies for Known Vulnerabilities
         run: sbt clean dependencyCheckAggregate
-      - id: 5d04a527-3b14-4be5-8cb6-b049da499163
+      - id: wwb3dhxdujnhq4kw
         name: Checking Dependencies for Updated Versions
         run: sbt clean dependencyUpdates
 
@@ -60,19 +60,19 @@ jobs:
       JDK_VERSION:  ${{ matrix.jdk }}
 
     steps:
-      - id: 02042491-3f0d-47c4-9efc-23a671e97d61
+      - id: nc5h82tg2ctfff5r
         name: Checkout Code
         uses: actions/checkout@v3
-      - id: a77b944e-0127-448f-9ef1-d5e96cf04bfb
+      - id: actnu7yynjhkfrb2
         name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
-      - id: f534ddaa-e14d-4383-bb72-2864c1f5c3ca
+      - id: yv6cqy6a86ep9fj2
         name: Testing and Generating Documentation
         run: sbt clean coverage +test doc coverageReport
-      - id: faee6f39-c768-42db-aec6-534977526502
+      - id: gepa3detnavjje5a
         name: Aggregate Coverage from Sub-Projects and Upload to Coveralls
         run: sbt +coverageAggregate coveralls
         env:
@@ -93,28 +93,28 @@ jobs:
     env:
       JDK_VERSION: ${{ matrix.jdk }}
     steps:
-      - id: bddf9d35-0fa7-42c3-87f8-ae9337ee6092
+      - id: ks4ayzne88xenjnp
         name: Checkout Code
         uses: actions/checkout@v3
-      - id: fa53e333-c2c9-4e44-a2f2-798b6fc62640
+      - id: q4fu92f984mcxgv8
         name: Set Up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
-      - id: 7cac825e-a1a2-4813-b24e-9440871741f4
+      - id: wqktw5whah6d7x86
         name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@v4
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - id: 5fab95f1-e0d8-4fdc-9b7f-f23529650bbd
+      - id: tpf8usyav824ygxy
         name: Set SBT Credentials Environment Variable
         run: export SBT_CREDENTIALS=${HOME}/.sbt/.sonatype_credentials
-      - id: fa5200b7-4137-460d-9f5e-4908cbe630c0
+      - id: ryhfp5fnf9zuszg6
         name: Add Sonatype Nexus Credentials
         run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
-      - id: 8c82b500-455c-42d3-a08d-0d3035b08cc2
+      - id: e96a98y39upwt364
         name: Release Play Silhouette
         run: sbt +publishSigned
         env:
@@ -138,28 +138,28 @@ jobs:
       JDK_VERSION: ${{ matrix.jdk }}
     if: startsWith(github.ref, 'ref/tags/v')
     steps:
-      - id: 83cf9b3b-ccda-47e5-ae56-de147fa48ce5
+      - id: zfkcyysr2ncsk66z
         name: Checkout Code
         uses: actions/checkout@v3
-      - id: d48545bd-17d0-46d9-88d8-4f3179cd26cb
+      - id: lrn8hqkvn5e25mzg
         name: Set Up JDK 11
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
-      - id: fedbee72-531b-4d6c-90b3-aa3b412b1a81
+      - id: qd74w49xtk3uvejh
         name: Import GPG Key
         uses: crazy-max/ghaction-import-gpg@v4
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - id: 6b81ed89-628e-4ec6-930a-bca3d19bf230
+      - id: uptux8s8hua4tryd
         name: Set SBT Credentials Environment Variable
         run: export SBT_CREDENTIALS=${HOME}/.sbt/.sonatype_credentials
-      - id: 23891ae1-0c25-45db-a16d-304156fe30b3
+      - id: m8mhmxgvzr6w888c
         name: Add Sonatype Nexus Credentials
         run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
-      - id: c498e21f-4dc2-4d0e-9e89-d69d5eb39488
+      - id: f32bq9vrkfk5earu
         name: Release Play Silhouette
         run: sbt +sonatypeBundleRelease
         env:
