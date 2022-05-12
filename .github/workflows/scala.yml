@@ -93,6 +93,7 @@ jobs:
 
     env:
       JDK_VERSION: ${{ matrix.jdk }}
+      SBT_CREDENTIALS: ${{ HOME }}/.sbt/.sonatype_credentials
 
     if: ${{ github.event_name == 'push' }}
 
@@ -112,12 +113,6 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-      - id: tpf8usyav824ygxy
-        name: Set SBT Credentials Environment Variable
-        run: |
-          export SBT_CREDENTIALS=${HOME}/.sbt/.sonatype_credentials
-          echo ${HOME}
-          echo ${SBT_CREDENTIALS}
       - id: ryhfp5fnf9zuszg6
         name: Add Sonatype Nexus Credentials
         run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
