@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jdk: [ 8, 11, 12, 14 ]
+        jdk: [ 8, 11, 17 ]
 
     runs-on: ubuntu-latest
     env:
@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jdk: [ 8, 11, 12, 14 ]
+        jdk: [ 8, 11, 17]
 
     runs-on: ubuntu-latest
     env:
@@ -108,6 +108,9 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+      - id: 5fab95f1-e0d8-4fdc-9b7f-f23529650bbd
+        name: Set SBT Credentials Environment Variable
+        run: export SBT_CREDENTIALS=${HOME}/.sbt/.sonatype_credentials
       - id: fa5200b7-4137-460d-9f5e-4908cbe630c0
         name: Add Sonatype Nexus Credentials
         run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
@@ -119,7 +122,6 @@ jobs:
           NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          SBT_CREDENTIALS: ${{ HOME }}/.sbt/sonatype_credentials
 
   deploy-production-artifact:
 
@@ -151,6 +153,9 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
+      - id: 6b81ed89-628e-4ec6-930a-bca3d19bf230
+        name: Set SBT Credentials Environment Variable
+        run: export SBT_CREDENTIALS=${HOME}/.sbt/.sonatype_credentials
       - id: 23891ae1-0c25-45db-a16d-304156fe30b3
         name: Add Sonatype Nexus Credentials
         run: printf "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${SBT_CREDENTIALS}
@@ -162,4 +167,3 @@ jobs:
           NEXUS_PASSWORD:  ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          SBT_CREDENTIALS: ~/.sbt/sonatype_credentials
