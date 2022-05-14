@@ -52,20 +52,6 @@ libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-totp
 libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-testkit" % "x.x.x-SNAPSHOT" % Test
 ```
 
-### Legacy Production Versions
-
-The legacy (i.e. not supported by this project) versions of `play-silhouette` are available via the following, and versions of `x.x.x` are available up to `7.0.0`.
-
-```
-libraryDependencies += "com.mohiva" %% "play-silhouette" % "x.x.x"
-libraryDependencies += "com.mohiva" %% "play-silhouette-cas" % "x.x.x"
-libraryDependencies += "com.mohiva" %% "play-silhouette-crypto-jca" % "x.x.x"
-libraryDependencies += "com.mohiva" %% "play-silhouette-password-bcrypt" % "x.x.x"
-libraryDependencies += "com.mohiva" %% "play-silhouette-persistence" % "x.x.x"
-libraryDependencies += "com.mohiva" %% "play-silhouette-testkit" % "x.x.x"
-libraryDependencies += "com.mohiva" %% "play-silhouette-totp" % "x.x.x"
-```
-
 ## Support
 
 If you have question regarding Silhouette, please use the [chat]. **Please do not use the issue tracker for questions!**
@@ -85,4 +71,4 @@ The code is licensed under [Apache License v2.0] and the documentation under [CC
 [Apache License v2.0]: http://www.apache.org/licenses/LICENSE-2.0
 [CC BY 3.0]: http://creativecommons.org/licenses/by/3.0/
 
-**This repository is a fork for the [main repository](https://github.com/mohiva/play-silhouette) which is no longer maintained. Thank you very much to previous maintainer Christian Kaps ([@akkie](https://github.com/akkie)) and all contributors for the work you've done to bring us to this point. This library was made fantastic and we are looking to continue along the path you set for us.**
+**This repository started life as a fork from the [main repository](https://github.com/mohiva/play-silhouette) but now exists as it's own project. Thank you very much to previous maintainer Christian Kaps ([@akkie](https://github.com/akkie)) and all contributors for the work you've done to bring us to this point. This library was made fantastic and we are looking to continue along the path you set for us.**
