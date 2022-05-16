@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- deploy-production-artifact GitHub Action workflow from **startsWith(github.ref, 'ref/tags/v')** to **startsWith(github.ref, 'refs/tags/v')** from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Added
+
+- Discord messages for pipeline runs from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Changed
+
+- Snapshot releases not executed on tagged artifacts as the sbt-sonatype plugin will just attempt to release a production version from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
 ## [8.0.0] - 2021-05-16
 
 ### Fixed

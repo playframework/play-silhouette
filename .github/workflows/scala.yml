@@ -94,7 +94,7 @@ jobs:
     env:
       JDK_VERSION: ${{ matrix.jdk }}
 
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads') }}
 
     steps:
       - id: ks4ayzne88xenjnp
@@ -127,6 +127,13 @@ jobs:
         run: sbt +publishSigned
         env:
           PGP_PASSPHRASE: ${{ secrets.PASSPHRASE }}
+      - id: asdlg8932dsffj0s
+        name: Message Discord Server
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: SNAPSHOT released to Maven.
 
   deploy-production-artifact:
 
@@ -143,7 +150,7 @@ jobs:
     env:
       JDK_VERSION: ${{ matrix.jdk }}
 
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'ref/tags/v') }}
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
 
     steps:
       - id: zfkcyysr2ncsk66z
@@ -183,3 +190,10 @@ jobs:
           artifacts: 'silhouette[^\/]*\/target\/scala-2\.13\/ivy-.*\.xml,silhouette[^\/]*\/target\/scala-2\.13\/play-silhouette.*'
           bodyFile: CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
+      - id: bzxttjhregfdh3gs
+        name: Message Discord Server
+        uses: Ilshidur/action-discord@0.3.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: Production Version Released to Maven.
