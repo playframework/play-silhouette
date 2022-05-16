@@ -240,8 +240,6 @@ releaseCrossBuild        := true
 releaseNextCommitMessage := s"Setting version to ${(ThisBuild / version).value}"
 releaseProcess := Seq[ReleaseStep](
   runClean,
-  releaseStepTask(ThisBuild / scalariformFormat),
-  releaseStepTask(Test / scalariformFormat),
   releaseStepTask(scapegoat),
   releaseStepTask(dependencyCheckAggregate),
   releaseStepTask(dependencyUpdates),
