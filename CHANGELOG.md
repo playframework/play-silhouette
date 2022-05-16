@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.0] - 2021-05-16
+
 ### Fixed
 
 - Code warnings from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Import of GPG key step to github action for CI from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Disabled line for cross-build with scala 3 when supported by play from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Coveralls badge to README.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Discord badge to README.md from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 
