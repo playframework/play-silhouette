@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Snapshot releases not executed on tagged artifacts as the sbt-sonatype plugin will just attempt to release a production version from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Upgrading Play framework version to 2.8.16 from @ndeverge to prevent [CVE-2022-31023](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-31023).
 
 ## [8.0.0] - 2021-05-16
 
