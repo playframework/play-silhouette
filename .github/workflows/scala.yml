@@ -116,16 +116,21 @@ jobs:
         name: Add Sonatype Nexus Credentials
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
-          echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
-          echo -e "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential
+          echo 'credentials += Credentials(realm = sys.env.getOrElse("NEXUS_REALM", ""), host = sys.env.getOrElse("NEXUS_HOST", ""), userName =  sys.env.getOrElse("NEXUS_USER", ""), passwd = sys.env.getOrElse("NEXUS_PASSWORD", ""))' > ${HOME}/.sbt/1.0/sonatype.sbt
+          echo -e "realm=${NEXUS_REALM}\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/.credential
         env:
           NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_REALM: ${{ secrets.NEXUS_REALM }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
       - id: e96a98y39upwt364
         name: Release Play Silhouette Snapshot
         run: sbt +publishSigned
         env:
+          NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_REALM: ${{ secrets.NEXUS_REALM }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PASSPHRASE }}
       - id: asdlg8932dsffj0s
         name: Message Discord Server
@@ -172,16 +177,21 @@ jobs:
         name: Add Sonatype Nexus Credentials
         run: |
           mkdir --parents ${HOME}/.sbt/1.0
-          echo 'credentials += Credentials(Path.userHome / ".sbt" / "sonatype_credential")' > ${HOME}/.sbt/1.0/sonatype.sbt
-          echo -e "realm=Sonatype Nexus Repository Manager\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/sonatype_credential
+          echo 'credentials += Credentials(realm = sys.env.getOrElse("NEXUS_REALM", ""), host = sys.env.getOrElse("NEXUS_HOST", ""), userName =  sys.env.getOrElse("NEXUS_USER", ""), passwd = sys.env.getOrElse("NEXUS_PASSWORD", ""))' > ${HOME}/.sbt/1.0/sonatype.sbt
+          echo -e "realm=${NEXUS_REALM}\nhost=${NEXUS_HOST}\nuser=${NEXUS_USER}\npassword=${NEXUS_PASSWORD}\n" > ${HOME}/.sbt/.credential
         env:
           NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_REALM: ${{ secrets.NEXUS_REALM }}
           NEXUS_USER: ${{ secrets.NEXUS_USER }}
       - id: f32bq9vrkfk5earu
         name: Release Play Silhouette
-        run: sbt +sonatypeBundleRelease
+        run: sbt +publishSigned +sonatypeBundleRelease
         env:
+          NEXUS_HOST: ${{ secrets.NEXUS_HOST }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_REALM: ${{ secrets.NEXUS_REALM }}
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
           PGP_PASSPHRASE: ${{ secrets.PASSPHRASE }}
       - id: jh7dbids4opgiu3j
         name: Create GitHub Release

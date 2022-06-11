@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- sbt-sonatype configuration so that ```sonatypeCredentialHost``` points to correct location (```s01.oss.sonatype.org```) due to legacy host (```oss.sonatype.org```) is used by default which failed production release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- sbt-sonatype configuration so that production ```publishTo``` points to local staging repository from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- scala.yml release pipeline so that ```+publishSigned``` is run prior to ```+sonatypeBundleRelease``` from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Corrected v8.0.1 by adding version information from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Corrected v8.0.0 by correcting date from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+### Changed
+
+- Updated scala.yml pipeline dynamic sonatype.sbt file to use environment variables rather than file from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
+## [8.0.1] - 2022-06-11
+
 ## Security
 
 - Upgrading Play framework version to 2.8.16  to prevent [CVE-2022-31023](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-31023) from [@ndeverge](https://github.com/ndeverge).
@@ -22,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Snapshot releases not executed on tagged artifacts as the sbt-sonatype plugin will just attempt to release a production version from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
-## [8.0.0] - 2021-05-16
+## [8.0.0] - 2022-05-16
 
 ### Fixed
 

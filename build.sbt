@@ -37,12 +37,15 @@ ThisBuild / crossVersion := CrossVersion.full
 ThisBuild / Test / parallelExecution := false
 ThisBuild / Test / fork := true
 ThisBuild / javaOptions += "-Xmx1G"
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+
 ThisBuild / publishTo := {
   if(isSnapshot.value) {
     Some("Sonatype Nexus Repository Manager" at s"$repo/content/repositories/snapshots/")
   }
   else {
-    Some("Sonatype Nexus Repository Manager" at s"$repo/service/local/staging/deploy/maven2/")
+    sonatypePublishToBundle.value
   }
 }
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
@@ -127,13 +130,13 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.casClient,
-      Library.casClientSupportSAML,
-      Library.Play.specs2 % Test,
-      Library.Specs2.matcherExtra % Test,
-      Library.Specs2.mock % Test,
-      Library.scalaGuice % Test
-    ),
+        Library.casClient,
+        Library.casClientSupportSAML,
+        Library.Play.specs2 % Test,
+        Library.Specs2.matcherExtra % Test,
+        Library.Specs2.mock % Test,
+        Library.scalaGuice % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette % "compile->compile;test->test")
@@ -145,9 +148,9 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.googleAuth,
-      Library.Play.specs2 % Test
-    ),
+        Library.googleAuth,
+        Library.Play.specs2 % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette % "compile->compile;test->test")
@@ -160,9 +163,9 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.Specs2.core % Test,
-      Library.Specs2.matcherExtra % Test
-    ),
+        Library.Specs2.core % Test,
+        Library.Specs2.matcherExtra % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
@@ -174,9 +177,9 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.argon2,
-      Library.Specs2.core % Test
-    ),
+        Library.argon2,
+        Library.Specs2.core % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
@@ -188,9 +191,9 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.jbcrypt,
-      Library.Specs2.core % Test
-    ),
+        Library.jbcrypt,
+        Library.Specs2.core % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
@@ -204,11 +207,11 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.Specs2.core % Test,
-      Library.Specs2.matcherExtra % Test,
-      Library.Specs2.mock % Test,
-      Library.scalaGuice % Test
-    ),
+        Library.Specs2.core % Test,
+        Library.Specs2.matcherExtra % Test,
+        Library.Specs2.mock % Test,
+        Library.scalaGuice % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .dependsOn(silhouette)
@@ -221,13 +224,13 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
     libraryDependencies ++=
       Library.updates ++ Seq(
-      Library.Play.test,
-      Library.Play.specs2 % Test,
-      Library.Specs2.matcherExtra % Test,
-      Library.Specs2.mock % Test,
-      Library.scalaGuice % Test,
-      Library.akkaTestkit % Test
-    ),
+        Library.Play.test,
+        Library.Play.specs2 % Test,
+        Library.Specs2.matcherExtra % Test,
+        Library.Specs2.mock % Test,
+        Library.scalaGuice % Test,
+        Library.akkaTestkit % Test
+      ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .enablePlugins(PlayScala)
