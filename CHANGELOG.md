@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.2] - 2022-06-11
+
 ### Fixed
 
 - sbt-sonatype configuration so that ```sonatypeCredentialHost``` points to correct location (```s01.oss.sonatype.org```) due to legacy host (```oss.sonatype.org```) is used by default which failed production release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
