@@ -16,14 +16,16 @@
 package io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets
 
 import javax.inject.Inject
+import io.github.honeycombcheesecake.play.silhouette.api.Authenticator.Implicits._
 import io.github.honeycombcheesecake.play.silhouette.api.crypto.{ Crypter, Signer }
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, ExtractableRequest }
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.OAuth1TokenSecretException
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecretProvider._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ OAuth1Info, OAuth1TokenSecret, OAuth1TokenSecretProvider }
-import org.joda.time.DateTime
 import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc.{ Cookie, Result }
+
+import java.time.ZonedDateTime
 
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
@@ -33,9 +35,6 @@ import scala.util.{ Failure, Success, Try }
  * The cookie secret companion object.
  */
 object CookieSecret {
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
-
   /**
    * Converts the [[CookieSecret]]] to Json and vice versa.
    */
@@ -91,7 +90,7 @@ object CookieSecret {
  * @param value The token secret.
  * @param expirationDate The expiration time.
  */
-case class CookieSecret(value: String, expirationDate: DateTime) extends OAuth1TokenSecret {
+case class CookieSecret(value: String, expirationDate: ZonedDateTime) extends OAuth1TokenSecret {
 
   /**
    * Checks if the secret is expired. This is an absolute timeout since the creation of the secret.

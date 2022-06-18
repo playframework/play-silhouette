@@ -107,7 +107,6 @@ lazy val silhouette = (project in file("silhouette"))
         Library.Play.cache,
         Library.Play.ws,
         Library.Play.openid,
-        Library.Play.jsonJoda,
         Library.jwtCore,
         Library.jwtApi,
         Library.apacheCommonLang,

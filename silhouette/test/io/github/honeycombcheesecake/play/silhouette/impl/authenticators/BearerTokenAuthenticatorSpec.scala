@@ -22,13 +22,13 @@ import io.github.honeycombcheesecake.play.silhouette.api.repositories.Authentica
 import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorService._
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ RequestPart, Clock, IDGenerator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.BearerTokenAuthenticatorService._
-import org.joda.time.DateTime
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.mvc.Results
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
+import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -41,18 +41,18 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {
-      authenticator.copy(expirationDateTime = DateTime.now - 1.hour).isValid must beFalse
+      authenticator.copy(expirationDateTime = ZonedDateTime.now - 1.hour).isValid must beFalse
     }
 
     "return false if the authenticator is timed out" in new Context {
       authenticator.copy(
-        lastUsedDateTime = DateTime.now - (settings.authenticatorIdleTimeout.get + 1.second)).isValid must beFalse
+        lastUsedDateTime = ZonedDateTime.now - (settings.authenticatorIdleTimeout.get + 1.second)).isValid must beFalse
     }
 
     "return true if the authenticator is valid" in new Context {
       authenticator.copy(
-        lastUsedDateTime = DateTime.now - (settings.authenticatorIdleTimeout.get - 10.seconds),
-        expirationDateTime = DateTime.now + 5.seconds).isValid must beTrue
+        lastUsedDateTime = ZonedDateTime.now - (settings.authenticatorIdleTimeout.get - 10.seconds),
+        expirationDateTime = ZonedDateTime.now + 5.seconds).isValid must beTrue
     }
   }
 
@@ -62,14 +62,14 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
       val id = "test-id"
 
       idGenerator.generate returns Future.successful(id)
-      clock.now returns new DateTime
+      clock.now returns ZonedDateTime.now
 
       await(service.create(loginInfo)).id must be equalTo id
     }
 
     "return an authenticator with the current date as lastUsedDateTime" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       idGenerator.generate returns Future.successful("test-id")
       clock.now returns now
@@ -79,7 +79,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
     "return an authenticator which expires in 12 hours(default value)" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       idGenerator.generate returns Future.successful("test-id")
       clock.now returns now
@@ -90,7 +90,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     "return an authenticator which expires in 6 hours" in new Context {
       implicit val request = FakeRequest()
       val sixHours = 6 hours
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       settings.authenticatorExpiry returns sixHours
       idGenerator.generate returns Future.successful("test-id")
@@ -223,7 +223,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
       settings.authenticatorIdleTimeout returns Some(1 second)
-      clock.now returns DateTime.now
+      clock.now returns ZonedDateTime.now
 
       service.touch(authenticator) must beLeft[BearerTokenAuthenticator].like {
         case a =>
@@ -233,7 +233,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
       settings.authenticatorIdleTimeout returns None
-      clock.now returns DateTime.now
+      clock.now returns ZonedDateTime.now
 
       service.touch(authenticator) must beRight[BearerTokenAuthenticator].like {
         case a =>
@@ -277,7 +277,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
   "The `renew` method of the service" should {
     "remove the old authenticator from backing store" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       repository.remove(authenticator.id) returns Future.successful(())
@@ -292,7 +292,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
     "renew the authenticator and return the response with a new bearer token" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       repository.remove(any()) returns Future.successful(())
@@ -307,7 +307,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       repository.remove(any()) returns Future.successful(())
@@ -390,8 +390,8 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     lazy val authenticator = new BearerTokenAuthenticator(
       id = "test-id",
       loginInfo = LoginInfo("test", "1"),
-      lastUsedDateTime = DateTime.now,
-      expirationDateTime = DateTime.now + settings.authenticatorExpiry,
+      lastUsedDateTime = ZonedDateTime.now,
+      expirationDateTime = ZonedDateTime.now + settings.authenticatorExpiry,
       idleTimeout = settings.authenticatorIdleTimeout)
   }
 }

@@ -15,8 +15,9 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.api.util
 
-import org.joda.time.DateTime
 import play.api.test._
+
+import java.time.ZonedDateTime
 
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.api.util.Clock]] class.
@@ -31,7 +32,7 @@ class ClockSpec extends PlaySpecification {
 
   "The `now` method" should {
     "return a new DateTime instance" in {
-      Clock().now should beAnInstanceOf[DateTime]
+      Clock().now should beAnInstanceOf[ZonedDateTime]
     }
   }
 }

@@ -15,12 +15,12 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.impl.util
 
-import org.joda.time.DateTime
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.cache.AsyncCacheApi
 import play.api.test.PlaySpecification
 
+import java.time.ZonedDateTime
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
@@ -31,11 +31,11 @@ class PlayCacheLayerSpec extends PlaySpecification with Mockito {
 
   "The `find` method" should {
     "return value from cache" in new Context {
-      cacheAPI.get[DateTime]("id") returns Future.successful(Some(value))
+      cacheAPI.get[ZonedDateTime]("id") returns Future.successful(Some(value))
 
-      await(layer.find[DateTime]("id")) should beSome(value)
+      await(layer.find[ZonedDateTime]("id")) should beSome(value)
 
-      there was one(cacheAPI).get[DateTime]("id")
+      there was one(cacheAPI).get[ZonedDateTime]("id")
     }
   }
 
@@ -73,6 +73,6 @@ class PlayCacheLayerSpec extends PlaySpecification with Mockito {
     /**
      * The value to cache.
      */
-    lazy val value = new DateTime
+    lazy val value = ZonedDateTime.now
   }
 }
