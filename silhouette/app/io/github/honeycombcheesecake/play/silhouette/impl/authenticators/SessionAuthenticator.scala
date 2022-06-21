@@ -23,11 +23,11 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.{ Authenticato
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, ExtractableRequest, FingerprintGenerator }
 import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, ExpirableAuthenticator, Logger, LoginInfo }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
-import org.joda.time.DateTime
 import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc._
 import play.api.mvc.request.{ Cell, RequestAttrKey }
 
+import java.time.ZonedDateTime
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
@@ -48,8 +48,8 @@ import scala.util.{ Failure, Success, Try }
  */
 case class SessionAuthenticator(
   loginInfo: LoginInfo,
-  lastUsedDateTime: DateTime,
-  expirationDateTime: DateTime,
+  lastUsedDateTime: ZonedDateTime,
+  expirationDateTime: ZonedDateTime,
   idleTimeout: Option[FiniteDuration],
   fingerprint: Option[String])
   extends Authenticator with ExpirableAuthenticator {
@@ -65,8 +65,6 @@ case class SessionAuthenticator(
  */
 object SessionAuthenticator extends Logger {
   import io.github.honeycombcheesecake.play.silhouette.api.util.JsonFormats._
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
 
   /**
    * Converts the SessionAuthenticator to Json and vice versa.

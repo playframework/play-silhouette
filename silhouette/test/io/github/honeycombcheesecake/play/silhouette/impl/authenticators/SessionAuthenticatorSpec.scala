@@ -25,7 +25,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, Fingerpri
 import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginInfo }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
-import org.joda.time.DateTime
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
@@ -33,6 +32,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
+import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -45,18 +45,18 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {
-      authenticator.copy(expirationDateTime = DateTime.now - 1.hour).isValid must beFalse
+      authenticator.copy(expirationDateTime = ZonedDateTime.now - 1.hour).isValid must beFalse
     }
 
     "return false if the authenticator is timed out" in new Context {
       authenticator.copy(
-        lastUsedDateTime = DateTime.now - (settings.authenticatorIdleTimeout.get + 1.second)).isValid must beFalse
+        lastUsedDateTime = ZonedDateTime.now - (settings.authenticatorIdleTimeout.get + 1.second)).isValid must beFalse
     }
 
     "return true if the authenticator is valid" in new Context {
       authenticator.copy(
-        lastUsedDateTime = DateTime.now - (settings.authenticatorIdleTimeout.get - 10.seconds),
-        expirationDateTime = DateTime.now + 5.seconds).isValid must beTrue
+        lastUsedDateTime = ZonedDateTime.now - (settings.authenticatorIdleTimeout.get - 10.seconds),
+        expirationDateTime = ZonedDateTime.now + 5.seconds).isValid must beTrue
     }
   }
 
@@ -88,7 +88,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return a fingerprinted authenticator" in new Context {
       implicit val request = FakeRequest()
 
-      clock.now returns new DateTime
+      clock.now returns ZonedDateTime.now
       fingerprintGenerator.generate(any) returns "test"
       settings.useFingerprinting returns true
 
@@ -98,7 +98,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return a non fingerprinted authenticator" in new Context {
       implicit val request = FakeRequest()
 
-      clock.now returns new DateTime
+      clock.now returns ZonedDateTime.now
       settings.useFingerprinting returns false
 
       await(service.create(loginInfo)).fingerprint must beNone
@@ -106,7 +106,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
     "return an authenticator with the current date as lastUsedDateTime" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       clock.now returns now
 
@@ -115,7 +115,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
     "return an authenticator which expires in 12 hours(default value)" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       clock.now returns now
 
@@ -125,7 +125,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return an authenticator which expires in 6 hours" in new Context {
       implicit val request = FakeRequest()
       val sixHours = 6 hours
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       clock.now returns now
       settings.authenticatorExpiry returns sixHours
@@ -313,7 +313,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
       settings.authenticatorIdleTimeout returns Some(1 second)
-      clock.now returns DateTime.now
+      clock.now returns ZonedDateTime.now
 
       service.touch(authenticator) must beLeft[SessionAuthenticator].like {
         case a =>
@@ -323,7 +323,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
       settings.authenticatorIdleTimeout returns None
-      clock.now returns DateTime.now
+      clock.now returns ZonedDateTime.now
 
       service.touch(authenticator) must beRight[SessionAuthenticator].like {
         case a =>
@@ -374,7 +374,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
   "The `renew` method of the service" should {
     "renew the session" in new WithApplication with Context {
       implicit val request = FakeRequest()
-      val now = DateTime.now
+      val now = ZonedDateTime.now
       val data = authenticatorEncoder.encode(Json.toJson(authenticator.copy(
         lastUsedDateTime = now,
         expirationDateTime = now + settings.authenticatorExpiry)).toString())
@@ -389,7 +389,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
     "override existing authenticator from request" in new WithApplication with Context {
       implicit val request = FakeRequest().withSession(settings.sessionKey -> "existing")
-      val now = DateTime.now
+      val now = ZonedDateTime.now
 
       settings.useFingerprinting returns false
       clock.now returns now
@@ -403,7 +403,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
     "non authenticator related session data" in new WithApplication with Context {
       implicit val request = FakeRequest().withSession("request-other" -> "keep")
-      val now = DateTime.now
+      val now = ZonedDateTime.now
 
       settings.useFingerprinting returns false
       clock.now returns now
@@ -420,7 +420,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
       implicit val request = spy(FakeRequest())
-      val now = DateTime.now
+      val now = ZonedDateTime.now
       val okResult = (_: Authenticator) => Future.successful(Results.Ok)
 
       request.session throws new RuntimeException("Cannot get session")
@@ -513,8 +513,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
      */
     lazy val authenticator = spy(new SessionAuthenticator(
       loginInfo = LoginInfo("test", "1"),
-      lastUsedDateTime = DateTime.now,
-      expirationDateTime = DateTime.now + settings.authenticatorExpiry,
+      lastUsedDateTime = ZonedDateTime.now,
+      expirationDateTime = ZonedDateTime.now + settings.authenticatorExpiry,
       idleTimeout = settings.authenticatorIdleTimeout,
       fingerprint = None))
   }

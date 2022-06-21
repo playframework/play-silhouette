@@ -23,7 +23,6 @@ import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.OAuth1Token
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.OAuth1Info
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecret._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecretProvider._
-import org.joda.time.DateTime
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
 import org.specs2.mock.Mockito
@@ -31,6 +30,7 @@ import org.specs2.specification.Scope
 import play.api.mvc.{ Cookie, Results }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
+import java.time.{ ZoneId, ZonedDateTime }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -44,11 +44,11 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
 
   "The `isExpired` method of the secret" should {
     "return true if the secret is expired" in new Context {
-      secret.copy(expirationDate = DateTime.now.minusHours(1)).isExpired must beTrue
+      secret.copy(expirationDate = ZonedDateTime.now.minusHours(1)).isExpired must beTrue
     }
 
     "return false if the secret isn't expired" in new Context {
-      secret.copy(expirationDate = DateTime.now.plusHours(1)).isExpired must beFalse
+      secret.copy(expirationDate = ZonedDateTime.now.plusHours(1)).isExpired must beFalse
     }
   }
 
@@ -102,7 +102,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
   "The `build` method of the provider" should {
     "return a new secret" in new WithApplication with Context {
       implicit val req = FakeRequest()
-      val dateTime = new DateTime(2014, 8, 8, 0, 0, 0)
+      val dateTime = ZonedDateTime.of(2014, 8, 8, 0, 0, 0, 0, ZoneId.systemDefault)
 
       clock.now returns dateTime
 
@@ -123,7 +123,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
     }
 
     "throw an OAuth1TokenSecretException if secret is expired" in new WithApplication with Context {
-      val expiredSecret = secret.copy(expirationDate = DateTime.now.minusHours(1))
+      val expiredSecret = secret.copy(expirationDate = ZonedDateTime.now.minusHours(1))
 
       implicit val req = FakeRequest().withCookies(Cookie(settings.cookieName, CookieSecret.serialize(expiredSecret, signer, crypter)))
 
@@ -237,7 +237,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
      * A secret to test.
      */
     lazy val secret = spy(new CookieSecret(
-      expirationDate = DateTime.now.plusSeconds(settings.expirationTime.toSeconds.toInt),
+      expirationDate = ZonedDateTime.now.plusSeconds(settings.expirationTime.toSeconds.toInt),
       value = "value"))
   }
 }

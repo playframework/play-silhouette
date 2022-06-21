@@ -15,19 +15,19 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.api.util
 
-import org.joda.time.DateTime
+import java.time.{ Instant, ZonedDateTime, ZoneId, Clock => JavaClock }
 
 /**
- * A trait which provides a mockable implementation for a DateTime instance.
+ * A trait which provides a mockable implementation for a Clock instance.
  */
-trait Clock {
+trait Clock extends JavaClock {
 
   /**
    * Gets the current DateTime.
    *
    * @return the current DateTime.
    */
-  def now: DateTime
+  def now: ZonedDateTime
 }
 
 /**
@@ -40,7 +40,15 @@ object Clock {
    *
    * @return A Clock implementation.
    */
-  def apply() = new Clock {
-    def now = DateTime.now
+  def apply(): Clock = Clock(JavaClock.systemDefaultZone)
+
+  def apply(clock: JavaClock): Clock = new Clock {
+    def now: ZonedDateTime = ZonedDateTime.now(clock)
+
+    def getZone: ZoneId = clock.getZone
+
+    override def withZone(zone: ZoneId): Clock = Clock(clock.withZone(zone))
+
+    def instant(): Instant = clock.instant
   }
 }

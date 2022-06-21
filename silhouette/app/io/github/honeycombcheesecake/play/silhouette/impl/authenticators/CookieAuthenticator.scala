@@ -28,11 +28,11 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorS
 import io.github.honeycombcheesecake.play.silhouette.api.services.{ AuthenticatorResult, AuthenticatorService }
 import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticatorService._
-import org.joda.time.DateTime
 import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc._
 import play.api.mvc.request.{ Cell, RequestAttrKey }
 
+import java.time.ZonedDateTime
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
@@ -65,8 +65,8 @@ import scala.util.{ Failure, Success, Try }
 case class CookieAuthenticator(
   id: String,
   loginInfo: LoginInfo,
-  lastUsedDateTime: DateTime,
-  expirationDateTime: DateTime,
+  lastUsedDateTime: ZonedDateTime,
+  expirationDateTime: ZonedDateTime,
   idleTimeout: Option[FiniteDuration],
   cookieMaxAge: Option[FiniteDuration],
   fingerprint: Option[String]) extends StorableAuthenticator with ExpirableAuthenticator {
@@ -82,8 +82,6 @@ case class CookieAuthenticator(
  */
 object CookieAuthenticator extends Logger {
   import io.github.honeycombcheesecake.play.silhouette.api.util.JsonFormats._
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
 
   /**
    * Converts the CookieAuthenticator to Json and vice versa.

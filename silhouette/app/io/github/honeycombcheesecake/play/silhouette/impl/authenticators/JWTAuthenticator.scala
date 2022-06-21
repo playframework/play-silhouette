@@ -30,14 +30,13 @@ import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuth
 import com.nimbusds.jose.JWSObject
 import com.nimbusds.jose.crypto.MACVerifier
 import com.nimbusds.jwt.JWTClaimsSet
-import org.joda.time.DateTime
 import play.api.libs.json._
 import play.api.mvc.{ RequestHeader, Result }
 
+import java.time.{ Instant, ZoneId, ZonedDateTime }
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
-
 import scala.jdk.CollectionConverters._
 
 /**
@@ -63,8 +62,8 @@ import scala.jdk.CollectionConverters._
 case class JWTAuthenticator(
   id: String,
   loginInfo: LoginInfo,
-  lastUsedDateTime: DateTime,
-  expirationDateTime: DateTime,
+  lastUsedDateTime: ZonedDateTime,
+  expirationDateTime: ZonedDateTime,
   idleTimeout: Option[FiniteDuration],
   customClaims: Option[JsObject] = None)
   extends StorableAuthenticator with ExpirableAuthenticator {
@@ -98,8 +97,8 @@ object JWTAuthenticator {
       .jwtId(authenticator.id)
       .issuer(settings.issuerClaim)
       .subject(authenticatorEncoder.encode(subject))
-      .issuedAt(authenticator.lastUsedDateTime.getMillis / 1000)
-      .expirationTime(authenticator.expirationDateTime.getMillis / 1000)
+      .issuedAt(authenticator.lastUsedDateTime.toEpochSecond)
+      .expirationTime(authenticator.expirationDateTime.toEpochSecond)
 
     authenticator.customClaims.foreach { data =>
       serializeCustomClaims(data).asScala.foreach {
@@ -145,8 +144,8 @@ object JWTAuthenticator {
         JWTAuthenticator(
           id = c.getJWTID,
           loginInfo = loginInfo,
-          lastUsedDateTime = new DateTime(c.getIssueTime),
-          expirationDateTime = new DateTime(c.getExpirationTime),
+          lastUsedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(c.getIssueTime.getTime / 1000), ZoneId.systemDefault),
+          expirationDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(c.getExpirationTime.getTime / 1000), ZoneId.systemDefault),
           idleTimeout = settings.authenticatorIdleTimeout,
           customClaims = if (customClaims.keys.isEmpty) None else Some(customClaims))
       }
