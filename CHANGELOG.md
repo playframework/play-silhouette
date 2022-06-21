@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Version to v9.0.0-SNAPSHOT for breaking change release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- JodaTime replaced with Java Date API from [Rocketeer007](https://github.com/Rocketeer007).
+
+### Removed
+
+- JodaTime dependency from [Rocketeer007](https://github.com/Rocketeer007).
+
 ## [8.0.2] - 2022-06-11
 
 ### Fixed

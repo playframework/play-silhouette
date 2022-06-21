@@ -20,8 +20,8 @@
 package io.github.honeycombcheesecake.play.silhouette.api
 
 import io.github.honeycombcheesecake.play.silhouette.api.Authenticator.Implicits._
-import org.joda.time.DateTime
 
+import java.time.ZonedDateTime
 import scala.concurrent.duration.FiniteDuration
 
 /**
@@ -65,11 +65,11 @@ object Authenticator {
   object Implicits {
 
     /**
-     * Defines additional methods on an `DateTime` instance.
+     * Defines additional methods on a `ZonedDateTime` instance.
      *
-     * @param dateTime The `DateTime` instance on which the additional methods should be defined.
+     * @param dateTime The `ZonedDateTime` instance on which the additional methods should be defined.
      */
-    implicit class RichDateTime(dateTime: DateTime) {
+    implicit class RichDateTime(dateTime: ZonedDateTime) {
 
       /**
        * Adds a duration to a date/time.
@@ -77,7 +77,7 @@ object Authenticator {
        * @param duration The duration to add.
        * @return A date/time instance with the added duration.
        */
-      def +(duration: FiniteDuration): DateTime = {
+      def +(duration: FiniteDuration): ZonedDateTime = {
         dateTime.plusSeconds(duration.toSeconds.toInt)
       }
 
@@ -87,8 +87,17 @@ object Authenticator {
        * @param duration The duration to subtract.
        * @return A date/time instance with the subtracted duration.
        */
-      def -(duration: FiniteDuration): DateTime = {
+      def -(duration: FiniteDuration): ZonedDateTime = {
         dateTime.minusSeconds(duration.toSeconds.toInt)
+      }
+
+      /**
+       * Compares a date/time with the current time
+       *
+       * @return Is the current time before the time supplied by the Clock
+       */
+      def isBeforeNow: Boolean = {
+        dateTime.isBefore(ZonedDateTime.now)
       }
     }
   }
@@ -115,12 +124,12 @@ trait ExpirableAuthenticator extends Authenticator {
   /**
    * The last used date/time.
    */
-  val lastUsedDateTime: DateTime
+  val lastUsedDateTime: ZonedDateTime
 
   /**
    * The expiration date/time.
    */
-  val expirationDateTime: DateTime
+  val expirationDateTime: ZonedDateTime
 
   /**
    * The duration an authenticator can be idle before it timed out.

@@ -26,7 +26,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorS
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, FingerprintGenerator, IDGenerator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticatorService._
-import org.joda.time.DateTime
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.MatchResult
 import org.specs2.mock.Mockito
@@ -34,6 +33,7 @@ import org.specs2.specification.Scope
 import play.api.mvc.{ Cookie, DefaultCookieHeaderEncoding, Results }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
+import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -47,18 +47,18 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {
-      authenticator.copy(expirationDateTime = DateTime.now - 1.hour).isValid must beFalse
+      authenticator.copy(expirationDateTime = ZonedDateTime.now - 1.hour).isValid must beFalse
     }
 
     "return false if the authenticator is timed out" in new Context {
       authenticator.copy(
-        lastUsedDateTime = DateTime.now - (settings.authenticatorIdleTimeout.get + 1.second)).isValid must beFalse
+        lastUsedDateTime = ZonedDateTime.now - (settings.authenticatorIdleTimeout.get + 1.second)).isValid must beFalse
     }
 
     "return true if the authenticator is valid" in new Context {
       authenticator.copy(
-        lastUsedDateTime = DateTime.now - (settings.authenticatorIdleTimeout.get - 10.seconds),
-        expirationDateTime = DateTime.now + 5.seconds).isValid must beTrue
+        lastUsedDateTime = ZonedDateTime.now - (settings.authenticatorIdleTimeout.get - 10.seconds),
+        expirationDateTime = ZonedDateTime.now + 5.seconds).isValid must beTrue
     }
   }
 
@@ -114,7 +114,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
       implicit val request = FakeRequest()
 
       idGenerator.generate returns Future.successful("test-id")
-      clock.now returns new DateTime
+      clock.now returns ZonedDateTime.now
       fingerprintGenerator.generate(any()) returns "test"
       settings.useFingerprinting returns true
 
@@ -125,7 +125,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
       implicit val request = FakeRequest()
 
       idGenerator.generate returns Future.successful("test-id")
-      clock.now returns new DateTime
+      clock.now returns ZonedDateTime.now
       settings.useFingerprinting returns false
 
       await(service(Some(repository)).create(loginInfo)).fingerprint must beNone
@@ -136,14 +136,14 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
       val id = "test-id"
 
       idGenerator.generate returns Future.successful(id)
-      clock.now returns new DateTime
+      clock.now returns ZonedDateTime.now
 
       await(service(Some(repository)).create(loginInfo)).id must be equalTo id
     }
 
     "return an authenticator with the current date as lastUsedDateTime" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       idGenerator.generate returns Future.successful("test-id")
       clock.now returns now
@@ -153,7 +153,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
 
     "return an authenticator which expires in 12 hours(default value)" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       idGenerator.generate returns Future.successful("test-id")
       clock.now returns now
@@ -164,7 +164,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
     "return an authenticator which expires in 6 hours" in new Context {
       implicit val request = FakeRequest()
       val sixHours = 6 hours
-      val now = new DateTime
+      val now = ZonedDateTime.now
 
       settings.authenticatorExpiry returns sixHours
       idGenerator.generate returns Future.successful("test-id")
@@ -359,7 +359,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
       settings.authenticatorIdleTimeout returns Some(1 second)
-      clock.now returns DateTime.now
+      clock.now returns ZonedDateTime.now
 
       service(Some(repository)).touch(authenticator) must beLeft[CookieAuthenticator].like {
         case a =>
@@ -369,7 +369,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
       settings.authenticatorIdleTimeout returns None
-      clock.now returns DateTime.now
+      clock.now returns ZonedDateTime.now
 
       service(Some(repository)).touch(authenticator) must beRight[CookieAuthenticator].like {
         case a =>
@@ -422,7 +422,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
   "The `renew` method of the service" should {
     "[stateful] remove the old authenticator from backing store" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       repository.remove(authenticator.id) returns Future.successful(())
@@ -437,7 +437,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
 
     "[stateful] renew the authenticator and return the response with the updated cookie value" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       repository.remove(any()) returns Future.successful(())
@@ -453,7 +453,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
 
     "[stateless] renew the authenticator and return the response with the updated cookie value" in new WithApplication with Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       settings.useFingerprinting returns false
@@ -469,7 +469,7 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
       implicit val request = FakeRequest()
-      val now = new DateTime
+      val now = ZonedDateTime.now
       val id = "new-test-id"
 
       repository.remove(any()) returns Future.successful(())
@@ -610,8 +610,8 @@ class CookieAuthenticatorSpec extends PlaySpecification with Mockito with NoLang
     lazy val authenticator = spy(new CookieAuthenticator(
       id = "test-id",
       loginInfo = LoginInfo("test", "1"),
-      lastUsedDateTime = DateTime.now,
-      expirationDateTime = DateTime.now + settings.authenticatorExpiry,
+      lastUsedDateTime = ZonedDateTime.now,
+      expirationDateTime = ZonedDateTime.now + settings.authenticatorExpiry,
       idleTimeout = settings.authenticatorIdleTimeout,
       cookieMaxAge = settings.cookieMaxAge,
       fingerprint = None))

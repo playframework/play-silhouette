@@ -23,9 +23,9 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.{ Authenticato
 import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.api.{ ExpirableAuthenticator, Logger, LoginInfo, StorableAuthenticator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.BearerTokenAuthenticatorService._
-import org.joda.time.DateTime
 import play.api.mvc.{ RequestHeader, Result }
 
+import java.time.ZonedDateTime
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
@@ -50,8 +50,8 @@ import scala.util.Try
 case class BearerTokenAuthenticator(
   id: String,
   loginInfo: LoginInfo,
-  lastUsedDateTime: DateTime,
-  expirationDateTime: DateTime,
+  lastUsedDateTime: ZonedDateTime,
+  expirationDateTime: ZonedDateTime,
   idleTimeout: Option[FiniteDuration])
   extends StorableAuthenticator with ExpirableAuthenticator {
 
