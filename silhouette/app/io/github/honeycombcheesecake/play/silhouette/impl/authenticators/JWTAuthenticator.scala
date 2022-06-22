@@ -15,8 +15,8 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.impl.authenticators
 
-import com.atlassian.jwt.SigningAlgorithm
-import com.atlassian.jwt.core.writer.{ JsonSmartJwtJsonBuilder, NimbusJwtWriterFactory }
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import io.github.honeycombcheesecake.play.silhouette.api.Authenticator.Implicits._
 import io.github.honeycombcheesecake.play.silhouette.api.crypto.AuthenticatorEncoder
 import io.github.honeycombcheesecake.play.silhouette.api.exceptions._
@@ -27,13 +27,11 @@ import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.api.{ ExpirableAuthenticator, Logger, LoginInfo, StorableAuthenticator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticatorService._
-import com.nimbusds.jose.JWSObject
-import com.nimbusds.jose.crypto.MACVerifier
-import com.nimbusds.jwt.JWTClaimsSet
 import play.api.libs.json._
 import play.api.mvc.{ RequestHeader, Result }
 
-import java.time.{ Instant, ZoneId, ZonedDateTime }
+import java.time.{ ZoneId, ZonedDateTime }
+import java.util.Date
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
@@ -93,26 +91,44 @@ object JWTAuthenticator {
     settings: JWTAuthenticatorSettings): String = {
 
     val subject = Json.toJson(authenticator.loginInfo).toString()
-    val jwtBuilder = new JsonSmartJwtJsonBuilder()
-      .jwtId(authenticator.id)
-      .issuer(settings.issuerClaim)
-      .subject(authenticatorEncoder.encode(subject))
-      .issuedAt(authenticator.lastUsedDateTime.toEpochSecond)
-      .expirationTime(authenticator.expirationDateTime.toEpochSecond)
+
+    val jwtBuilder = JWT
+      .create()
+      .withJWTId(authenticator.id)
+      .withIssuer(settings.issuerClaim)
+      .withSubject(authenticatorEncoder.encode(subject))
+      .withIssuedAt(Date.from(authenticator.lastUsedDateTime.toInstant))
+      .withExpiresAt(Date.from(authenticator.expirationDateTime.toInstant))
+
+    //val jwtBuilder = new JsonSmartJwtJsonBuilder()
+    //  .jwtId(authenticator.id)
+    //  .issuer(settings.issuerClaim)
+    //  .subject(authenticatorEncoder.encode(subject))
+    //  .issuedAt(authenticator.lastUsedDateTime.toEpochSecond)
+    //  .expirationTime(authenticator.expirationDateTime.toEpochSecond)
 
     authenticator.customClaims.foreach { data =>
-      serializeCustomClaims(data).asScala.foreach {
-        case (key, value) =>
-          if (ReservedClaims.contains(key)) {
-            throw new AuthenticatorException(OverrideReservedClaim.format(ID, key, ReservedClaims.mkString(", ")))
-          }
-          jwtBuilder.claim(key, value)
+      serializeCustomClaims(data).asScala.foreach { keyVal =>
+        if (ReservedClaims.contains(keyVal._1)) {
+          throw new AuthenticatorException(OverrideReservedClaim.format(ID, keyVal._1, ReservedClaims.mkString(", ")))
+        }
+        //jwtBuilder.claim(key, value)
+        keyVal._2 match {
+          case value: String => jwtBuilder.withClaim(keyVal._1, value)
+          case value: BigDecimal => jwtBuilder.withClaim(keyVal._1, value.toDouble)
+          case value: Boolean => jwtBuilder.withClaim(keyVal._1, value)
+          case value: java.util.Map[_, _] => jwtBuilder.withClaim(keyVal._1, value.asInstanceOf[java.util.Map[String, AnyRef]])
+          case value: java.util.List[_] => jwtBuilder.withClaim(keyVal._1, value)
+          case _ => throw new IllegalArgumentException("Claim value format not supported.")
+        }
       }
     }
 
-    new NimbusJwtWriterFactory()
-      .macSigningWriter(SigningAlgorithm.HS256, settings.sharedSecret)
-      .jsonToJwt(jwtBuilder.build())
+    jwtBuilder.sign(Algorithm.HMAC256(settings.sharedSecret))
+
+    //new NimbusJwtWriterFactory()
+    //  .macSigningWriter(SigningAlgorithm.HS256, settings.sharedSecret)
+    //  .jsonToJwt(jwtBuilder.build())
   }
 
   /**
@@ -129,23 +145,31 @@ object JWTAuthenticator {
     settings: JWTAuthenticatorSettings): Try[JWTAuthenticator] = {
 
     Try {
-      val verifier = new MACVerifier(settings.sharedSecret)
-      val jwsObject = JWSObject.parse(str)
-      if (!jwsObject.verify(verifier)) {
-        throw new IllegalArgumentException("Fraudulent JWT token: " + str)
-      }
+      //val verifier = new MACVerifier(settings.sharedSecret)
+      //val jwsObject = JWSObject.parse(str)
+      //if (!jwsObject.verify(verifier)) {
+      //  throw new IllegalArgumentException("Fraudulent JWT token: " + str)
+      //}
 
-      JWTClaimsSet.parse(jwsObject.getPayload.toJSONObject)
+      //JWTClaimsSet.parse(jwsObject.getPayload.toJSONObject)
+
+      JWT
+        .require(Algorithm.HMAC256(settings.sharedSecret))
+        .withIssuer(settings.issuerClaim)
+        .build()
+        .verify(str)
+
     }.flatMap { c =>
       val subject = authenticatorEncoder.decode(c.getSubject)
       buildLoginInfo(subject).map { loginInfo =>
-        val filteredClaims = c.getClaims.asScala.filterNot { case (k, v) => ReservedClaims.contains(k) || v == null }
-        val customClaims = unserializeCustomClaims(filteredClaims.asJava)
+        //val filteredClaims = c.getClaims.asScala.filterNot { case (k, v) => ReservedClaims.contains(k) || v == null }
+        //val customClaims = unserializeCustomClaims(filteredClaims.asJava)
+        val customClaims = Json.obj()
         JWTAuthenticator(
-          id = c.getJWTID,
+          id = c.getId,
           loginInfo = loginInfo,
-          lastUsedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(c.getIssueTime.getTime / 1000), ZoneId.systemDefault),
-          expirationDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(c.getExpirationTime.getTime / 1000), ZoneId.systemDefault),
+          lastUsedDateTime = ZonedDateTime.ofInstant(c.getIssuedAt.toInstant, ZoneId.systemDefault),
+          expirationDateTime = ZonedDateTime.ofInstant(c.getExpiresAt.toInstant, ZoneId.systemDefault),
           idleTimeout = settings.authenticatorIdleTimeout,
           customClaims = if (customClaims.keys.isEmpty) None else Some(customClaims))
       }
