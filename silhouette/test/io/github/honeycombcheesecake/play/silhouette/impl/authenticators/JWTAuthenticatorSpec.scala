@@ -16,7 +16,6 @@
 package io.github.honeycombcheesecake.play.silhouette.impl.authenticators
 
 import java.util.regex.Pattern
-
 import io.github.honeycombcheesecake.play.silhouette.api.Authenticator.Implicits._
 import io.github.honeycombcheesecake.play.silhouette.api.LoginInfo
 import io.github.honeycombcheesecake.play.silhouette.api.crypto.{ Base64, Base64AuthenticatorEncoder }
@@ -30,7 +29,7 @@ import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
-import play.api.libs.json.{ JsNull, Json }
+import play.api.libs.json.{ JsNull, JsObject, Json }
 import play.api.mvc.Results
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
@@ -554,6 +553,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
    */
   trait Context extends Scope {
 
+    private val lastUsedDateTime = ZonedDateTime.of(2015, 2, 25, 19, 0, 0, 0, ZoneId.systemDefault())
+
     /**
      * The repository implementation.
      */
@@ -572,7 +573,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     /**
      * The clock implementation.
      */
-    lazy val clock = mock[Clock].smart
+    lazy val clock: Clock = mock[Clock]
 
     /**
      * The settings.
@@ -601,21 +602,33 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     lazy val authenticator = new JWTAuthenticator(
       id = "test-id",
       loginInfo = LoginInfo("test", "1"),
-      lastUsedDateTime = ZonedDateTime.of(2015, 2, 25, 19, 0, 0, 0, ZoneId.systemDefault()),
+      lastUsedDateTime = lastUsedDateTime,
       expirationDateTime = ZonedDateTime.of(2015, 2, 25, 19, 0, 0, 0, ZoneId.systemDefault()) + settings.authenticatorExpiry,
       idleTimeout = settings.authenticatorIdleTimeout)
 
     /**
      * Some custom claims.
      */
-    lazy val customClaims = Json.obj(
-      "boolean" -> true,
+    lazy val customClaims: JsObject = Json.obj(
+      fields =
+        "boolean" -> true,
       "string" -> "string",
       "number" -> 1234567890,
-      "array" -> Json.arr(1, 2),
+      "array" -> Json.arr(items = 1, 2),
       "object" -> Json.obj(
-        "array" -> Seq("string1", "string2"),
-        "object" -> Json.obj(
-          "array" -> Json.arr("string", false, Json.obj("number" -> 1)))))
+        fields =
+          "array" -> Seq("string1", "string2"),
+        "object" -> Json.obj(fields =
+          "array" -> Json.arr(items = "string", false, Json.obj(fields = "number" -> 1)))))
+
+    /**
+     * Mockito clock.now return value.
+     */
+    clock.now returns lastUsedDateTime
+
+    /**
+     * Clock instance for deserialization jwt verification to take place during authenticator date rather than now.
+     */
+    implicit val deserializionClock: Option[Clock] = Some(clock)
   }
 }
