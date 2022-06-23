@@ -128,6 +128,7 @@ object JWTAuthenticator {
    * @param str                  The string representation of the authenticator.
    * @param authenticatorEncoder The authenticator encoder.
    * @param settings             The authenticator settings.
+   * @param clock                An optional clock to change the time for jwt verification (intended for testing purposes).
    * @return An authenticator on success, otherwise a failure.
    */
   def unserialize(
