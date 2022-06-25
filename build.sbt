@@ -107,8 +107,7 @@ lazy val silhouette = (project in file("silhouette"))
         Library.Play.cache,
         Library.Play.ws,
         Library.Play.openid,
-        Library.jwtCore,
-        Library.jwtApi,
+        Library.jwt,
         Library.apacheCommonLang,
         Library.Play.specs2 % Test,
         Library.Specs2.matcherExtra % Test,
@@ -162,6 +161,7 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
     libraryDependencies ++=
       Library.updates ++ Seq(
+        Library.commonsCodec,
         Library.Specs2.core % Test,
         Library.Specs2.matcherExtra % Test
       ),

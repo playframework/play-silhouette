@@ -42,9 +42,9 @@ object Dependencies {
     }
 
     val argon2 = "de.mkammerer" % "argon2-jvm" % "2.11"
+    val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
-    val jwtCore = "com.atlassian.jwt" % "jwt-core" % "3.2.3"
-    val jwtApi = "com.atlassian.jwt" % "jwt-api" % "3.2.3"
+    val jwt = "com.auth0" % "java-jwt" % "3.18.2"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "5.1.0"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"

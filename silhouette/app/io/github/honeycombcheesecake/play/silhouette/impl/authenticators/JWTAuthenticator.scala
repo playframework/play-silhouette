@@ -15,8 +15,10 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.impl.authenticators
 
-import com.atlassian.jwt.SigningAlgorithm
-import com.atlassian.jwt.core.writer.{ JsonSmartJwtJsonBuilder, NimbusJwtWriterFactory }
+import com.auth0.jwt.{ JWT, interfaces }
+import com.auth0.jwt.JWTVerifier.BaseVerification
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.Claim
 import io.github.honeycombcheesecake.play.silhouette.api.Authenticator.Implicits._
 import io.github.honeycombcheesecake.play.silhouette.api.crypto.AuthenticatorEncoder
 import io.github.honeycombcheesecake.play.silhouette.api.exceptions._
@@ -27,13 +29,12 @@ import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.api.{ ExpirableAuthenticator, Logger, LoginInfo, StorableAuthenticator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticatorService._
-import com.nimbusds.jose.JWSObject
-import com.nimbusds.jose.crypto.MACVerifier
-import com.nimbusds.jwt.JWTClaimsSet
 import play.api.libs.json._
 import play.api.mvc.{ RequestHeader, Result }
 
-import java.time.{ Instant, ZoneId, ZonedDateTime }
+import java.time.{ ZoneId, ZonedDateTime }
+import java.util.Date
+import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
@@ -93,26 +94,32 @@ object JWTAuthenticator {
     settings: JWTAuthenticatorSettings): String = {
 
     val subject = Json.toJson(authenticator.loginInfo).toString()
-    val jwtBuilder = new JsonSmartJwtJsonBuilder()
-      .jwtId(authenticator.id)
-      .issuer(settings.issuerClaim)
-      .subject(authenticatorEncoder.encode(subject))
-      .issuedAt(authenticator.lastUsedDateTime.toEpochSecond)
-      .expirationTime(authenticator.expirationDateTime.toEpochSecond)
+
+    val jwtBuilder = JWT
+      .create()
+      .withJWTId(authenticator.id)
+      .withIssuer(settings.issuerClaim)
+      .withSubject(authenticatorEncoder.encode(subject))
+      .withIssuedAt(Date.from(authenticator.lastUsedDateTime.toInstant))
+      .withExpiresAt(Date.from(authenticator.expirationDateTime.toInstant))
 
     authenticator.customClaims.foreach { data =>
-      serializeCustomClaims(data).asScala.foreach {
-        case (key, value) =>
-          if (ReservedClaims.contains(key)) {
-            throw new AuthenticatorException(OverrideReservedClaim.format(ID, key, ReservedClaims.mkString(", ")))
-          }
-          jwtBuilder.claim(key, value)
+      serializeCustomClaims(data).asScala.foreach { keyVal =>
+        if (ReservedClaims.contains(keyVal._1)) {
+          throw new AuthenticatorException(OverrideReservedClaim.format(ID, keyVal._1, ReservedClaims.mkString(", ")))
+        }
+        keyVal._2 match {
+          case value: java.lang.String => jwtBuilder.withClaim(keyVal._1, value)
+          case value: java.lang.Double => jwtBuilder.withClaim(keyVal._1, value)
+          case value: java.lang.Boolean => jwtBuilder.withClaim(keyVal._1, value)
+          case value: java.util.Map[_, _] => jwtBuilder.withClaim(keyVal._1, value.asInstanceOf[java.util.Map[String, Any]])
+          case value: java.util.List[_] => jwtBuilder.withClaim(keyVal._1, value)
+          case _ => throw new IllegalArgumentException("Claim value format not supported.")
+        }
       }
     }
 
-    new NimbusJwtWriterFactory()
-      .macSigningWriter(SigningAlgorithm.HS256, settings.sharedSecret)
-      .jsonToJwt(jwtBuilder.build())
+    jwtBuilder.sign(Algorithm.HMAC256(settings.sharedSecret))
   }
 
   /**
@@ -121,38 +128,45 @@ object JWTAuthenticator {
    * @param str                  The string representation of the authenticator.
    * @param authenticatorEncoder The authenticator encoder.
    * @param settings             The authenticator settings.
+   * @param clock                An optional clock to change the time for jwt verification (intended for testing purposes).
    * @return An authenticator on success, otherwise a failure.
    */
   def unserialize(
     str: String,
     authenticatorEncoder: AuthenticatorEncoder,
-    settings: JWTAuthenticatorSettings): Try[JWTAuthenticator] = {
-
+    settings: JWTAuthenticatorSettings)(
+    implicit
+    clock: Option[Clock] = None): Try[JWTAuthenticator] =
     Try {
-      val verifier = new MACVerifier(settings.sharedSecret)
-      val jwsObject = JWSObject.parse(str)
-      if (!jwsObject.verify(verifier)) {
-        throw new IllegalArgumentException("Fraudulent JWT token: " + str)
-      }
 
-      JWTClaimsSet.parse(jwsObject.getPayload.toJSONObject)
-    }.flatMap { c =>
-      val subject = authenticatorEncoder.decode(c.getSubject)
-      buildLoginInfo(subject).map { loginInfo =>
-        val filteredClaims = c.getClaims.asScala.filterNot { case (k, v) => ReservedClaims.contains(k) || v == null }
-        val customClaims = unserializeCustomClaims(filteredClaims.asJava)
-        JWTAuthenticator(
-          id = c.getJWTID,
-          loginInfo = loginInfo,
-          lastUsedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(c.getIssueTime.getTime / 1000), ZoneId.systemDefault),
-          expirationDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(c.getExpirationTime.getTime / 1000), ZoneId.systemDefault),
-          idleTimeout = settings.authenticatorIdleTimeout,
-          customClaims = if (customClaims.keys.isEmpty) None else Some(customClaims))
+      val verifier = JWT.require(Algorithm.HMAC256(settings.sharedSecret)).withIssuer(settings.issuerClaim)
+
+      clock match {
+        case None => verifier.build().verify(str)
+        case Some(cl) => verifier
+          .asInstanceOf[BaseVerification]
+          .build(new interfaces.Clock { override def getToday: Date = Date.from(cl.now.toInstant) })
+          .verify(str)
       }
-    }.recover {
-      case e => throw new AuthenticatorException(InvalidJWTToken.format(ID, str), Some(e))
     }
-  }
+      .flatMap { c =>
+        val subject = authenticatorEncoder.decode(c.getSubject)
+        buildLoginInfo(subject).map { loginInfo =>
+          val filteredClaims: mutable.Map[String, Claim] = c.getClaims.asScala.filterNot { case (k, v) => ReservedClaims.contains(k) || v == null }
+          val customClaims = unserializeCustomClaims(filteredClaims.map(kv => kv._1 -> kv._2.as[AnyRef](classOf[AnyRef])).asJava)
+          JWTAuthenticator(
+            id = c.getId,
+            loginInfo = loginInfo,
+            lastUsedDateTime = ZonedDateTime.ofInstant(c.getIssuedAt.toInstant, ZoneId.systemDefault),
+            expirationDateTime = ZonedDateTime.ofInstant(c.getExpiresAt.toInstant, ZoneId.systemDefault),
+            idleTimeout = settings.authenticatorIdleTimeout,
+            customClaims = if (customClaims.keys.isEmpty) None else Some(customClaims))
+        }
+      }
+      .recover {
+        case e =>
+          throw new AuthenticatorException(InvalidJWTToken.format(ID, str), Some(e))
+      }
 
   /**
    * Serializes recursively the custom claims.
@@ -163,7 +177,7 @@ object JWTAuthenticator {
   private def serializeCustomClaims(claims: JsObject): java.util.Map[String, Any] = {
     def toJava(value: JsValue): Any = value match {
       case v: JsString => v.value
-      case v: JsNumber => v.value
+      case v: JsNumber => v.value.toDouble
       case v: JsBoolean => v.value
       case v: JsObject => serializeCustomClaims(v)
       case v: JsArray => v.value.map(toJava).asJava
@@ -268,7 +282,7 @@ class JWTAuthenticatorService(
    */
   override def retrieve[B](implicit request: ExtractableRequest[B]): Future[Option[JWTAuthenticator]] = {
     Future.fromTry(Try(request.extractString(settings.fieldName, settings.requestParts))).flatMap {
-      case Some(token) => unserialize(token, authenticatorEncoder, settings) match {
+      case Some(token) => unserialize(token, authenticatorEncoder, settings)(Some(clock)) match {
         case Success(authenticator) => repository.fold(Future.successful(Option(authenticator)))(_.find(authenticator.id))
         case Failure(e) =>
           logger.info(e.getMessage, e)
@@ -276,7 +290,8 @@ class JWTAuthenticatorService(
       }
       case None => Future.successful(None)
     }.recover {
-      case e => throw new AuthenticatorRetrievalException(RetrieveError.format(ID), Some(e))
+      case e =>
+        throw new AuthenticatorRetrievalException(RetrieveError.format(ID), Some(e))
     }
   }
 
@@ -325,13 +340,12 @@ class JWTAuthenticatorService(
    * @param authenticator The authenticator to touch.
    * @return The touched authenticator on the left or the untouched authenticator on the right.
    */
-  override def touch(authenticator: JWTAuthenticator): Either[JWTAuthenticator, JWTAuthenticator] = {
+  override def touch(authenticator: JWTAuthenticator): Either[JWTAuthenticator, JWTAuthenticator] =
     if (authenticator.idleTimeout.isDefined) {
       Left(authenticator.copy(lastUsedDateTime = clock.now))
     } else {
       Right(authenticator)
     }
-  }
 
   /**
    * Updates the authenticator and embeds a new token in the result.
