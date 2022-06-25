@@ -138,7 +138,7 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          args: SNAPSHOT released to Maven.
+          args: Commit ${{ github.sha }} SNAPSHOT Released to Maven.
 
   deploy-production-artifact:
 
@@ -206,4 +206,4 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          args: Production Version Released to Maven.
+          args: Production Version ${{ github.ref_name }} from Commit ${{ github.sha}} Released to Maven.
