@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Commit information to discord bot snapshot message from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Commit and version information to discord bot production release message from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+
 ### Changed
 
 - Version to v9.0.0-SNAPSHOT for breaking change release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
