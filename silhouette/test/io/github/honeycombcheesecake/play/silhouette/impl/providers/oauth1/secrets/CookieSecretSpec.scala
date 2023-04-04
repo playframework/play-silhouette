@@ -25,10 +25,12 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secre
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecretProvider._
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.mvc.{ AnyContentAsEmpty, Cookie, Results }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.mockSmart
 
 import java.time.{ ZoneId, ZonedDateTime }
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,7 +42,7 @@ import scala.util.{ Failure, Success }
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecret]] class.
  */
-class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers with NoLanguageFeatures {
+class CookieSecretSpec extends PlaySpecification with JsonMatchers with NoLanguageFeatures {
 
   "The `isExpired` method of the secret" should {
     "return true if the secret is expired" in new Context {
@@ -56,13 +58,13 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
     "sign the cookie" in new WithApplication with Context {
       serialize(secret, signer, crypter)
 
-      there was one(signer).sign(any())
+      verify(signer).sign(any())
     }
 
     "encrypt the cookie" in new WithApplication with Context {
       serialize(secret, signer, crypter)
 
-      there was one(crypter).encrypt(any())
+      verify(crypter).encrypt(any())
     }
   }
 
@@ -82,7 +84,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
     }
 
     "throw an OAuth1TokenSecretException if a secret is badly signed" in new WithApplication with Context {
-      signer.extract(any()) returns Failure(new Exception("Bad signature"))
+      when(signer.extract(any())).thenReturn(Failure(new Exception("Bad signature")))
 
       val value = serialize(secret, signer, crypter)
       val msg = Pattern.quote(InvalidCookieSignature)
@@ -104,7 +106,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val dateTime = ZonedDateTime.of(2014, 8, 8, 0, 0, 0, 0, ZoneId.systemDefault)
 
-      clock.now returns dateTime
+      when(clock.now).thenReturn(dateTime)
 
       val s = await(provider.build(oAuthInfo))
 
@@ -149,7 +151,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
     }
 
     "throw an OAuth1TokenSecretException if client secret is badly signed" in new WithApplication with Context {
-      signer.extract(any()) returns Failure(new Exception("Bad signature"))
+      when(signer.extract(any())).thenReturn(Failure(new Exception("Bad signature")))
 
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, CookieSecret.serialize(secret, signer, crypter)))
 
@@ -189,7 +191,7 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
     /**
      * The clock implementation.
      */
-    lazy val clock: Clock = mock[Clock].smart
+    lazy val clock: Clock = mockSmart[Clock]
 
     /**
      * The settings.
@@ -205,9 +207,9 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
      * none cookie values in a cookie.
      */
     lazy val crypter = {
-      val c = mock[Crypter].smart
-      c.encrypt(any()) answers { p: Any => Base64.encode(p.asInstanceOf[String]) }
-      c.decrypt(any()) answers { p: Any => Base64.decode(p.asInstanceOf[String]) }
+      val c = mockSmart[Crypter]
+      when(c.encrypt(any())).thenAnswer(p => Base64.encode(p.getArgument(0).asInstanceOf[String]))
+      when(c.decrypt(any())).thenAnswer(p => Base64.decode(p.getArgument(0).asInstanceOf[String]))
       c
     }
 
@@ -217,9 +219,9 @@ class CookieSecretSpec extends PlaySpecification with Mockito with JsonMatchers 
      * The signer returns the same value as passed to the methods. This is enough for testing.
      */
     lazy val signer = {
-      val c = mock[Signer].smart
-      c.sign(any()) answers { p: Any => p.asInstanceOf[String] }
-      c.extract(any()) answers { p: Any => Success(p.asInstanceOf[String]) }
+      val c = mockSmart[Signer]
+      when(c.sign(any())).thenAnswer(_.getArgument(0).asInstanceOf[String])
+      when(c.extract(any())).thenAnswer(p => Success(p.getArgument(0).asInstanceOf[String]))
       c
     }
 

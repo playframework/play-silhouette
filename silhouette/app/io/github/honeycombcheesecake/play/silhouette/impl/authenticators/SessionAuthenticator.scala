@@ -214,7 +214,7 @@ class SessionAuthenticatorService(
       case None => session
     }
 
-    request.withAttrs(request.attrs.updated(RequestAttrKey.Session.bindValue(Cell(s))))
+    request.withAttrs(request.attrs.updated(RequestAttrKey.Session, Cell(s)))
   }
 
   /**

@@ -21,11 +21,13 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialStateI
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialStateItem.ItemStructure
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.state.CsrfStateItemHandler._
 import org.specs2.matcher.JsonMatchers
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
 import play.api.mvc.{ AnyContentAsEmpty, Cookie, Results }
 import play.api.test.{ FakeRequest, PlaySpecification }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.mockSmart
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -34,11 +36,11 @@ import scala.util.Success
 /**
  *  Test case for the [[CsrfStateItemHandler]] class.
  */
-class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonMatchers {
+class CsrfStateItemHandlerSpec extends PlaySpecification with JsonMatchers {
 
   "The `item` method" should {
     "return the CSRF state item" in new Context {
-      idGenerator.generate returns Future.successful(csrfToken)
+      when(idGenerator.generate).thenReturn(Future.successful(csrfToken))
 
       await(csrfStateItemHandler.item) must be equalTo csrfStateItem
     }
@@ -50,7 +52,7 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
     }
 
     "should return `None` if it can't handle the given item" in new Context {
-      val nonCsrfState = mock[SocialStateItem].smart
+      val nonCsrfState = mockSmart[SocialStateItem]
 
       csrfStateItemHandler.canHandle(nonCsrfState) must beNone
     }
@@ -58,8 +60,8 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
 
   "The `canHandle` method" should {
     "return false if the give item is for another handler" in new Context {
-      val nonCsrfItemStructure = mock[ItemStructure].smart
-      nonCsrfItemStructure.id returns "non-csrf-item"
+      val nonCsrfItemStructure = mockSmart[ItemStructure]
+      when(nonCsrfItemStructure.id).thenReturn("non-csrf-item")
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       csrfStateItemHandler.canHandle(nonCsrfItemStructure) must beFalse
@@ -107,7 +109,7 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
     /**
      * The ID generator implementation.
      */
-    val idGenerator = mock[IDGenerator].smart
+    val idGenerator = mockSmart[IDGenerator]
 
     /**
      * The settings.
@@ -120,9 +122,9 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
      * The signer returns the same value as passed to the methods. This is enough for testing.
      */
     val signer = {
-      val c = mock[Signer].smart
-      c.sign(any()) answers { p: Any => p.asInstanceOf[String] }
-      c.extract(any()) answers { p: Any => Success(p.asInstanceOf[String]) }
+      val c = mockSmart[Signer]
+      when(c.sign(any())).thenAnswer(_.getArgument(0).asInstanceOf[String])
+      when(c.extract(any())).thenAnswer(p => Success(p.getArgument(0).asInstanceOf[String]))
       c
     }
 

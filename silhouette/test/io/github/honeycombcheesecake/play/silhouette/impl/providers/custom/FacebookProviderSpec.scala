@@ -34,7 +34,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth2.FacebookProvider]] class which uses a custom social profile.
  */
-class FacebookProviderSpec extends OAuth2ProviderSpec {
+class FacebookProviderSpec extends OAuth2ProviderSpec with org.specs2.mock.Mockito {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
@@ -164,7 +164,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
     /**
      * The OAuth2 settings.
      */
-    override lazy val oAuthSettings = spy(OAuth2Settings(
+    override lazy val oAuthSettings = org.mockito.Mockito.spy(OAuth2Settings(
       authorizationURL = Some("https://graph.facebook.com/oauth/authorize"),
       accessTokenURL = "https://graph.facebook.com/oauth/access_token",
       redirectURL = Some("https://www.mohiva.com"),

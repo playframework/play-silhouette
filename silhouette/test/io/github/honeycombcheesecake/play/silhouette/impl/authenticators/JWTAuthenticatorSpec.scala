@@ -27,11 +27,13 @@ import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuth
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticatorService._
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.{ JsNull, JsObject, Json }
 import play.api.mvc.{ AnyContentAsEmpty, Results }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.mockSmart
 
 import java.time.temporal.ChronoField
 import java.time.{ ZoneId, ZonedDateTime }
@@ -43,7 +45,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticator]].
  */
-class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatchers with NoLanguageFeatures {
+class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers with NoLanguageFeatures {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {
@@ -163,7 +165,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
       val jwt: String = serialize(authenticatorCustomClock, authenticatorEncoder, settings)
 
-      clock.now returns lastUsedDateTime
+      when(clock.now).thenReturn(lastUsedDateTime)
       implicit val customClock: Option[Clock] = Some(clock)
 
       unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticatorCustomClock.copy(
@@ -194,8 +196,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val id = "test-id"
 
-      idGenerator.generate returns Future.successful(id)
-      clock.now returns ZonedDateTime.now
+      when(idGenerator.generate).thenReturn(Future.successful(id))
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
       await(service(None).create(loginInfo)).id must be equalTo id
     }
@@ -204,8 +206,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
 
-      idGenerator.generate returns Future.successful("test-id")
-      clock.now returns now
+      when(idGenerator.generate).thenReturn(Future.successful("test-id"))
+      when(clock.now).thenReturn(now)
 
       await(service(None).create(loginInfo)).lastUsedDateTime must be equalTo now
     }
@@ -214,8 +216,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
 
-      idGenerator.generate returns Future.successful("test-id")
-      clock.now returns now
+      when(idGenerator.generate).thenReturn(Future.successful("test-id"))
+      when(clock.now).thenReturn(now)
 
       await(service(None).create(loginInfo)).expirationDateTime must be equalTo now + 12.hours
     }
@@ -225,9 +227,9 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       val sixHours = 6 hours
       val now = ZonedDateTime.now
 
-      settings.authenticatorExpiry returns sixHours
-      idGenerator.generate returns Future.successful("test-id")
-      clock.now returns now
+      when(settings.authenticatorExpiry).thenReturn(sixHours)
+      when(idGenerator.generate).thenReturn(Future.successful("test-id"))
+      when(clock.now).thenReturn(now)
 
       await(service(None).create(loginInfo)).expirationDateTime must be equalTo now + sixHours
     }
@@ -235,7 +237,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     "throws an AuthenticatorCreationException exception if an error occurred during creation" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      idGenerator.generate returns Future.failed(new Exception("Could not generate ID"))
+      when(idGenerator.generate).thenReturn(Future.failed(new Exception("Could not generate ID")))
 
       await(service(None).create(loginInfo)) must throwA[AuthenticatorCreationException].like {
         case e =>
@@ -254,18 +256,18 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     "return None if DAO is enabled and no authenticator is stored for the token located in the header" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> "not-stored")
 
-      repository.find(authenticator.id) returns Future.successful(None)
+      when(repository.find(authenticator.id)).thenReturn(Future.successful(None))
 
       await(service(Some(repository)).retrieve) must beNone
     }
 
     "return authenticator if DAO is enabled and an authenticator is stored for the token located in the the header" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
-      clock.now returns ZonedDateTime.now
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
-      repository.find(authenticator.id) returns Future.successful(Some(authenticator.copy(
+      when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator.copy(
         expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0))))
+        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))))
 
       await(service(Some(repository)).retrieve) must beSome(authenticator.copy(
         expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
@@ -274,12 +276,12 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
     "return authenticator if DAO is enabled and an authenticator is stored for the token located in the the query string" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
-      clock.now returns ZonedDateTime.now
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
-      settings.requestParts returns Some(Seq(RequestPart.QueryString))
-      repository.find(authenticator.id) returns Future.successful(Some(authenticator.copy(
+      when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
+      when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator.copy(
         expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0))))
+        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))))
 
       await(service(Some(repository)).retrieve) must beSome(authenticator.copy(
         expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
@@ -288,30 +290,30 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
     "return authenticator if DAO is disabled and authenticator was found in the header" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
-      clock.now returns ZonedDateTime.now
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
       await(service(None).retrieve) must beSome(authenticator.copy(
         expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
         lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
-      there was no(repository).find(any())
+      verify(repository, never()).find(any())
     }
 
     "return authenticator if DAO is disabled and authenticator was found in the query string" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
-      clock.now returns ZonedDateTime.now
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
-      settings.requestParts returns Some(Seq(RequestPart.QueryString))
+      when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
       await(service(None).retrieve) must beSome(authenticator.copy(
         expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
         lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
-      there was no(repository).find(any())
+      verify(repository, never()).find(any())
     }
 
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
-      clock.now returns ZonedDateTime.now
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
-      repository.find(authenticator.id) returns Future.failed(new RuntimeException("Cannot find authenticator"))
+      when(repository.find(authenticator.id)).thenReturn(Future.failed(new RuntimeException("Cannot find authenticator")))
 
       await(service(Some(repository)).retrieve) must throwA[AuthenticatorRetrievalException].like {
         case e =>
@@ -322,13 +324,13 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
   "The `init` method of the service" should {
     "return the token if DAO is enabled and authenticator could be saved in backing store" in new WithApplication with Context {
-      repository.add(any()) answers { p: Any => Future.successful(p.asInstanceOf[JWTAuthenticator]) }
+      when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       val token = await(service(Some(repository)).init(authenticator))
 
       unserialize(token, authenticatorEncoder, settings).get must be equalTo authenticator
-      there was one(repository).add(any())
+      verify(repository).add(any())
     }
 
     "return the token if DAO is disabled" in new WithApplication with Context {
@@ -337,11 +339,11 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       val token = await(service(None).init(authenticator))
 
       unserialize(token, authenticatorEncoder, settings).get must be equalTo authenticator
-      there was no(repository).add(any())
+      verify(repository, never()).add(any())
     }
 
     "throws an AuthenticatorInitializationException exception if an error occurred during initialization" in new Context {
-      repository.add(any()) returns Future.failed(new Exception("Cannot store authenticator"))
+      when(repository.add(any())).thenReturn(Future.failed(new Exception("Cannot store authenticator")))
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val okResult = Future.successful(Results.Ok)
@@ -398,8 +400,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
-      settings.authenticatorIdleTimeout returns Some(1 second)
-      clock.now returns ZonedDateTime.now
+      when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
       service(None).touch(authenticator) must beLeft[JWTAuthenticator].like {
         case a =>
@@ -408,8 +410,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     }
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
-      settings.authenticatorIdleTimeout returns None
-      clock.now returns ZonedDateTime.now
+      when(settings.authenticatorIdleTimeout).thenReturn(None)
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
       service(None).touch(authenticator) must beRight[JWTAuthenticator].like {
         case a =>
@@ -420,39 +422,39 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
   "The `update` method of the service" should {
     "update the authenticator in backing store" in new WithApplication with Context {
-      repository.update(any()) answers { _: Any => Future.successful(authenticator) }
+      when(repository.update(any())).thenAnswer { _ => Future.successful(authenticator) }
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(service(Some(repository)).update(authenticator, Results.Ok))
 
-      there was one(repository).update(authenticator)
+      verify(repository).update(authenticator)
     }
 
     "return the result if the authenticator could be stored in backing store" in new WithApplication with Context {
-      repository.update(any()) answers { p: Any => Future.successful(p.asInstanceOf[JWTAuthenticator]) }
+      when(repository.update(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val result = service(Some(repository)).update(authenticator, Results.Ok)
 
       status(result) must be equalTo OK
       unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator
-      there was one(repository).update(authenticator)
+      verify(repository).update(authenticator)
     }
 
     "return the result if backing store is disabled" in new WithApplication with Context {
-      repository.update(any()) answers { p: Any => Future.successful(p.asInstanceOf[JWTAuthenticator]) }
+      when(repository.update(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val result = service(None).update(authenticator, Results.Ok)
 
       status(result) must be equalTo OK
       unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator
-      there was no(repository).update(any())
+      verify(repository, never()).update(any())
     }
 
     "throws an AuthenticatorUpdateException exception if an error occurred during update" in new WithApplication with Context {
-      repository.update(any()) returns Future.failed(new Exception("Cannot store authenticator"))
+      when(repository.update(any())).thenReturn(Future.failed(new Exception("Cannot store authenticator")))
 
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
@@ -468,10 +470,10 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val id = "new-test-id"
 
-      repository.remove(any()) answers { _: Any => Future.successful(()) }
-      repository.add(any()) answers { p: Any => Future.successful(p.asInstanceOf[JWTAuthenticator]) }
-      idGenerator.generate returns Future.successful(id)
-      clock.now returns ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0)
+      when(repository.remove(any())).thenAnswer { _ => Future.successful(()) }
+      when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+      when(idGenerator.generate).thenReturn(Future.successful(id))
+      when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
 
       val result = service(Some(repository)).renew(authenticator, Results.Ok)
 
@@ -480,18 +482,18 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
         expirationDateTime = clock.now + settings.authenticatorExpiry,
         lastUsedDateTime = clock.now)
 
-      there was one(repository).add(any())
-      there was one(repository).remove(authenticator.id)
+      verify(repository).add(any())
+      verify(repository).remove(authenticator.id)
     }
 
     "renew an authenticator with custom claims" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val id = "new-test-id"
 
-      repository.remove(any()) returns Future.successful(())
-      repository.add(any()) answers { p: Any => Future.successful(p.asInstanceOf[JWTAuthenticator]) }
-      idGenerator.generate returns Future.successful(id)
-      clock.now returns ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0)
+      when(repository.remove(any())).thenReturn(Future.successful(()))
+      when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+      when(idGenerator.generate).thenReturn(Future.successful(id))
+      when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
 
       val result = service(Some(repository)).renew(authenticator.copy(customClaims = Some(customClaims)), Results.Ok)
 
@@ -501,16 +503,16 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
         lastUsedDateTime = clock.now,
         customClaims = Some(customClaims))
 
-      there was one(repository).add(any())
-      there was one(repository).remove(authenticator.id)
+      verify(repository).add(any())
+      verify(repository).remove(authenticator.id)
     }
 
     "renew the authenticator and return the response with a new JWT if DAO is disabled" in new WithApplication with Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val id = "new-test-id"
 
-      idGenerator.generate returns Future.successful(id)
-      clock.now returns ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0)
+      when(idGenerator.generate).thenReturn(Future.successful(id))
+      when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
 
       val result = service(None).renew(authenticator, Results.Ok)
 
@@ -518,8 +520,8 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
         id = id,
         expirationDateTime = clock.now + settings.authenticatorExpiry,
         lastUsedDateTime = clock.now)
-      there was no(repository).remove(any())
-      there was no(repository).add(any())
+      verify(repository, never()).remove(any())
+      verify(repository, never()).add(any())
     }
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
@@ -527,10 +529,10 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
       val now = ZonedDateTime.now
       val id = "new-test-id"
 
-      repository.remove(any()) returns Future.successful(())
-      repository.add(any()) returns Future.failed(new Exception("Cannot store authenticator"))
-      idGenerator.generate returns Future.successful(id)
-      clock.now returns now
+      when(repository.remove(any())).thenReturn(Future.successful(()))
+      when(repository.add(any())).thenReturn(Future.failed(new Exception("Cannot store authenticator")))
+      when(idGenerator.generate).thenReturn(Future.successful(id))
+      when(clock.now).thenReturn(now)
 
       await(service(Some(repository)).renew(authenticator, Results.Ok)) must throwA[AuthenticatorRenewalException].like {
         case e =>
@@ -543,11 +545,11 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     "remove authenticator from backing store if DAO is enabled" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      repository.remove(authenticator.id) returns Future.successful(authenticator)
+      when(repository.remove(authenticator.id)).thenReturn(Future.successful(authenticator))
 
       await(service(Some(repository)).discard(authenticator, Results.Ok))
 
-      there was one(repository).remove(authenticator.id)
+      verify(repository).remove(authenticator.id)
     }
 
     "do not remove the authenticator from backing store if DAO is disabled" in new Context {
@@ -555,14 +557,14 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
 
       await(service(None).discard(authenticator, Results.Ok))
 
-      there was no(repository).remove(authenticator.id)
+      verify(repository, never()).remove(authenticator.id)
     }
 
     "throws an AuthenticatorDiscardingException exception if an error occurred during discarding" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val okResult = Results.Ok
 
-      repository.remove(authenticator.id) returns Future.failed(new Exception("Cannot remove authenticator"))
+      when(repository.remove(authenticator.id)).thenReturn(Future.failed(new Exception("Cannot remove authenticator")))
 
       await(service(Some(repository)).discard(authenticator, okResult)) must throwA[AuthenticatorDiscardingException].like {
         case e =>
@@ -581,7 +583,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     /**
      * The repository implementation.
      */
-    lazy val repository = mock[AuthenticatorRepository[JWTAuthenticator]].smart
+    lazy val repository = mockSmart[AuthenticatorRepository[JWTAuthenticator]]
 
     /**
      * The authenticator encoder implementation.
@@ -591,12 +593,12 @@ class JWTAuthenticatorSpec extends PlaySpecification with Mockito with JsonMatch
     /**
      * The ID generator implementation.
      */
-    lazy val idGenerator = mock[IDGenerator].smart
+    lazy val idGenerator = mockSmart[IDGenerator]
 
     /**
      * The clock implementation.
      */
-    lazy val clock: Clock = mock[Clock].smart
+    lazy val clock: Clock = mockSmart[Clock]
 
     /**
      * The settings.

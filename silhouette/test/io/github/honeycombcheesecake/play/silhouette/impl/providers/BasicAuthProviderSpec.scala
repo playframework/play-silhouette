@@ -21,6 +21,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.exceptions._
 import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.PasswordProvider._
 import play.api.test.{ FakeRequest, WithApplication }
+import org.mockito.Mockito._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -36,7 +37,7 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = LoginInfo(provider.id, credentials.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentials))
 
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
       await(provider.authenticate(request)) must throwA[ConfigurationException].like {
         case e => e.getMessage must beEqualTo(HasherIsNotRegistered.format(provider.id, "unknown", "foo, bar"))
@@ -47,7 +48,7 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = new LoginInfo(provider.id, credentials.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentials))
 
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(None)
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(None))
 
       await(provider.authenticate(request)) must beNone
     }
@@ -57,8 +58,8 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = LoginInfo(provider.id, credentials.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentials))
 
-      fooHasher.matches(passwordInfo, credentials.password) returns false
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+      when(fooHasher.matches(passwordInfo, credentials.password)).thenReturn(false)
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
       await(provider.authenticate(request)) must beNone
     }
@@ -78,8 +79,8 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = LoginInfo(provider.id, credentials.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentials))
 
-      fooHasher.matches(passwordInfo, credentials.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+      when(fooHasher.matches(passwordInfo, credentials.password)).thenReturn(true)
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
       await(provider.authenticate(request)) must beSome(loginInfo)
     }
@@ -90,8 +91,8 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = LoginInfo(provider.id, credentialsWithColon.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentialsWithColon))
 
-      fooHasher.matches(passwordInfo, credentialsWithColon.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+      when(fooHasher.matches(passwordInfo, credentialsWithColon.password)).thenReturn(true)
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
       await(provider.authenticate(request)) must beSome(loginInfo)
     }
@@ -101,13 +102,13 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = LoginInfo(provider.id, credentials.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentials))
 
-      fooHasher.hash(credentials.password) returns passwordInfo
-      barHasher.matches(passwordInfo, credentials.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
-      authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo) returns Future.successful(passwordInfo)
+      when(fooHasher.hash(credentials.password)).thenReturn(passwordInfo)
+      when(barHasher.matches(passwordInfo, credentials.password)).thenReturn(true)
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
+      when(authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo)).thenReturn(Future.successful(passwordInfo))
 
       await(provider.authenticate(request)) must beSome(loginInfo)
-      there was one(authInfoRepository).update(loginInfo, passwordInfo)
+      verify(authInfoRepository).update(loginInfo, passwordInfo)
     }
 
     "re-hash password with new hasher if password info is deprecated" in new WithApplication with Context {
@@ -115,14 +116,14 @@ class BasicAuthProviderSpec extends PasswordProviderSpec {
       val loginInfo = LoginInfo(provider.id, credentials.identifier)
       val request = FakeRequest().withHeaders(AUTHORIZATION -> encodeCredentials(credentials))
 
-      fooHasher.isDeprecated(passwordInfo) returns Some(true)
-      fooHasher.hash(credentials.password) returns passwordInfo
-      fooHasher.matches(passwordInfo, credentials.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
-      authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo) returns Future.successful(passwordInfo)
+      when(fooHasher.isDeprecated(passwordInfo)).thenReturn(Some(true))
+      when(fooHasher.hash(credentials.password)).thenReturn(passwordInfo)
+      when(fooHasher.matches(passwordInfo, credentials.password)).thenReturn(true)
+      when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
+      when(authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo)).thenReturn(Future.successful(passwordInfo))
 
       await(provider.authenticate(request)) must beSome(loginInfo)
-      there was one(authInfoRepository).update(loginInfo, passwordInfo)
+      verify(authInfoRepository).update(loginInfo, passwordInfo)
     }
 
     "return None if Authorization method is not Basic and Base64 decoded header has ':'" in new WithApplication with Context {

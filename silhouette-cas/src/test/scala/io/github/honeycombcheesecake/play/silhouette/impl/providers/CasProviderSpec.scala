@@ -20,7 +20,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.HTTPLayer
 import io.github.honeycombcheesecake.play.silhouette.api.{ Logger, LoginInfo }
 
 import org.jasig.cas.client.authentication.AttributePrincipal
-import org.specs2.mock.Mockito
+import org.mockito.Mockito._
 import org.specs2.specification.Scope
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -33,7 +33,7 @@ import scala.concurrent.duration._
 /**
  * Test case for the [[CasProvider]] class.
  */
-class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logger {
+class CasProviderSpec extends SocialProviderSpec[CasInfo] with Logger {
 
   "The settings" should {
     "fail with a ConfigurationException if casURL is invalid" in new Context {
@@ -95,9 +95,9 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
 
   "The `retrieveProfile` method" should {
     "return a valid profile if the CAS client validates the ticket" in new Context {
-      principal.getName returns userName
-      principal.getAttributes returns attr
-      client.validateServiceTicket(ticket) returns Future.successful(principal)
+      when(principal.getName).thenReturn(userName)
+      when(principal.getAttributes).thenReturn(attr)
+      when(client.validateServiceTicket(ticket)).thenReturn(Future.successful(principal))
 
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?ticket=%s".format(ticket))
 
@@ -129,8 +129,8 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
       redirectURL = "https://cas-redirect/")
 
     lazy val httpLayer = {
-      val m = mock[HTTPLayer]
-      m.executionContext returns global
+      val m = mock(classOf[HTTPLayer])
+      when(m.executionContext).thenReturn(global)
       m
     }
 
@@ -144,7 +144,7 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
 
     lazy val casAuthInfo = CasInfo(ticket)
 
-    lazy val principal = mock[AttributePrincipal].smart
+    lazy val principal = mock(classOf[AttributePrincipal], withSettings().defaultAnswer(RETURNS_SMART_NULLS))
 
     lazy val name = "abc123"
     lazy val email = "email"

@@ -280,7 +280,7 @@ class CookieAuthenticatorService(
     val combinedCookies = filteredCookies :+ cookie
     val cookies = Cookies(combinedCookies)
 
-    request.withAttrs(request.attrs.updated(RequestAttrKey.Cookies.bindValue(Cell(cookies))))
+    request.withAttrs(request.attrs.updated(RequestAttrKey.Cookies, Cell(cookies)))
   }
 
   /**

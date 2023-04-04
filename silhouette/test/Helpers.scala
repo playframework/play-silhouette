@@ -19,7 +19,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.AuthInfo
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ SocialProfile, SocialStateItem, StatefulAuthInfo }
 import org.specs2.execute.{ AsResult, Result => Specs2Result }
 import org.specs2.matcher.{ JsonMatchers, MatchResult }
-import org.specs2.mock.Mockito
 import org.specs2.mutable.Around
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc.{ Result => PlayResult }
@@ -28,6 +27,7 @@ import play.api.test.PlaySpecification
 import scala.concurrent.Future
 import scala.io.{ Codec, Source }
 import scala.reflect.ClassTag
+import org.mockito.Mockito
 
 /**
  * Executes a before method in the context of the around method.
@@ -63,7 +63,7 @@ trait BeforeAfterWithinAround extends Around {
 /**
  * Base test case for the social providers.
  */
-trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with Mockito with JsonMatchers {
+trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with JsonMatchers {
 
   /**
    * Applies a matcher on a simple result.
@@ -121,7 +121,7 @@ trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with Mockito w
 
     lazy val result = await(providerResult.failed)
 
-    result must not[Any](throwAn[E])
+    result must not[Throwable](throwAn[E])
     result.rethrow must throwAn[E].like(f)
   }
 }
@@ -177,4 +177,15 @@ object Helper {
       case None => throw new Exception("Cannot load file: " + file)
     }
   }
+
+  /**
+   * Mock related helpers
+   */
+
+  def mock[A](implicit a: ClassTag[A]): A =
+    Mockito.mock(a.runtimeClass).asInstanceOf[A]
+
+  def mockSmart[A](implicit a: ClassTag[A]): A =
+    Mockito.mock(a.runtimeClass, Mockito.withSettings().defaultAnswer(Mockito.RETURNS_SMART_NULLS)).asInstanceOf[A]
+
 }

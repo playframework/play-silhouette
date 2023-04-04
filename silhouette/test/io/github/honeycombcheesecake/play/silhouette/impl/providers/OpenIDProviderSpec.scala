@@ -19,12 +19,15 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.HTTPLayer
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.UnexpectedResponseException
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.OpenIDProvider._
 import org.specs2.matcher.ThrownExpectations
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito._
+import org.mockito.ArgumentCaptor
 import play.api.mvc.{ AnyContent, AnyContentAsEmpty }
 import play.api.test.{ FakeHeaders, FakeRequest, WithApplication }
 import play.mvc.Http.HeaderNames
 import test.SocialProviderSpec
+import test.Helper.mock
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -42,7 +45,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     "fail with an UnexpectedResponseException if redirect URL couldn't be retrieved" in new WithApplication {
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      c.openIDService.redirectURL(any(), any())(any()) returns Future.failed(new Exception(""))
+      when(c.openIDService.redirectURL(any(), any())(any())).thenReturn(Future.failed(new Exception("")))
 
       failed[UnexpectedResponseException](c.provider.authenticate()) {
         case e => e.getMessage must startWith(ErrorRedirectURL.format(c.provider.id, ""))
@@ -51,7 +54,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
 
     "redirect to provider by using the provider URL" in new WithApplication {
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      c.openIDService.redirectURL(any(), any())(any()) answers { _: Any => Future.successful(c.openIDSettings.providerURL) }
+      when(c.openIDService.redirectURL(any(), any())(any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
 
       result(c.provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
@@ -61,7 +64,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
 
     "redirect to provider by using a openID" in new WithApplication {
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?openID=my.open.id")
-      c.openIDService.redirectURL(any(), any())(any()) answers { _: Any => Future.successful(c.openIDSettings.providerURL) }
+      when(c.openIDService.redirectURL(any(), any())(any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
 
       result(c.provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
@@ -89,16 +92,18 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
         body = AnyContentAsEmpty,
         secure = secure)
 
-      c.openIDSettings.callbackURL returns callbackURL
-      c.openIDService.redirectURL(any(), any())(any()) answers { _: Any => Future.successful(c.openIDSettings.providerURL) }
+      when(c.openIDSettings.callbackURL).thenReturn(callbackURL)
+      when(c.openIDService.redirectURL(any(), any())(any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
 
       await(c.provider.authenticate())
-      there was one(c.openIDService).redirectURL(any(), ===(resolvedCallbackURL))(any())
+      val argument = ArgumentCaptor.forClass(classOf[String])
+      verify(c.openIDService).redirectURL(any(), argument.capture())(any())
+      assert(argument.getValue() === resolvedCallbackURL)
     }
 
     "fail with an UnexpectedResponseException if auth info cannot be retrieved" in new WithApplication {
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Mode + "=id_res")
-      c.openIDService.verifiedID(any(), any()) returns Future.failed(new Exception(""))
+      when(c.openIDService.verifiedID(any(), any())).thenReturn(Future.failed(new Exception("")))
 
       failed[UnexpectedResponseException](c.provider.authenticate()) {
         case e => e.getMessage must startWith(ErrorVerification.format(c.provider.id, ""))
@@ -107,7 +112,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
 
     "return the auth info" in new WithApplication {
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Mode + "=id_res")
-      c.openIDService.verifiedID(any(), any()) answers { _: Any => Future.successful(c.openIDInfo) }
+      when(c.openIDService.verifiedID(any(), any())).thenAnswer(_ => Future.successful(c.openIDInfo))
 
       authInfo(c.provider.authenticate())(_ must be equalTo c.openIDInfo)
     }
@@ -131,14 +136,14 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
 /**
  * Context for the OpenIDProviderSpec.
  */
-trait OpenIDProviderSpecContext extends Scope with Mockito with ThrownExpectations {
+trait OpenIDProviderSpecContext extends Scope with ThrownExpectations {
 
   /**
    * The HTTP layer mock.
    */
   lazy val httpLayer = {
     val m = mock[HTTPLayer]
-    m.executionContext returns global
+    when(m.executionContext).thenReturn(global)
     m
   }
 
