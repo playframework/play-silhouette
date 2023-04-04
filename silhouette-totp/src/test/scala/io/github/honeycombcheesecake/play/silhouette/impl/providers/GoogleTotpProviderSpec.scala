@@ -17,7 +17,8 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers
 
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Credentials, PasswordInfo }
 import com.warrenstrange.googleauth.GoogleAuthenticator
-import org.specs2.mock.Mockito
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
 import play.api.test.WithApplication
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,7 +26,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.GoogleTotpProvider#GoogleTOTPProvider]] class.
  */
-class GoogleTotpProviderSpec extends PasswordProviderSpec with Mockito {
+class GoogleTotpProviderSpec extends PasswordProviderSpec {
   "The `authenticate` with verification code method" should {
     "return None when the sharedKey is null or empty" in new WithApplication with Context {
       await(provider.authenticate(null.asInstanceOf[String], testVerificationCode)) should be(None)
@@ -51,9 +52,9 @@ class GoogleTotpProviderSpec extends PasswordProviderSpec with Mockito {
   "The `createCredentials` method" should {
     "return the correct TotpCredentials shared key" in new WithApplication with Context {
       val result = provider.createCredentials(credentials.identifier)
-      result.totpInfo.sharedKey must not be empty
-      result.totpInfo.scratchCodes must not be empty
-      result.qrUrl must not be empty
+      result.totpInfo.sharedKey.nonEmpty must beTrue
+      result.totpInfo.scratchCodes.nonEmpty must beTrue
+      result.qrUrl.nonEmpty must beTrue
     }
   }
 
@@ -73,8 +74,8 @@ class GoogleTotpProviderSpec extends PasswordProviderSpec with Mockito {
     }
 
     "return Some(PasswordInfo,TotpInfo) when the plain scratch code is valid" in new WithApplication with Context {
-      fooHasher.hash(any()) returns testPasswordInfo
-      barHasher.matches(testPasswordInfo, testScratchCode) returns true
+      when(fooHasher.hash(any())).thenReturn(testPasswordInfo)
+      when(barHasher.matches(testPasswordInfo, testScratchCode)).thenReturn(true)
       val result = provider.createCredentials(credentials.identifier)
       await(provider.authenticate(result.totpInfo, testScratchCode)) should not be empty
     }

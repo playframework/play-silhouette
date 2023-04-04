@@ -22,7 +22,10 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialProfil
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.LinkedInProvider._
 import play.api.test.WithApplication
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
 import test.Helper
+import test.Helper.mock
 
 import scala.concurrent.Future
 
@@ -39,7 +42,7 @@ class LinkedInProviderSpec extends OAuth1ProviderSpec {
       val s = provider.withSettings(overrideSettingsFunction)
 
       s.settings.requestTokenURL must be equalTo "new-request-token-url"
-      there was one(oAuthService).withSettings(overrideSettingsFunction)
+      verify(oAuthService).withSettings(overrideSettingsFunction)
     }
   }
 
@@ -47,10 +50,10 @@ class LinkedInProviderSpec extends OAuth1ProviderSpec {
     "fail with ProfileRetrievalException if API returns error" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/linkedin.error.json")
-      httpLayer.url(API) returns wsRequest
+      when(wsRequest.sign(any)).thenReturn(wsRequest)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/linkedin.error.json"))
+      when(httpLayer.url(API)).thenReturn(wsRequest)
 
       failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
         case e => e.getMessage must equalTo(SpecifiedProfileError.format(
@@ -66,10 +69,10 @@ class LinkedInProviderSpec extends OAuth1ProviderSpec {
     "fail with ProfileRetrievalException if an unexpected error occurred" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json throws new RuntimeException("")
-      httpLayer.url(API) returns wsRequest
+      when(wsRequest.sign(any)).thenReturn(wsRequest)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(wsResponse.json).thenThrow(new RuntimeException(""))
+      when(httpLayer.url(API)).thenReturn(wsRequest)
 
       failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
         case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
@@ -80,24 +83,24 @@ class LinkedInProviderSpec extends OAuth1ProviderSpec {
       val url = "https://custom.api.url"
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      oAuthSettings.apiURL returns Some(url)
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/linkedin.success.json")
-      httpLayer.url(url) returns wsRequest
+      when(oAuthSettings.apiURL).thenReturn(Some(url))
+      when(wsRequest.sign(any)).thenReturn(wsRequest)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/linkedin.success.json"))
+      when(httpLayer.url(url)).thenReturn(wsRequest)
 
       await(provider.retrieveProfile(oAuthInfo))
 
-      there was one(httpLayer).url(url)
+      verify(httpLayer).url(url)
     }
 
     "return the social profile" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/linkedin.success.json")
-      httpLayer.url(API) returns wsRequest
+      when(wsRequest.sign(any)).thenReturn(wsRequest)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/linkedin.success.json"))
+      when(httpLayer.url(API)).thenReturn(wsRequest)
 
       profile(provider.retrieveProfile(oAuthInfo)) { p =>
         p must be equalTo CommonSocialProfile(

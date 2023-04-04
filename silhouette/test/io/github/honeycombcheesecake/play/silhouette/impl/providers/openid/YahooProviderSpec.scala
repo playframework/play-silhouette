@@ -18,6 +18,7 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers.openid
 import io.github.honeycombcheesecake.play.silhouette.api.LoginInfo
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import play.api.test.WithApplication
+import org.mockito.Mockito._
 
 /**
  * Test case for the [[YahooProvider]] class.
@@ -32,7 +33,7 @@ class YahooProviderSpec extends OpenIDProviderSpec {
       val s = provider.withSettings(overrideSettingsFunction)
 
       s.settings.providerURL must be equalTo "new-provider-url"
-      there was one(openIDService).withSettings(overrideSettingsFunction)
+      verify(openIDService).withSettings(overrideSettingsFunction)
     }
   }
 

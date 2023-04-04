@@ -24,7 +24,10 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth2.GitLabProvider._
 import play.api.libs.json.Json
 import play.api.test.{ FakeRequest, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers._
 import test.Helper
+import test.Helper.mock
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -48,13 +51,13 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
       implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 401
-      wsResponse.body returns "Unauthorized"
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
+      when(wsResponse.status).thenReturn(401)
+      when(wsResponse.body).thenReturn("Unauthorized")
+      when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+      when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
       failed[UnexpectedResponseException](provider.authenticate()) {
         case e => e.getMessage must startWith(UnexpectedResponse.format(provider.id, "Unauthorized", 401))
@@ -65,13 +68,13 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
       implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 200
-      wsResponse.json returns Json.obj()
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(Json.obj())
+      when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+      when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
       failed[UnexpectedResponseException](provider.authenticate()) {
         case e => e.getMessage must startWith(InvalidInfoFormat.format(provider.id, ""))
@@ -82,13 +85,13 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
       implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 200
-      wsResponse.json returns oAuthInfo
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(oAuthInfo)
+      when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+      when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
       authInfo(provider.authenticate())(_ must be equalTo oAuthInfo.as[OAuth2Info])
     }
@@ -99,15 +102,15 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
       implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 200
-      wsResponse.json returns oAuthInfo
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.withHandler(any[SocialStateItemHandler]) returns stateProvider
-      state.items returns Set(userStateItem)
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(oAuthInfo)
+      when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+      when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.withHandler(any[SocialStateItemHandler])).thenReturn(stateProvider)
+      when(state.items).thenReturn(Set(userStateItem))
 
       statefulAuthInfo(provider.authenticate(userStateItem))(_ must be equalTo stateAuthInfo)
     }
@@ -117,10 +120,10 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
     "fail with ProfileRetrievalException if API returns error" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 400
-      wsResponse.json returns Helper.loadJson("providers/oauth2/gitlab.error.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token")) returns wsRequest
+      when(wsResponse.status).thenReturn(400)
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/gitlab.error.json"))
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 
       failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
         case e => e.getMessage must equalTo(SpecifiedProfileError.format(
@@ -132,10 +135,10 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
     "fail with ProfileRetrievalException if an unexpected error occurred" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 500
-      wsResponse.json throws new RuntimeException("")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token")) returns wsRequest
+      when(wsResponse.status).thenReturn(500)
+      when(wsResponse.json).thenThrow(new RuntimeException(""))
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 
       failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
         case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
@@ -146,24 +149,24 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
       val url = "https://custom.api.url?access_token=%s"
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      oAuthSettings.apiURL returns Some(url)
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/gitlab.success.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(url.format("my.access.token")) returns wsRequest
+      when(oAuthSettings.apiURL).thenReturn(Some(url))
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/gitlab.success.json"))
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(url.format("my.access.token"))).thenReturn(wsRequest)
 
       await(provider.retrieveProfile(oAuthInfo.as[OAuth2Info]))
 
-      there was one(httpLayer).url(url.format("my.access.token"))
+      verify(httpLayer).url(url.format("my.access.token"))
     }
 
     "return the social profile" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/gitlab.success.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token")) returns wsRequest
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/gitlab.success.json"))
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 
       profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
         p must be equalTo CommonSocialProfile(

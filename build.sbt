@@ -2,9 +2,11 @@ import Dependencies.Library
 import sbt.CrossVersion
 
 lazy val repo: String = "https://s01.oss.sonatype.org"
-lazy val scala213: String = "2.13.8"
+lazy val scala213: String = "2.13.10"
 lazy val scala31: String = "3.1.2" // Ready for cross build, currently not yet supported by play.
 lazy val supportedScalaVersions: Seq[String] = Seq(scala213 /*, scala31*/)
+
+Global / evictionErrorLevel   := Level.Info
 
 ThisBuild / description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes"
 ThisBuild / homepage := Some(url("https://silhouette.readme.io/"))
@@ -49,7 +51,7 @@ ThisBuild / publishTo := {
   }
 }
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
-ThisBuild / scapegoatVersion := "1.4.13"
+ThisBuild / scapegoatVersion := "2.1.1"
 
 dependencyCheckAssemblyAnalyzerEnabled := Some(false)
 dependencyCheckFormat := "ALL"
@@ -101,7 +103,9 @@ lazy val silhouette = (project in file("silhouette"))
   .settings(
     name := "play-silhouette",
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.akka", name = "akka-testkit"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "om.auth0", name = "java-jwt"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.cache,
@@ -111,7 +115,7 @@ lazy val silhouette = (project in file("silhouette"))
         Library.apacheCommonLang,
         Library.Play.specs2 % Test,
         Library.Specs2.matcherExtra % Test,
-        Library.Specs2.mock % Test,
+        Library.mockito % Test,
         Library.scalaGuice % Test,
         Library.akkaTestkit % Test
       ),
@@ -119,20 +123,21 @@ lazy val silhouette = (project in file("silhouette"))
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .enablePlugins(PlayScala)
+  .disablePlugins(PlayAkkaHttpServer)
 
 lazy val silhouetteCas = (project in file("silhouette-cas"))
   .settings(
     name := "play-silhouette-cas",
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.casClient,
         Library.casClientSupportSAML,
         Library.Play.specs2 % Test,
         Library.Specs2.matcherExtra % Test,
-        Library.Specs2.mock % Test,
+        Library.mockito % Test,
         Library.scalaGuice % Test
       ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
@@ -144,6 +149,7 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
     name := "play-silhouette-totp",
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.googleAuth,
@@ -159,6 +165,9 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-codec", name = "commons-codec"),
+
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.commonsCodec,
@@ -174,6 +183,7 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
     name := "play-silhouette-password-argon2",
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.argon2,
@@ -188,6 +198,7 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
     name := "play-silhouette-password-bcrypt",
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.jbcrypt,
@@ -203,12 +214,12 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Specs2.core % Test,
         Library.Specs2.matcherExtra % Test,
-        Library.Specs2.mock % Test,
+        Library.mockito % Test,
         Library.scalaGuice % Test
       ),
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
@@ -220,13 +231,14 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
     name := "play-silhouette-testkit",
     dependencyUpdatesFailBuild := true,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.akka", name = "akka-testkit"),
+    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.test,
         Library.Play.specs2 % Test,
         Library.Specs2.matcherExtra % Test,
-        Library.Specs2.mock % Test,
+        Library.mockito % Test,
         Library.scalaGuice % Test,
         Library.akkaTestkit % Test
       ),

@@ -18,14 +18,15 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.TwitterProvider
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth2.{ GoogleProvider, FacebookProvider }
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.openid.YahooProvider
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.test.PlaySpecification
+import org.mockito.Mockito._
+import test.Helper.mock
 
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialProviderRegistry]] class.
  */
-class SocialProviderRegistrySpec extends PlaySpecification with Mockito {
+class SocialProviderRegistrySpec extends PlaySpecification {
 
   "The `get` method" should {
     "return a provider by its type" in new Context {
@@ -79,11 +80,11 @@ class SocialProviderRegistrySpec extends PlaySpecification with Mockito {
      */
     val providers = {
       val facebook = mock[FacebookProvider]
-      facebook.id returns FacebookProvider.ID
+      when(facebook.id).thenReturn(FacebookProvider.ID)
       val google = mock[GoogleProvider]
-      google.id returns GoogleProvider.ID
+      when(google.id).thenReturn(GoogleProvider.ID)
       val twitter = mock[TwitterProvider]
-      twitter.id returns TwitterProvider.ID
+      when(twitter.id).thenReturn(TwitterProvider.ID)
 
       Seq(
         facebook,

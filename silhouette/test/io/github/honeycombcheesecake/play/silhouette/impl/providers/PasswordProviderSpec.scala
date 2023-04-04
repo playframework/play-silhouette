@@ -17,14 +17,16 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers
 
 import io.github.honeycombcheesecake.play.silhouette.api.repositories.AuthInfoRepository
 import io.github.honeycombcheesecake.play.silhouette.api.util._
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.mock
 import play.api.test.PlaySpecification
 
 /**
  * Abstract test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.PasswordProvider]] based class.
  */
-trait PasswordProviderSpec extends PlaySpecification with Mockito {
+trait PasswordProviderSpec extends PlaySpecification {
 
   /**
    * The context.
@@ -59,11 +61,11 @@ trait PasswordProviderSpec extends PlaySpecification with Mockito {
      */
     private def hasher(id: String) = {
       val h = mock[PasswordHasher]
-      h.id returns id
-      h.isSuitable(any()) answers { p: Any =>
-        p.asInstanceOf[PasswordInfo].hasher == h.id
+      when(h.id).thenReturn(id)
+      when(h.isSuitable(any())).thenAnswer { p =>
+        p.getArgument(0).asInstanceOf[PasswordInfo].hasher == h.id
       }
-      h.isDeprecated(any()) returns Some(false)
+      when(h.isDeprecated(any())).thenReturn(Some(false))
       h
     }
   }

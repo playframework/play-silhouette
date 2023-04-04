@@ -19,17 +19,18 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialStateI
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialStateItem.ItemStructure
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.state.UserStateItemHandler._
 import org.specs2.matcher.JsonMatchers
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
 import play.api.test.{ FakeRequest, PlaySpecification }
+import org.mockito.Mockito._
+import test.Helper.mockSmart
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  *  Test case for the [[UserStateItemHandler]] class.
  */
-class UserStateItemHandlerSpec extends PlaySpecification with Mockito with JsonMatchers {
+class UserStateItemHandlerSpec extends PlaySpecification with JsonMatchers {
 
   "The `item` method" should {
     "return the user state item" in new Context {
@@ -43,7 +44,7 @@ class UserStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
     }
 
     "should return `None` if it can't handle the given item" in new Context {
-      val nonUserState = mock[SocialStateItem].smart
+      val nonUserState = mockSmart[SocialStateItem]
 
       userStateItemHandler.canHandle(nonUserState) must beNone
     }
@@ -51,8 +52,8 @@ class UserStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
 
   "The `canHandle` method" should {
     "return false if the give item is for another handler" in new Context {
-      val nonUserItemStructure = mock[ItemStructure].smart
-      nonUserItemStructure.id returns "non-user-item"
+      val nonUserItemStructure = mockSmart[ItemStructure]
+      when(nonUserItemStructure.id).thenReturn("non-user-item")
 
       implicit val request = FakeRequest()
       userStateItemHandler.canHandle(nonUserItemStructure) must beFalse
