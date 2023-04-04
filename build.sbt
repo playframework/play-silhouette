@@ -119,6 +119,7 @@ lazy val silhouette = (project in file("silhouette"))
     scapegoatDisabledInspections := Seq("AsInstanceOf", "BooleanParameter", "ComparingUnrelatedTypes", "FinalModifierOnCaseClass", "MethodNames")
   )
   .enablePlugins(PlayScala)
+  .disablePlugins(PlayAkkaHttpServer)
 
 lazy val silhouetteCas = (project in file("silhouette-cas"))
   .settings(
