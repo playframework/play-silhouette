@@ -21,11 +21,13 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.ExtractableRequest
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.DefaultSocialStateHandler._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialStateItem.ItemStructure
 import org.specs2.matcher.JsonMatchers
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.{ FakeRequest, PlaySpecification }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.mockSmart
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -34,11 +36,11 @@ import scala.util.{ Failure, Success }
 /**
  *  Test case for the [[DefaultSocialStateHandler]] class.
  */
-class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with JsonMatchers {
+class DefaultSocialStateHandlerSpec extends PlaySpecification with JsonMatchers {
 
   "The `withHandler` method" should {
     "return a new state handler with the given item handler added" in new Context {
-      val newHandler = mock[SocialStateItemHandler].smart
+      val newHandler = mockSmart[SocialStateItemHandler]
 
       stateHandler.handlers.size must be equalTo 2
       stateHandler.withHandler(newHandler).handlers.size must be equalTo 3
@@ -47,8 +49,8 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
 
   "The `state` method" should {
     "return the social state" in new Context {
-      Default.itemHandler.item returns Future.successful(Default.item)
-      Publishable.itemHandler.item returns Future.successful(Publishable.item)
+      when(Default.itemHandler.item).thenReturn(Future.successful(Default.item))
+      when(Publishable.itemHandler.item).thenReturn(Future.successful(Publishable.item))
 
       await(stateHandler.state) must be equalTo state
     }
@@ -66,13 +68,13 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
     }
 
     "return the serialized social state" in new Context {
-      Default.itemHandler.canHandle(Publishable.item) returns None
-      Default.itemHandler.canHandle(Default.item) returns Some(Default.item)
-      Default.itemHandler.serialize(Default.item) returns Default.structure
+      when(Default.itemHandler.canHandle(Publishable.item)).thenReturn(None)
+      when(Default.itemHandler.canHandle(Default.item)).thenReturn(Some(Default.item))
+      when(Default.itemHandler.serialize(Default.item)).thenReturn(Default.structure)
 
-      Publishable.itemHandler.canHandle(Default.item) returns None
-      Publishable.itemHandler.canHandle(Publishable.item) returns Some(Publishable.item)
-      Publishable.itemHandler.serialize(Publishable.item) returns Publishable.structure
+      when(Publishable.itemHandler.canHandle(Default.item)).thenReturn(None)
+      when(Publishable.itemHandler.canHandle(Publishable.item)).thenReturn(Some(Publishable.item))
+      when(Publishable.itemHandler.serialize(Publishable.item)).thenReturn(Publishable.structure)
 
       stateHandler.serialize(state) must be equalTo s"${Publishable.structure.asString}.${Default.structure.asString}"
     }
@@ -85,7 +87,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
 
       await(stateHandler.unserialize(""))
 
-      there was no(signer).extract(any[String]())
+      verify(signer, never()).extract(any[String]())
     }
 
     "throw an Exception for an empty string" in new Context {
@@ -111,8 +113,8 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
       implicit val request = new ExtractableRequest(FakeRequest())
       val serialized = s"${Default.structure.asString}"
 
-      Default.itemHandler.canHandle(any[ItemStructure]())(any()) returns false
-      Publishable.itemHandler.canHandle(any[ItemStructure]())(any()) returns false
+      when(Default.itemHandler.canHandle(any[ItemStructure]())(any())).thenReturn(false)
+      when(Publishable.itemHandler.canHandle(any[ItemStructure]())(any())).thenReturn(false)
 
       await(stateHandler.unserialize(serialized)) must throwA[ProviderException].like {
         case e =>
@@ -124,13 +126,13 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
       implicit val request = new ExtractableRequest(FakeRequest())
       val serialized = s"${Default.structure.asString}.${Publishable.structure.asString}"
 
-      Default.itemHandler.canHandle(Publishable.structure) returns false
-      Default.itemHandler.canHandle(Default.structure) returns true
-      Default.itemHandler.unserialize(Default.structure) returns Future.successful(Default.item)
+      when(Default.itemHandler.canHandle(Publishable.structure)).thenReturn(false)
+      when(Default.itemHandler.canHandle(Default.structure)).thenReturn(true)
+      when(Default.itemHandler.unserialize(Default.structure)).thenReturn(Future.successful(Default.item))
 
-      Publishable.itemHandler.canHandle(Default.structure) returns false
-      Publishable.itemHandler.canHandle(Publishable.structure) returns true
-      Publishable.itemHandler.unserialize(Publishable.structure) returns Future.successful(Publishable.item)
+      when(Publishable.itemHandler.canHandle(Default.structure)).thenReturn(false)
+      when(Publishable.itemHandler.canHandle(Publishable.structure)).thenReturn(true)
+      when(Publishable.itemHandler.unserialize(Publishable.structure)).thenReturn(Future.successful(Publishable.item))
 
       await(stateHandler.unserialize(serialized)) must be equalTo SocialState(Set(Default.item, Publishable.item))
     }
@@ -142,9 +144,9 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
       val result = Results.Ok
       val publishedResult = Results.Ok.withHeaders("X-PUBLISHED" -> "true")
 
-      Publishable.itemHandler.publish(Publishable.item, result) returns publishedResult
-      Publishable.itemHandler.canHandle(Default.item) returns None
-      Publishable.itemHandler.canHandle(Publishable.item) returns Some(Publishable.item)
+      when(Publishable.itemHandler.publish(Publishable.item, result)).thenReturn(publishedResult)
+      when(Publishable.itemHandler.canHandle(Default.item)).thenReturn(None)
+      when(Publishable.itemHandler.canHandle(Publishable.item)).thenReturn(Some(Publishable.item))
 
       stateHandler.publish(result, state) must be equalTo publishedResult
     }
@@ -153,8 +155,8 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
       implicit val request = FakeRequest()
       val result = Results.Ok
 
-      Publishable.itemHandler.canHandle(Default.item) returns None
-      Publishable.itemHandler.canHandle(Publishable.item) returns None
+      when(Publishable.itemHandler.canHandle(Default.item)).thenReturn(None)
+      when(Publishable.itemHandler.canHandle(Publishable.item)).thenReturn(None)
 
       stateHandler.publish(result, state) must be equalTo result
     }
@@ -173,7 +175,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
       type Item = DefaultItem
     }
     object Default {
-      val itemHandler = mock[DefaultItemHandler].smart
+      val itemHandler = mockSmart[DefaultItemHandler]
       val item = DefaultItem()
       val structure = ItemStructure("default", Json.obj())
     }
@@ -186,7 +188,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
       type Item = PublishableItem
     }
     object Publishable {
-      val itemHandler = mock[PublishableItemHandler].smart
+      val itemHandler = mockSmart[PublishableItemHandler]
       val item = PublishableItem()
       val structure = ItemStructure("publishable", Json.obj())
     }
@@ -197,10 +199,10 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
      * The signer returns the same value as passed to the methods. This is enough for testing.
      */
     val signer = {
-      val c = mock[Signer].smart
-      c.sign(any()) answers { p: Any => p.asInstanceOf[String] }
-      c.extract(any()) answers { p: Any =>
-        p.asInstanceOf[String] match {
+      val c = mockSmart[Signer]
+      when(c.sign(any())).thenAnswer(_.getArgument(0).asInstanceOf[String])
+      when(c.extract(any())).thenAnswer { p =>
+        p.getArgument(0).asInstanceOf[String] match {
           case "" => Failure(new RuntimeException("Wrong state format"))
           case s => Success(s)
         }

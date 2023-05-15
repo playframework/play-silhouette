@@ -26,11 +26,13 @@ import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginI
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
 import org.specs2.control.NoLanguageFeatures
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.{ mockSmart, mock }
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,7 +43,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator]].
  */
-class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLanguageFeatures {
+class SessionAuthenticatorSpec extends PlaySpecification with NoLanguageFeatures {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {
@@ -88,9 +90,9 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return a fingerprinted authenticator" in new Context {
       implicit val request = FakeRequest()
 
-      clock.now returns ZonedDateTime.now
-      fingerprintGenerator.generate(any) returns "test"
-      settings.useFingerprinting returns true
+      when(clock.now).thenReturn(ZonedDateTime.now)
+      when(fingerprintGenerator.generate(any)).thenReturn("test")
+      when(settings.useFingerprinting).thenReturn(true)
 
       await(service.create(loginInfo)).fingerprint must beSome("test")
     }
@@ -98,8 +100,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return a non fingerprinted authenticator" in new Context {
       implicit val request = FakeRequest()
 
-      clock.now returns ZonedDateTime.now
-      settings.useFingerprinting returns false
+      when(clock.now).thenReturn(ZonedDateTime.now)
+      when(settings.useFingerprinting).thenReturn(false)
 
       await(service.create(loginInfo)).fingerprint must beNone
     }
@@ -108,7 +110,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request = FakeRequest()
       val now = ZonedDateTime.now
 
-      clock.now returns now
+      when(clock.now).thenReturn(now)
 
       await(service.create(loginInfo)).lastUsedDateTime must be equalTo now
     }
@@ -117,7 +119,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request = FakeRequest()
       val now = ZonedDateTime.now
 
-      clock.now returns now
+      when(clock.now).thenReturn(now)
 
       await(service.create(loginInfo)).expirationDateTime must be equalTo now + 12.hours
     }
@@ -127,8 +129,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       val sixHours = 6 hours
       val now = ZonedDateTime.now
 
-      clock.now returns now
-      settings.authenticatorExpiry returns sixHours
+      when(clock.now).thenReturn(now)
+      when(settings.authenticatorExpiry).thenReturn(sixHours)
 
       await(service.create(loginInfo)).expirationDateTime must be equalTo now + sixHours
     }
@@ -136,7 +138,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "throws an AuthenticatorCreationException exception if an error occurred during creation" in new Context {
       implicit val request = FakeRequest()
 
-      clock.now throws new RuntimeException("Could not get date")
+      when(clock.now).thenThrow(new RuntimeException("Could not get date"))
 
       await(service.create(loginInfo)) must throwA[AuthenticatorCreationException].like {
         case e =>
@@ -155,7 +157,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return None if session contains invalid json" in new WithApplication with Context {
       implicit val request = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode("{"))
 
-      settings.useFingerprinting returns false
+      when(settings.useFingerprinting).thenReturn(false)
 
       await(service.retrieve) must beNone
     }
@@ -163,15 +165,15 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return None if session contains valid json but invalid authenticator" in new WithApplication with Context {
       implicit val request = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode("{ \"test\": \"test\" }"))
 
-      settings.useFingerprinting returns false
+      when(settings.useFingerprinting).thenReturn(false)
 
       await(service.retrieve) must beNone
     }
 
     "return None if authenticator fingerprint doesn't match current fingerprint" in new WithApplication with Context {
-      fingerprintGenerator.generate(any) returns "false"
-      settings.useFingerprinting returns true
-      authenticator.fingerprint returns Some("test")
+      when(fingerprintGenerator.generate(any)).thenReturn("false")
+      when(settings.useFingerprinting).thenReturn(true)
+      when(authenticator.fingerprint).thenReturn(Some("test"))
 
       implicit val request = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
@@ -179,9 +181,9 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     }
 
     "return authenticator if authenticator fingerprint matches current fingerprint" in new WithApplication with Context {
-      fingerprintGenerator.generate(any) returns "test"
-      settings.useFingerprinting returns true
-      authenticator.fingerprint returns Some("test")
+      when(fingerprintGenerator.generate(any)).thenReturn("test")
+      when(settings.useFingerprinting).thenReturn(true)
+      when(authenticator.fingerprint).thenReturn(Some("test"))
 
       implicit val request = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
@@ -191,7 +193,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return authenticator if fingerprinting is disabled" in new WithApplication with Context {
       implicit val request = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      settings.useFingerprinting returns false
+      when(settings.useFingerprinting).thenReturn(false)
 
       await(service.retrieve) must beSome(authenticator)
     }
@@ -200,7 +202,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request = FakeRequest()
         .withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      settings.useFingerprinting returns false
+      when(settings.useFingerprinting).thenReturn(false)
 
       await(service.retrieve) must beSome(authenticator)
     }
@@ -208,8 +210,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new WithApplication with Context {
       implicit val request = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      fingerprintGenerator.generate(any) throws new RuntimeException("Could not generate fingerprint")
-      settings.useFingerprinting returns true
+      when(fingerprintGenerator.generate(any)).thenThrow(new RuntimeException("Could not generate fingerprint"))
+      when(settings.useFingerprinting).thenReturn(true)
 
       await(service.retrieve) must throwA[AuthenticatorRetrievalException].like {
         case e =>
@@ -312,8 +314,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
-      settings.authenticatorIdleTimeout returns Some(1 second)
-      clock.now returns ZonedDateTime.now
+      when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
       service.touch(authenticator) must beLeft[SessionAuthenticator].like {
         case a =>
@@ -322,8 +324,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     }
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
-      settings.authenticatorIdleTimeout returns None
-      clock.now returns ZonedDateTime.now
+      when(settings.authenticatorIdleTimeout).thenReturn(None)
+      when(clock.now).thenReturn(ZonedDateTime.now)
 
       service.touch(authenticator) must beRight[SessionAuthenticator].like {
         case a =>
@@ -362,7 +364,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "throws an AuthenticatorUpdateException exception if an error occurred during update" in new Context {
       implicit val request = spy(FakeRequest())
 
-      request.session throws new RuntimeException("Cannot get session")
+      when(request.session).thenThrow(new RuntimeException("Cannot get session"))
 
       await(service.update(authenticator, Results.Ok)) must throwA[AuthenticatorUpdateException].like {
         case e =>
@@ -379,8 +381,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
         lastUsedDateTime = now,
         expirationDateTime = now + settings.authenticatorExpiry)).toString())
 
-      settings.useFingerprinting returns false
-      clock.now returns now
+      when(settings.useFingerprinting).thenReturn(false)
+      when(clock.now).thenReturn(now)
 
       val result = service.renew(authenticator, Results.Ok)
 
@@ -391,8 +393,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request = FakeRequest().withSession(settings.sessionKey -> "existing")
       val now = ZonedDateTime.now
 
-      settings.useFingerprinting returns false
-      clock.now returns now
+      when(settings.useFingerprinting).thenReturn(false)
+      when(clock.now).thenReturn(now)
 
       val result = service.renew(authenticator, Results.Ok)
 
@@ -405,8 +407,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request = FakeRequest().withSession("request-other" -> "keep")
       val now = ZonedDateTime.now
 
-      settings.useFingerprinting returns false
-      clock.now returns now
+      when(settings.useFingerprinting).thenReturn(false)
+      when(clock.now).thenReturn(now)
 
       val result = service.renew(authenticator, Results.Ok.addingToSession(
         "result-other" -> "keep"))
@@ -423,9 +425,9 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       val now = ZonedDateTime.now
       val okResult = (_: Authenticator) => Future.successful(Results.Ok)
 
-      request.session throws new RuntimeException("Cannot get session")
-      settings.useFingerprinting returns false
-      clock.now returns now
+      when(request.session).thenThrow(new RuntimeException("Cannot get session"))
+      when(settings.useFingerprinting).thenReturn(false)
+      when(clock.now).thenReturn(now)
 
       await(service.renew(authenticator, Results.Ok)) must throwA[AuthenticatorRenewalException].like {
         case e =>
@@ -457,7 +459,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request = spy(FakeRequest()).withSession(settings.sessionKey -> "test")
       val result = mock[Result]
 
-      result.removingFromSession(any)(any) throws new RuntimeException("Cannot get session")
+      when(result.removingFromSession(any)(any)).thenThrow(new RuntimeException("Cannot get session"))
 
       await(service.discard(authenticator, result)) must throwA[AuthenticatorDiscardingException].like {
         case e =>
@@ -474,7 +476,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     /**
      * The ID generator implementation.
      */
-    lazy val fingerprintGenerator = mock[FingerprintGenerator].smart
+    lazy val fingerprintGenerator = mockSmart[FingerprintGenerator]
 
     /**
      * The authenticator encoder implementation.
@@ -484,7 +486,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     /**
      * The clock implementation.
      */
-    lazy val clock = mock[Clock].smart
+    lazy val clock = mockSmart[Clock]
 
     /**
      * The settings.

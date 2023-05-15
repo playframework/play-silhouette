@@ -14,3 +14,12 @@ dist
 /.target
 /.cache
 *.DS_Store
+
+# Metals
+.metals/*
+.bloop/*
+.vscode/*
+**/.bloop/*
+**/metals.sbt
+
+.bsp/*
