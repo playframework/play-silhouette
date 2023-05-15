@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JodaTime replaced with Java Date API from [Rocketeer007](https://github.com/Rocketeer007).
 - JWT provider from `com.atlassian.jwt.jwt-core` and `com.atlassian.jwt.jwt-api` to `com.auth0.java-jwt` to permit the use of signing algorithms other than HS256 from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
+## Security
+
+- Upgrading Play framework version to 2.8.19  to prevent [CVE-2023-31442](https://www.cve.org/CVERecord?id=CVE-2023-31442) from [@ndeverge](https://github.com/ndeverge).
+
 ### Removed
 
 - JodaTime dependency from [Rocketeer007](https://github.com/Rocketeer007).
