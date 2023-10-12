@@ -21,7 +21,6 @@ package io.github.honeycombcheesecake.play.silhouette.api.services
 
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ ExtractableRequest, ExecutionContextProvider }
 import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginInfo }
-import play.api.http.HttpEntity
 import play.api.mvc._
 
 import scala.concurrent.Future
@@ -44,27 +43,7 @@ import scala.concurrent.Future
  * @param result The result to wrap.
  */
 class AuthenticatorResult(result: Result)
-  extends Result(result.header, result.body, result.newSession, result.newFlash, result.newCookies) {
-
-  /**
-   * Creates a new copy of a `AuthenticatorResult`.
-   *
-   * @param header     The response header, which contains status code and HTTP headers.
-   * @param body       The response body.
-   * @param newSession A new session.
-   * @param newFlash   A new flash.
-   * @param newCookies Some new cookies.
-   * @return A copy of a `AuthenticatorResult`.
-   */
-  override def copy(
-    header: ResponseHeader,
-    body: HttpEntity,
-    newSession: Option[Session],
-    newFlash: Option[Flash],
-    newCookies: Seq[Cookie]) = {
-    AuthenticatorResult(super.copy(header, body, newSession, newFlash, newCookies))
-  }
-}
+  extends Result(result.header, result.body, result.newSession, result.newFlash, result.newCookies)
 
 /**
  * The companion object.
