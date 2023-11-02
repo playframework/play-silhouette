@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jdk: [ 8, 11, 17 ]
+        jdk: [ 11, 17, 21 ]
 
     runs-on: ubuntu-latest
     env:
@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jdk: [ 8, 11, 17]
+        jdk: [ 11, 17, 21 ]
 
     runs-on: ubuntu-latest
     env:
