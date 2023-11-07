@@ -8,7 +8,7 @@ lazy val supportedScalaVersions: Seq[String] = Seq(scala213 /*, scala31*/)
 
 ThisBuild / description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes"
 ThisBuild / homepage := Some(url("https://silhouette.readme.io/"))
-ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/honeycomb-cheesecake/play-silhouette/blob/master/LICENSE"))
+ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/honeycomb-cheesecake/play-silhouette/blob/main/LICENSE"))
 ThisBuild / publishMavenStyle := true
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
