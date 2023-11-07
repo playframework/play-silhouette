@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version to v9.0.0-SNAPSHOT for breaking change release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - JodaTime replaced with Java Date API from [Rocketeer007](https://github.com/Rocketeer007).
 - JWT provider from `com.atlassian.jwt.jwt-core` and `com.atlassian.jwt.jwt-api` to `com.auth0.java-jwt` to permit the use of signing algorithms other than HS256 from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
+- Disable build failure on dependencies not being up-to-date
 
 ### Removed
 

@@ -123,7 +123,7 @@ lazy val silhouette = (project in file("silhouette"))
 lazy val silhouetteCas = (project in file("silhouette-cas"))
   .settings(
     name := "play-silhouette-cas",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
     libraryDependencies ++=
@@ -142,7 +142,7 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
 lazy val silhouetteTotp = (project in file("silhouette-totp"))
   .settings(
     name := "play-silhouette-totp",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     libraryDependencies ++=
       Library.updates ++ Seq(
@@ -156,7 +156,7 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
 lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
   .settings(
     name := "play-silhouette-crypto-jca",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
     libraryDependencies ++=
@@ -172,7 +172,7 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
 lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
   .settings(
     name := "play-silhouette-password-argon2",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     libraryDependencies ++=
       Library.updates ++ Seq(
@@ -186,7 +186,7 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
 lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
   .settings(
     name := "play-silhouette-password-bcrypt",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     libraryDependencies ++=
       Library.updates ++ Seq(
@@ -200,7 +200,7 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
 lazy val silhouettePersistence = (project in file("silhouette-persistence"))
   .settings(
     name := "play-silhouette-persistence",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
@@ -218,7 +218,7 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
 lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
   .settings(
     name := "play-silhouette-testkit",
-    dependencyUpdatesFailBuild := true,
+    dependencyUpdatesFailBuild := false,
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
     dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-mock"),
     libraryDependencies ++=
