@@ -1,7 +1,7 @@
 # Pull Request Checklist
 
 * [ ] Have you read [How to write the perfect pull request](https://github.com/blog/1943-how-to-write-the-perfect-pull-request)?
-* [ ] Have you read through the [contributor guidelines](https://github.com/honeycomb-cheesecake/play-silhouette/blob/master/CONTRIBUTING.md)?
+* [ ] Have you read through the [contributor guidelines](https://github.com/honeycomb-cheesecake/play-silhouette/blob/main/CONTRIBUTING.md)?
 * [ ] Have you added copyright headers to new files?
 * [ ] Have you suggest documentation edits?
 * [ ] Have you added tests for any changed functionality?
