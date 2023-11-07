@@ -22,6 +22,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.{ Logger, LoginInfo }
 import org.jasig.cas.client.authentication.AttributePrincipal
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import test.SocialProviderSpec
 
@@ -68,7 +69,7 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
 
   "The `authenticate` method" should {
     "redirect to CAS server if service ticket is not present in request" in new Context {
-      implicit val req = FakeRequest(GET, "/")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/")
 
       result(provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
@@ -77,7 +78,7 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
     }
 
     "redirect to CAS server with the original requested URL if service ticket is not present in the request" in new Context {
-      implicit val req = FakeRequest(GET, redirectURLWithOrigin)
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, redirectURLWithOrigin)
 
       result(provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
@@ -86,7 +87,7 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
     }
 
     "return a valid CASAuthInfo object if service ticket is present in request" in new Context {
-      implicit val req = FakeRequest(GET, "/?ticket=%s".format(ticket))
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?ticket=%s".format(ticket))
 
       authInfo(provider.authenticate())(authInfo => authInfo must be equalTo CasInfo(ticket))
     }
@@ -98,7 +99,7 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Mockito with Logg
       principal.getAttributes returns attr
       client.validateServiceTicket(ticket) returns Future.successful(principal)
 
-      implicit val req = FakeRequest(GET, "/?ticket=%s".format(ticket))
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?ticket=%s".format(ticket))
 
       val futureProfile = for {
         a <- provider.authenticate()

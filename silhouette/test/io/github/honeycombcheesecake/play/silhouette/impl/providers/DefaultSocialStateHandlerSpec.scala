@@ -24,7 +24,7 @@ import org.specs2.matcher.JsonMatchers
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
-import play.api.mvc.Results
+import play.api.mvc.{ AnyContentAsEmpty, Results }
 import play.api.test.{ FakeRequest, PlaySpecification }
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -81,7 +81,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
   "The `unserialize` method" should {
     "omit state validation if no handler is registered" in new Context {
       override val stateHandler = new DefaultSocialStateHandler(Set(), signer)
-      implicit val request = new ExtractableRequest(FakeRequest())
+      implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
 
       await(stateHandler.unserialize(""))
 
@@ -89,7 +89,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
     }
 
     "throw an Exception for an empty string" in new Context {
-      implicit val request = new ExtractableRequest(FakeRequest())
+      implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
 
       await(stateHandler.unserialize("")) must throwA[RuntimeException].like {
         case e =>
@@ -98,7 +98,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
     }
 
     "throw an ProviderException if the serialized item structure cannot be extracted" in new Context {
-      implicit val request = new ExtractableRequest(FakeRequest())
+      implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
       val serialized = s"some-wired-content"
 
       await(stateHandler.unserialize(serialized)) must throwA[ProviderException].like {
@@ -108,7 +108,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
     }
 
     "throw an ProviderException if none of the item handlers can handle the given state" in new Context {
-      implicit val request = new ExtractableRequest(FakeRequest())
+      implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
       val serialized = s"${Default.structure.asString}"
 
       Default.itemHandler.canHandle(any[ItemStructure]())(any()) returns false
@@ -121,7 +121,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
     }
 
     "return the unserialized social state" in new Context {
-      implicit val request = new ExtractableRequest(FakeRequest())
+      implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
       val serialized = s"${Default.structure.asString}.${Publishable.structure.asString}"
 
       Default.itemHandler.canHandle(Publishable.structure) returns false
@@ -138,7 +138,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
 
   "The `publish` method" should {
     "should publish the state with the publishable handler that is responsible for the item" in new Context {
-      implicit val request = new ExtractableRequest(FakeRequest())
+      implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
       val result = Results.Ok
       val publishedResult = Results.Ok.withHeaders("X-PUBLISHED" -> "true")
 
@@ -150,7 +150,7 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with Mockito with 
     }
 
     "should not publish the state if no publishable handler is responsible" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val result = Results.Ok
 
       Publishable.itemHandler.canHandle(Default.item) returns None

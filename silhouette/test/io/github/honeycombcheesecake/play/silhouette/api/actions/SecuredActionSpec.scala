@@ -423,7 +423,7 @@ class SecuredActionSpec extends PlaySpecification with Mockito with JsonMatchers
 
     "handle an Ajax request" in new InjectorContext {
       new WithApplication(app) with Context {
-        implicit val req = FakeRequest().withHeaders("Accept" -> "application/json")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Accept" -> "application/json")
 
         env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
         env.authenticatorService.touch(any()) returns Left(authenticator)
@@ -570,17 +570,17 @@ class SecuredActionSpec extends PlaySpecification with Mockito with JsonMatchers
       /**
        * A fake request.
        */
-      lazy implicit val request = FakeRequest()
+      lazy implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       /**
        * The secured controller.
        */
-      lazy implicit val controller = app.injector.instanceOf[SecuredController]
+      lazy implicit val controller: SecuredController = this.app.injector.instanceOf[SecuredController]
 
       /**
        * The Play actor system.
        */
-      lazy implicit val system = app.injector.instanceOf[ActorSystem]
+      lazy implicit val system: ActorSystem = this.app.injector.instanceOf[ActorSystem]
 
       /**
        * The test probe.
