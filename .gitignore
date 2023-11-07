@@ -14,3 +14,4 @@ dist
 /.target
 /.cache
 *.DS_Store
+.bsp/
