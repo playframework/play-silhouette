@@ -121,7 +121,7 @@ trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with Mockito w
 
     lazy val result = await(providerResult.failed)
 
-    result must not(throwAn[E])
+    result must not[Any](throwAn[E])
     result.rethrow must throwAn[E].like(f)
   }
 }
