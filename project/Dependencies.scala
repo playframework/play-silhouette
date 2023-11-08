@@ -41,7 +41,7 @@ object Dependencies {
     }
 
     val argon2 = "de.mkammerer" % "argon2-jvm" % "2.11"
-    val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
+    val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
     val jwt = "com.auth0" % "java-jwt" % "3.18.2"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
