@@ -1,7 +1,7 @@
 addSbtPlugin(dependency = "ch.epfl.scala" % "sbt-version-policy" % "2.0.1")
 addSbtPlugin(dependency = "com.github.sbt" % "sbt-release" % "1.1.0")
 addSbtPlugin(dependency = "com.github.sbt" % "sbt-unidoc" % "0.5.0")
-addSbtPlugin(dependency = "com.jsuereth" % "sbt-pgp" % "2.0.2")
+addSbtPlugin(dependency = "com.jsuereth" % "sbt-pgp" % "2.1.1")
 addSbtPlugin(dependency = "com.sksamuel.scapegoat" %% "sbt-scapegoat" % "1.1.1")
 addSbtPlugin(dependency = "com.timushev.sbt" % "sbt-updates" % "0.6.2")
 addSbtPlugin(dependency = "com.typesafe.play" % "sbt-plugin" % "2.8.16")
