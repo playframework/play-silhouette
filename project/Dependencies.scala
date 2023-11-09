@@ -22,7 +22,7 @@ object Dependencies {
   object Library {
 
     val updates: Seq[ModuleID] = Seq(
-      "commons-io" % "commons-io" % "2.11.0"
+      "commons-io" % "commons-io" % "2.15.0"
     )
 
     object Play {
@@ -45,11 +45,11 @@ object Dependencies {
     val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
     val jwt = "com.auth0" % "java-jwt" % "3.18.2"
-    val scalaGuice = "net.codingwell" %% "scala-guice" % "5.1.0"
+    val scalaGuice = "net.codingwell" %% "scala-guice" % "5.1.1"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
-    val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.12.0"
+    val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
   }
 }
