@@ -2,7 +2,7 @@ import Dependencies.Library
 import sbt.CrossVersion
 
 lazy val repo: String = "https://s01.oss.sonatype.org"
-lazy val scala213: String = "2.13.8"
+lazy val scala213: String = "2.13.12"
 lazy val scala31: String = "3.1.2" // Ready for cross build, currently not yet supported by play.
 lazy val supportedScalaVersions: Seq[String] = Seq(scala213 /*, scala31*/)
 
