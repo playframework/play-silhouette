@@ -49,7 +49,7 @@ ThisBuild / publishTo := {
   }
 }
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
-ThisBuild / scapegoatVersion := "1.4.13"
+ThisBuild / scapegoatVersion := "1.4.17"
 
 dependencyCheckAssemblyAnalyzerEnabled := Some(false)
 dependencyCheckFormat := "ALL"
