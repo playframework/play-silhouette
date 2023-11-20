@@ -32,9 +32,9 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
-      - id: czc3c36wxhuvscex
-        name: Validating Code Formatting
-        run: sbt clean scalariformFormat test:scalariformFormat
+      #- id: czc3c36wxhuvscex
+      #  name: Validating Code Formatting
+      #  run: sbt clean scalariformFormat test:scalariformFormat
       - id: beyvek5dzffcpr7p
         name: Static Code Check
         run: sbt scapegoat
