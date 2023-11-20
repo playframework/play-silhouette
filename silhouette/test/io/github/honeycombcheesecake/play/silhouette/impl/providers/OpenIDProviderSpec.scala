@@ -40,7 +40,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
   "The authenticate method" should {
     val c = context
     "fail with an UnexpectedResponseException if redirect URL couldn't be retrieved" in new WithApplication {
-      implicit val req = FakeRequest()
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       c.openIDService.redirectURL(any(), any())(any()) returns Future.failed(new Exception(""))
 
@@ -50,7 +50,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     }
 
     "redirect to provider by using the provider URL" in new WithApplication {
-      implicit val req = FakeRequest()
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       c.openIDService.redirectURL(any(), any())(any()) answers { _: Any => Future.successful(c.openIDSettings.providerURL) }
 
       result(c.provider.authenticate()) { result =>
@@ -60,7 +60,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     }
 
     "redirect to provider by using a openID" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?openID=my.open.id")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?openID=my.open.id")
       c.openIDService.redirectURL(any(), any())(any()) answers { _: Any => Future.successful(c.openIDSettings.providerURL) }
 
       result(c.provider.authenticate()) { result =>
@@ -97,7 +97,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     }
 
     "fail with an UnexpectedResponseException if auth info cannot be retrieved" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?" + Mode + "=id_res")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Mode + "=id_res")
       c.openIDService.verifiedID(any(), any()) returns Future.failed(new Exception(""))
 
       failed[UnexpectedResponseException](c.provider.authenticate()) {
@@ -106,7 +106,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     }
 
     "return the auth info" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?" + Mode + "=id_res")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Mode + "=id_res")
       c.openIDService.verifiedID(any(), any()) answers { _: Any => Future.successful(c.openIDInfo) }
 
       authInfo(c.provider.authenticate())(_ must be equalTo c.openIDInfo)

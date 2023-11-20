@@ -51,9 +51,9 @@ class GoogleTotpProviderSpec extends PasswordProviderSpec with Mockito {
   "The `createCredentials` method" should {
     "return the correct TotpCredentials shared key" in new WithApplication with Context {
       val result = provider.createCredentials(credentials.identifier)
-      result.totpInfo.sharedKey must not be empty
+      result.totpInfo.sharedKey must not be ""
       result.totpInfo.scratchCodes must not be empty
-      result.qrUrl must not be empty
+      result.qrUrl must not be ""
     }
   }
 

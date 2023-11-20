@@ -22,6 +22,7 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.OAuth2Provid
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialProfileBuilder._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth2.FoursquareProvider._
+import play.api.mvc.AnyContentAsEmpty
 import play.api.libs.json.Json
 import play.api.test.{ FakeRequest, WithApplication }
 import test.Helper
@@ -47,7 +48,7 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
     "fail with UnexpectedResponseException for an unexpected response" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
       wsResponse.status returns 401
       wsResponse.body returns "Unauthorized"
       wsRequest.withHttpHeaders(any) returns wsRequest
@@ -64,7 +65,7 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
     "fail with UnexpectedResponseException if OAuth2Info can be build because of an unexpected response" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
       wsResponse.status returns 200
       wsResponse.json returns Json.obj()
       wsRequest.withHttpHeaders(any) returns wsRequest
@@ -81,7 +82,7 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
     "return the auth info" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
       wsResponse.status returns 200
       wsResponse.json returns oAuthInfo
       wsRequest.withHttpHeaders(any) returns wsRequest
@@ -98,7 +99,7 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
     "return stateful auth info" in new WithApplication with Context {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
       wsResponse.status returns 200
       wsResponse.json returns oAuthInfo
       wsRequest.withHttpHeaders(any) returns wsRequest

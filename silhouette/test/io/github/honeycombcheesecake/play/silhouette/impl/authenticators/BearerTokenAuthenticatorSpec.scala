@@ -25,7 +25,7 @@ import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.BearerT
 import org.specs2.control.NoLanguageFeatures
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
-import play.api.mvc.Results
+import play.api.mvc.{ Results, AnyContentAsEmpty }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
 import java.time.ZonedDateTime
@@ -58,7 +58,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
   "The `create` method of the service" should {
     "return an authenticator with the generated ID" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val id = "test-id"
 
       idGenerator.generate returns Future.successful(id)
@@ -68,7 +68,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "return an authenticator with the current date as lastUsedDateTime" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
 
       idGenerator.generate returns Future.successful("test-id")
@@ -78,7 +78,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "return an authenticator which expires in 12 hours(default value)" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
 
       idGenerator.generate returns Future.successful("test-id")
@@ -88,7 +88,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "return an authenticator which expires in 6 hours" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val sixHours = 6 hours
       val now = ZonedDateTime.now
 
@@ -100,7 +100,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "throws an AuthenticatorCreationException exception if an error occurred during creation" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       idGenerator.generate returns Future.failed(new Exception("Could not generate ID"))
 
@@ -113,13 +113,13 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
   "The `retrieve` method of the service" should {
     "return None if no authenticator header exists" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(service.retrieve) must beNone
     }
 
     "return None if no authenticator is stored for the token located in the headers" in new Context {
-      implicit val request = FakeRequest().withHeaders(settings.fieldName -> authenticator.id)
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> authenticator.id)
 
       repository.find(authenticator.id) returns Future.successful(None)
 
@@ -127,7 +127,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "return authenticator if an authenticator is stored for token located in the header" in new Context {
-      implicit val request = FakeRequest().withHeaders(settings.fieldName -> authenticator.id)
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> authenticator.id)
 
       repository.find(authenticator.id) returns Future.successful(Some(authenticator))
 
@@ -135,7 +135,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "return authenticator if an authenticator is stored for the token located in the query string" in new Context {
-      implicit val request = FakeRequest("GET", s"?${settings.fieldName}=${authenticator.id}")
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${authenticator.id}")
 
       settings.requestParts returns Some(Seq(RequestPart.QueryString))
       repository.find(authenticator.id) returns Future.successful(Some(authenticator))
@@ -144,7 +144,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new Context {
-      implicit val request = FakeRequest().withHeaders(settings.fieldName -> authenticator.id)
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> authenticator.id)
 
       repository.find(authenticator.id) returns Future.failed(new RuntimeException("Cannot find authenticator"))
 
@@ -159,7 +159,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     "save the authenticator in backing store" in new Context {
       repository.add(any()) answers { p: Any => Future.successful(p.asInstanceOf[BearerTokenAuthenticator]) }
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val token = await(service.init(authenticator))
 
       token must be equalTo authenticator.id
@@ -169,7 +169,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     "throws an AuthenticatorInitializationException exception if an error occurred during initialization" in new Context {
       repository.add(any()) returns Future.failed(new Exception("Cannot store authenticator"))
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(service.init(authenticator)) must throwA[AuthenticatorInitializationException].like {
         case e =>
@@ -180,7 +180,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
   "The result `embed` method of the service" should {
     "return the response with a header" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val value = authenticator.id
       val result = service.embed(value, Results.Ok)
 
@@ -246,7 +246,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     "update the authenticator in backing store" in new Context {
       repository.update(any()) answers { _: Any => Future.successful(authenticator) }
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(service.update(authenticator, Results.Ok))
 
@@ -256,7 +256,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     "return the result if the authenticator could be stored in backing store" in new Context {
       repository.update(any()) answers { p: Any => Future.successful(p.asInstanceOf[BearerTokenAuthenticator]) }
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val result = service.update(authenticator, Results.Ok)
 
       status(result) must be equalTo OK
@@ -265,7 +265,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     "throws an AuthenticatorUpdateException exception if an error occurred during update" in new Context {
       repository.update(any()) returns Future.failed(new Exception("Cannot store authenticator"))
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(service.update(authenticator, Results.Ok)) must throwA[AuthenticatorUpdateException].like {
         case e =>
@@ -276,7 +276,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
   "The `renew` method of the service" should {
     "remove the old authenticator from backing store" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
       val id = "new-test-id"
 
@@ -291,7 +291,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "renew the authenticator and return the response with a new bearer token" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
       val id = "new-test-id"
 
@@ -306,7 +306,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
       val id = "new-test-id"
 
@@ -324,7 +324,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
 
   "The `discard` method of the service" should {
     "remove authenticator from backing store" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       repository.remove(authenticator.id) returns Future.successful(authenticator)
 
@@ -334,7 +334,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification with Mockito with N
     }
 
     "throws an AuthenticatorDiscardingException exception if an error occurred during discarding" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val okResult = Results.Ok
 
       repository.remove(authenticator.id) returns Future.failed(new Exception("Cannot remove authenticator"))

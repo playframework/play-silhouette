@@ -18,7 +18,7 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers
 import io.github.honeycombcheesecake
 import io.github.honeycombcheesecake.play.silhouette
 
-import java.net.URL
+import java.net.URI
 import io.github.honeycombcheesecake.play.silhouette.api.exceptions.ConfigurationException
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ ExtractableRequest, HTTPLayer }
 import io.github.honeycombcheesecake.play.silhouette.api.{ AuthInfo, Logger, LoginInfo }
@@ -244,7 +244,7 @@ final case class CasSettings(
    * @param url The URL to validate.
    * @return True if the URL is valid, false otherwise.
    */
-  private def isValidUrl(url: String): Boolean = Try(new URL(url)).isFailure
+  private def isValidUrl(url: String): Boolean = Try(new URI(url).toURL).isFailure
 }
 
 /**

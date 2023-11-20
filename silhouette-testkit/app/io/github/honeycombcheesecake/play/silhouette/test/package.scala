@@ -44,7 +44,7 @@ package object test {
    * @tparam A The type of the body.
    */
   implicit class FakeRequestWithAuthenticator[A](f: FakeRequest[A]) {
-    implicit val request = f
+    implicit val request: FakeRequest[A] = f
 
     /**
      * Creates a fake request with an embedded authenticator.

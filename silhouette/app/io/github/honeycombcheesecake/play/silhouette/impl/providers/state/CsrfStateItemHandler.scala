@@ -209,4 +209,4 @@ case class CsrfStateSettings(
   secureCookie: Boolean = true,
   httpOnlyCookie: Boolean = true,
   sameSite: Option[Cookie.SameSite] = Some(Cookie.SameSite.Lax),
-  expirationTime: FiniteDuration = 5 minutes)
+  expirationTime: FiniteDuration = 5.minutes)

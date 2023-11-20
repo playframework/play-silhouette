@@ -35,7 +35,7 @@ object Dependencies {
     }
 
     object Specs2 {
-      private val version = "4.9.4"  // Versions later than this will fail due to removed dependencies.
+      private val version = "4.20.2"  // Versions later than this will fail due to removed dependencies.
       val core = "org.specs2" %% "specs2-core" % version
       val matcherExtra = "org.specs2" %% "specs2-matcher-extra" % version
       val mock = "org.specs2" %% "specs2-mock" % version
@@ -45,7 +45,7 @@ object Dependencies {
     val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
     val jwt = "com.auth0" % "java-jwt" % "3.18.2"
-    val scalaGuice = "net.codingwell" %% "scala-guice" % "5.1.1"
+    val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"

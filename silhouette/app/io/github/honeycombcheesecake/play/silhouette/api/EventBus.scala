@@ -86,7 +86,7 @@ class EventBus extends ActorEventBus with SubchannelClassification {
   /**
    * The logic to form sub-class hierarchy
    */
-  override protected implicit val subclassification = new Subclassification[Classifier] {
+  override protected implicit val subclassification: Subclassification[Classifier] = new Subclassification[Classifier] {
     def isEqual(x: Classifier, y: Classifier): Boolean = x == y
     def isSubclass(x: Classifier, y: Classifier): Boolean = y.isAssignableFrom(x)
   }
