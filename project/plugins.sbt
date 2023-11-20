@@ -10,5 +10,3 @@ addSbtPlugin(dependency = "org.scalariform" % "sbt-scalariform" % "1.8.3")
 addSbtPlugin(dependency = "org.scoverage" % "sbt-scoverage" % "2.0.9")
 addSbtPlugin(dependency = "org.scoverage" % "sbt-coveralls" % "1.3.11")
 addSbtPlugin(dependency = "org.xerial.sbt" % "sbt-sonatype" % "3.10.0")
-
-libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
