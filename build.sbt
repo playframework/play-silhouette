@@ -114,11 +114,11 @@ lazy val silhouette = (project in file("silhouette"))
         Library.Specs2.matcherExtra % Test,
         Library.mockito % Test,
         Library.scalaGuice % Test,
-        Library.akkaTestkit % Test
+        Library.pekkoTestkit % Test
       ),
   )
   .enablePlugins(PlayScala)
-  .disablePlugins(PlayAkkaHttpServer)
+  .disablePlugins(PlayPekkoHttpServer)
 
 lazy val silhouetteCas = (project in file("silhouette-cas"))
   .settings(commonSettings)
@@ -210,7 +210,7 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
         Library.Specs2.matcherExtra % Test,
         Library.mockito % Test,
         Library.scalaGuice % Test,
-        Library.akkaTestkit % Test
+        Library.pekkoTestkit % Test
       )
       ++ {
         CrossVersion.partialVersion(scalaVersion.value) match {

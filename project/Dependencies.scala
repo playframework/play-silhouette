@@ -23,11 +23,11 @@ object Dependencies {
 
     object Play {
       val version: String = play.core.PlayVersion.current
-      val ws = "com.typesafe.play" %% "play-ws" % version
-      val cache = "com.typesafe.play" %% "play-cache" % version
-      val test = "com.typesafe.play" %% "play-test" % version
-      val specs2 = "com.typesafe.play" %% "play-specs2" % version
-      val openid = "com.typesafe.play" %% "play-openid" % version
+      val ws = "org.playframework" %% "play-ws" % version
+      val cache = "org.playframework" %% "play-cache" % version
+      val test = "org.playframework" %% "play-test" % version
+      val specs2 = "org.playframework" %% "play-specs2" % version
+      val openid = "org.playframework" %% "play-openid" % version
     }
 
     object Specs2 {
@@ -41,7 +41,7 @@ object Dependencies {
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
     val jwt = "com.auth0" % "java-jwt" % "3.19.4"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
-    val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
+    val pekkoTestkit = "org.apache.pekko" %% "pekko-testkit" % play.core.PlayVersion.pekkoVersion
     val mockito = "org.mockito" % "mockito-core" % "5.3.1"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
