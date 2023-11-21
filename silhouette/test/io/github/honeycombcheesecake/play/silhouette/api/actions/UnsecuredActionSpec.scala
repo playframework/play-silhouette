@@ -219,17 +219,17 @@ class UnsecuredActionSpec extends PlaySpecification with Mockito with JsonMatche
       /**
        * A fake request.
        */
-      lazy implicit val request = FakeRequest()
+      lazy implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       /**
        * The unsecured controller.
        */
-      lazy implicit val controller = app.injector.instanceOf[UnsecuredController]
+      lazy implicit val controller: UnsecuredController = this.app.injector.instanceOf[UnsecuredController]
 
       /**
        * The Play actor system.
        */
-      lazy implicit val system = app.injector.instanceOf[ActorSystem]
+      lazy implicit val system: ActorSystem = this.app.injector.instanceOf[ActorSystem]
 
       /**
        * The test probe.

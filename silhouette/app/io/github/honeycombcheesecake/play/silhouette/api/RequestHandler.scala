@@ -23,6 +23,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorR
 import io.github.honeycombcheesecake.play.silhouette.api.util.ExecutionContextProvider
 import play.api.mvc.{ Result, RequestHeader, Request, AnyContent }
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 /**
@@ -56,7 +57,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
   /**
    * The execution context to handle the asynchronous operations.
    */
-  implicit lazy val executionContext = environment.executionContext
+  implicit lazy val executionContext: ExecutionContext = environment.executionContext
 
   /**
    * The environment instance to handle the request.

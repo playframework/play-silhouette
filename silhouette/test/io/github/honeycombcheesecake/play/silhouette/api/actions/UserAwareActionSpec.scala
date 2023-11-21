@@ -335,22 +335,22 @@ class UserAwareActionSpec extends PlaySpecification with Mockito with JsonMatche
       /**
        * A fake request.
        */
-      lazy implicit val request = FakeRequest()
+      lazy implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       /**
        * The messages API.
        */
-      lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      lazy val messagesApi = this.app.injector.instanceOf[MessagesApi]
 
       /**
        * The implicit lang.
        */
-      lazy implicit val lang: Lang = app.injector.instanceOf[Langs].availables.head
+      lazy implicit val lang: Lang = this.app.injector.instanceOf[Langs].availables.head
 
       /**
        * The user aware controller.
        */
-      lazy implicit val controller = app.injector.instanceOf[UserAwareController]
+      lazy implicit val controller: UserAwareController = this.app.injector.instanceOf[UserAwareController]
     }
   }
 

@@ -41,7 +41,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
   "The provider" should {
     val c = context
     "throw a RuntimeException if the unsafe 1.0 specification should be used" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?" + Denied + "=")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
       c.oAuthService.use10a returns false
       c.provider.authenticate() must throwA[RuntimeException]
     }
@@ -50,14 +50,14 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
   "The authenticate method" should {
     val c = context
     "fail with an AccessDeniedException if denied key exists in query string" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?" + Denied + "=")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
       failed[AccessDeniedException](c.provider.authenticate()) {
         case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, ""))
       }
     }
 
     "fail with an UnexpectedResponseException if request token cannot be retrieved" in new WithApplication {
-      implicit val req = FakeRequest()
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL) returns Future.failed(new Exception(""))
 
       failed[UnexpectedResponseException](c.provider.authenticate()) {
@@ -66,7 +66,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
     }
 
     "redirect to authorization URL if request token could be retrieved" in new WithApplication {
-      implicit val req = FakeRequest()
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val serializedTokenSecret = "my.serialized.token.secret"
 
       c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL) returns Future.successful(c.oAuthInfo)
@@ -115,7 +115,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
 
     "fail with an UnexpectedResponseException if access token cannot be retrieved" in new WithApplication {
       val tokenSecret = "my.token.secret"
-      implicit val req = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
       c.oAuthTokenSecret.value returns tokenSecret
       c.oAuthTokenSecretProvider.retrieve(any(), any()) returns Future.successful(c.oAuthTokenSecret)
@@ -128,7 +128,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
 
     "return the auth info" in new WithApplication {
       val tokenSecret = "my.token.secret"
-      implicit val req = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
       c.oAuthTokenSecret.value returns tokenSecret
       c.oAuthTokenSecretProvider.retrieve(any(), any()) returns Future.successful(c.oAuthTokenSecret)
