@@ -29,6 +29,7 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.OAuth2Provid
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.state.UserStateItemHandler
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.libs.ws.WSResponse
 import play.api.mvc._
 
