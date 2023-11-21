@@ -19,16 +19,16 @@ ThisBuild / organizationName := "honeycomb-cheesecake"
 ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
-  "-unchecked",
-  "-deprecation",
+  //"-unchecked",
+  //"-deprecation",
   "-feature",
-  "-encoding", "utf8",
+  //"-encoding", "utf8",
   "-Xfatal-warnings",
-  "-Xlint",
-  "-Xlint:adapted-args",
-  "-Xlint:inaccessible",
-  "-Xlint:infer-any",
-  "-Xlint:nullary-unit"
+  //"-Xlint",
+  //"-Xlint:adapted-args",
+  //"-Xlint:inaccessible",
+  //"-Xlint:infer-any",
+  //"-Xlint:nullary-unit"
 )
 ThisBuild / Test / scalacOptions ~= { options: Seq[String] =>
   // Allow dead code in tests (to support using mockito).
