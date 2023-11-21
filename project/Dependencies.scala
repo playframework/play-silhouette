@@ -35,7 +35,7 @@ object Dependencies {
     }
 
     object Specs2 {
-      private val version = "4.20.2"  // Versions later than this will fail due to removed dependencies.
+      private val version = "4.20.3"  // Versions later than this will fail due to removed dependencies.
       val core = "org.specs2" %% "specs2-core" % version
       val matcherExtra = "org.specs2" %% "specs2-matcher-extra" % version
       val mock = "org.specs2" %% "specs2-mock" % version
