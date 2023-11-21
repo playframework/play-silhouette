@@ -27,11 +27,11 @@ object Dependencies {
 
     object Play {
       val version: String = play.core.PlayVersion.current
-      val ws = "com.typesafe.play" %% "play-ws" % version
-      val cache = "com.typesafe.play" %% "play-cache" % version
-      val test = "com.typesafe.play" %% "play-test" % version
-      val specs2 = "com.typesafe.play" %% "play-specs2" % version
-      val openid = "com.typesafe.play" %% "play-openid" % version
+      val ws = "org.playframework" %% "play-ws" % version
+      val cache = "org.playframework" %% "play-cache" % version
+      val test = "org.playframework" %% "play-test" % version
+      val specs2 = "org.playframework" %% "play-specs2" % version
+      val openid = "org.playframework" %% "play-openid" % version
     }
 
     object Specs2 {
