@@ -208,7 +208,7 @@ trait DefaultRequestExtractors extends LowPriorityRequestExtractors {
    * Tries to extract the value from query string and then it tries to extract the value from any
    * content.
    */
-  implicit val anyContentExtractor = new RequestExtractor[AnyContent] {
+  implicit val anyContentExtractor: RequestExtractor[AnyContent] = new RequestExtractor[AnyContent] {
     def extractString(name: String, parts: Option[Parts] = None)(implicit request: Request[AnyContent]) = {
       fromDefaultParts(name, parts)
         .orElse(request.body.asFormUrlEncoded.flatMap { body => fromFormUrlEncoded(name, body, parts) })
@@ -220,7 +220,7 @@ trait DefaultRequestExtractors extends LowPriorityRequestExtractors {
   /**
    * Tries to extract the value from query string and then from form url encoded body.
    */
-  implicit val formUrlEncodedExtractor = new RequestExtractor[Map[String, Seq[String]]] {
+  implicit val formUrlEncodedExtractor: RequestExtractor[Map[String, Seq[String]]] = new RequestExtractor[Map[String, Seq[String]]] {
     def extractString(name: String, parts: Option[Parts] = None)(implicit request: Request[Map[String, Seq[String]]]) = {
       fromDefaultParts(name, parts).orElse(fromFormUrlEncoded(name, request.body, parts))
     }
@@ -229,7 +229,7 @@ trait DefaultRequestExtractors extends LowPriorityRequestExtractors {
   /**
    * Tries to extract the value from query string and then from Json body.
    */
-  implicit val jsonExtractor = new RequestExtractor[JsValue] {
+  implicit val jsonExtractor: RequestExtractor[JsValue] = new RequestExtractor[JsValue] {
     def extractString(name: String, parts: Option[Parts] = None)(implicit request: Request[JsValue]) = {
       fromDefaultParts(name, parts).orElse(fromJson(name, request.body, parts))
     }
@@ -238,7 +238,7 @@ trait DefaultRequestExtractors extends LowPriorityRequestExtractors {
   /**
    * Tries to extract the value from query string and then from Xml body.
    */
-  implicit val xmlExtractor = new RequestExtractor[NodeSeq] {
+  implicit val xmlExtractor: RequestExtractor[NodeSeq] = new RequestExtractor[NodeSeq] {
     def extractString(name: String, parts: Option[Parts] = None)(implicit request: Request[NodeSeq]) = {
       fromDefaultParts(name, parts).orElse(fromXml(name, request.body, parts))
     }

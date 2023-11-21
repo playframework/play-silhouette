@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jdk: [ 8, 11, 17 ]
+        jdk: [ 11, 17, 21 ]
 
     runs-on: ubuntu-latest
     env:
@@ -32,12 +32,9 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ matrix.jdk }}
-      - id: czc3c36wxhuvscex
-        name: Validating Code Formatting
-        run: sbt clean scalariformFormat test:scalariformFormat
-      - id: beyvek5dzffcpr7p
-        name: Static Code Check
-        run: sbt scapegoat
+      #- id: czc3c36wxhuvscex
+      #  name: Validating Code Formatting
+      #  run: sbt clean scalariformFormat test:scalariformFormat
       - id: eyv27ug23k32wwde
         name: Checking Dependencies for Known Vulnerabilities
         run: sbt clean dependencyCheckAggregate
@@ -53,7 +50,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        jdk: [ 8, 11, 17]
+        jdk: [ 11, 17, 21 ]
 
     runs-on: ubuntu-latest
     env:

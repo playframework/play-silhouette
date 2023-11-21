@@ -22,6 +22,7 @@ import org.specs2.matcher.JsonMatchers
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{ FakeRequest, PlaySpecification }
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,12 +55,12 @@ class UserStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
       val nonUserItemStructure = mock[ItemStructure].smart
       nonUserItemStructure.id returns "non-user-item"
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       userStateItemHandler.canHandle(nonUserItemStructure) must beFalse
     }
 
     "return true if it can handle the given `ItemStructure`" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       userStateItemHandler.canHandle(userItemStructure) must beTrue
     }
   }
@@ -72,7 +73,7 @@ class UserStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
 
   "The `unserialize` method" should {
     "unserialize the state item" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(userStateItemHandler.unserialize(userItemStructure)) must be equalTo userStateItem
     }

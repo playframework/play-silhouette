@@ -16,6 +16,7 @@
 package io.github.honeycombcheesecake.play.silhouette.api
 
 import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 /**
  * Represents a linked login for an identity (i.e. a local username/password or a Facebook/Google account).
@@ -35,5 +36,5 @@ object LoginInfo extends ((String, String) => LoginInfo) {
   /**
    * Converts the [[io.github.honeycombcheesecake.play.silhouette.api.LoginInfo]] to Json and vice versa.
    */
-  implicit val jsonFormat = Json.format[LoginInfo]
+  implicit val jsonFormat: OFormat[LoginInfo] = Json.format[LoginInfo]
 }

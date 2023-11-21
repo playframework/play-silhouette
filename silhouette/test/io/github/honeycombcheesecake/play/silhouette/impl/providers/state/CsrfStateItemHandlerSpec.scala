@@ -24,7 +24,7 @@ import org.specs2.matcher.JsonMatchers
 import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
-import play.api.mvc.{ Cookie, Results }
+import play.api.mvc.{ AnyContentAsEmpty, Cookie, Results }
 import play.api.test.{ FakeRequest, PlaySpecification }
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -61,17 +61,17 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
       val nonCsrfItemStructure = mock[ItemStructure].smart
       nonCsrfItemStructure.id returns "non-csrf-item"
 
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       csrfStateItemHandler.canHandle(nonCsrfItemStructure) must beFalse
     }
 
     "return false if client state doesn't match the item state" in new Context {
-      implicit val request = FakeRequest().withCookies(cookie("invalid-token"))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(cookie("invalid-token"))
       csrfStateItemHandler.canHandle(csrfItemStructure) must beFalse
     }
 
     "return true if it can handle the given `ItemStructure`" in new Context {
-      implicit val request = FakeRequest().withCookies(cookie(csrfStateItem.token))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(cookie(csrfStateItem.token))
       csrfStateItemHandler.canHandle(csrfItemStructure) must beTrue
     }
   }
@@ -84,7 +84,7 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
 
   "The `unserialize` method" should {
     "unserialize the state item" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       await(csrfStateItemHandler.unserialize(csrfItemStructure)) must be equalTo csrfStateItem
     }
@@ -92,7 +92,7 @@ class CsrfStateItemHandlerSpec extends PlaySpecification with Mockito with JsonM
 
   "The `publish` method" should {
     "publish the state item to the client" in new Context {
-      implicit val request = FakeRequest()
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val result = csrfStateItemHandler.publish(csrfStateItem, Results.Ok)
 
       cookies(Future.successful(result)).get(settings.cookieName) must beSome(cookie(csrfToken))

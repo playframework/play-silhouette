@@ -46,14 +46,14 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
   "The `authenticate` method" should {
     val c = context
     "fail with an AccessDeniedException if `error` key with value `access_denied` exists in query string" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?" + Error + "=" + AccessDenied)
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Error + "=" + AccessDenied)
       failed[AccessDeniedException](c.provider.authenticate()) {
         case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, ""))
       }
     }
 
     "fail with an UnexpectedResponseException if `error` key with unspecified value exists in query string" in new WithApplication {
-      implicit val req = FakeRequest(GET, "?" + Error + "=unspecified")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Error + "=unspecified")
       failed[UnexpectedResponseException](c.provider.authenticate()) {
         case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, "unspecified"))
       }
@@ -250,7 +250,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
         ClientSecret -> Seq(c.oAuthSettings.clientSecret),
         GrantType -> Seq(AuthorizationCode),
         Code -> Seq("my.code")) ++ c.oAuthSettings.accessTokenParams.transformValues(Seq(_)) ++ redirectParam.toMap.transformValues(Seq(_))
-      implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
       wsRequest.withHttpHeaders(any) returns wsRequest
 
       // We must use this neat trick here because it isn't possible to check the post call with a verification,
@@ -277,7 +277,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
     "fail with UnexpectedResponseException if Json cannot be parsed from response" in new WithApplication {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
-      implicit val req = FakeRequest(GET, "?" + Code + "=my.code")
+      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
 
       wsResponse.status returns 200
       wsResponse.json throws new RuntimeException("Unexpected character ('<' (code 60))")

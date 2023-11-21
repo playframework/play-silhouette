@@ -25,7 +25,7 @@ import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.{ AbstractController, ControllerComponents }
+import play.api.mvc.{ AbstractController, AnyContentAsEmpty, ControllerComponents }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -129,8 +129,8 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
     "return a `SessionAuthenticator`" in new WithApplication {
       val loginInfo = LoginInfo("test", "test")
       val identity = FakeIdentity(loginInfo)
-      implicit val env = FakeEnvironment[SessionEnv](Seq(loginInfo -> identity))
-      implicit val request = FakeRequest()
+      implicit val env: FakeEnvironment[SessionEnv] = FakeEnvironment[SessionEnv](Seq(loginInfo -> identity))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       FakeAuthenticator(loginInfo) must beAnInstanceOf[SessionAuthenticator]
     }
@@ -138,8 +138,8 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
     "return a `CookieAuthenticator`" in new WithApplication {
       val loginInfo = LoginInfo("test", "test")
       val identity = FakeIdentity(loginInfo)
-      implicit val env = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
-      implicit val request = FakeRequest()
+      implicit val env: FakeEnvironment[CookieEnv] = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       FakeAuthenticator(loginInfo) must beAnInstanceOf[CookieAuthenticator]
     }
@@ -147,8 +147,8 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
     "return a `BearerTokenAuthenticator`" in new WithApplication {
       val loginInfo = LoginInfo("test", "test")
       val identity = FakeIdentity(loginInfo)
-      implicit val env = FakeEnvironment[BearerTokenEnv](Seq(loginInfo -> identity))
-      implicit val request = FakeRequest()
+      implicit val env: FakeEnvironment[BearerTokenEnv] = FakeEnvironment[BearerTokenEnv](Seq(loginInfo -> identity))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       FakeAuthenticator(loginInfo) must beAnInstanceOf[BearerTokenAuthenticator]
     }
@@ -156,8 +156,8 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
     "return a `JWTAuthenticator`" in new WithApplication {
       val loginInfo = LoginInfo("test", "test")
       val identity = FakeIdentity(loginInfo)
-      implicit val env = FakeEnvironment[JWTEnv](Seq(loginInfo -> identity))
-      implicit val request = FakeRequest()
+      implicit val env: FakeEnvironment[JWTEnv] = FakeEnvironment[JWTEnv](Seq(loginInfo -> identity))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       FakeAuthenticator(loginInfo) must beAnInstanceOf[JWTAuthenticator]
     }
@@ -165,8 +165,8 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
     "return a `DummyAuthenticator`" in new WithApplication {
       val loginInfo = LoginInfo("test", "test")
       val identity = FakeIdentity(loginInfo)
-      implicit val env = FakeEnvironment[DummyEnv](Seq(loginInfo -> identity))
-      implicit val request = FakeRequest()
+      implicit val env: FakeEnvironment[DummyEnv] = FakeEnvironment[DummyEnv](Seq(loginInfo -> identity))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       FakeAuthenticator(loginInfo) must beAnInstanceOf[DummyAuthenticator]
     }
@@ -191,7 +191,7 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) {
         val loginInfo = LoginInfo("test", "test")
         val identity = FakeIdentity(loginInfo)
-        implicit val env = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
+        implicit val env: FakeEnvironment[CookieEnv] = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
         val request = FakeRequest().withAuthenticator(LoginInfo("invalid", "invalid"))
 
         val controller = app.injector.instanceOf[SecuredController]
@@ -205,7 +205,7 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) {
         val loginInfo = LoginInfo("test", "test")
         val identity = FakeIdentity(loginInfo)
-        implicit val env = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
+        implicit val env: FakeEnvironment[CookieEnv] = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
         val request = FakeRequest().withAuthenticator(loginInfo)
 
         val controller = app.injector.instanceOf[SecuredController]
@@ -236,7 +236,7 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) {
         val loginInfo = LoginInfo("test", "test")
         val identity = FakeIdentity(loginInfo)
-        implicit val env = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
+        implicit val env: FakeEnvironment[CookieEnv] = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
         val request = FakeRequest().withAuthenticator(LoginInfo("invalid", "invalid"))
 
         val controller = app.injector.instanceOf[SecuredController]
@@ -251,7 +251,7 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
         val loginInfo = LoginInfo("test", "test")
         val identity = FakeIdentity(loginInfo)
 
-        implicit val env = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
+        implicit val env: FakeEnvironment[CookieEnv] = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
         val request = FakeRequest().withAuthenticator(loginInfo)
 
         val controller = app.injector.instanceOf[SecuredController]
@@ -281,7 +281,7 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
     /**
      * The Silhouette environment.
      */
-    implicit val env = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
+    implicit val env: FakeEnvironment[CookieEnv] = FakeEnvironment[CookieEnv](Seq(loginInfo -> identity))
 
     /**
      * The guice application builder.

@@ -156,7 +156,7 @@ class EventBusSpec extends PlaySpecification with NoLanguageFeatures {
     /**
      * The Play actor system.
      */
-    lazy implicit val system = app.injector.instanceOf[ActorSystem]
+    lazy implicit val system: ActorSystem = app.injector.instanceOf[ActorSystem]
 
     /**
      * The test probe.
