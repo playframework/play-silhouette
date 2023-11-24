@@ -26,6 +26,7 @@ import play.api.inject.Module
 import play.api.mvc._
 import play.api.{Configuration, Environment => PlayEnv}
 
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
@@ -75,6 +76,7 @@ object SecuredRequest {
    * @tparam E The type of the environment.
    * @tparam B The type of the request body.
    */
+  @nowarn
   def unapply[E <: Env, B](securedRequest: SecuredRequest[E, B]): Option[(I[E], A[E], Request[B])] = {
     securedRequest match {
       case dsr: DefaultSecuredRequest[E, B] =>

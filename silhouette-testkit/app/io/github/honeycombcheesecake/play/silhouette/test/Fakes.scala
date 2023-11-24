@@ -210,7 +210,7 @@ object FakeAuthenticator {
    * @tparam E The type of the environment,
    * @return A authenticator instance.
    */
-  def apply[E <: Env](loginInfo: LoginInfo)(implicit env: Environment[E], requestHeader: RequestHeader): E#A = {
+  def apply[E <: Env](loginInfo: LoginInfo)(implicit env: Environment[E], requestHeader: RequestHeader): A[E] = {
     env.authenticatorService.create(loginInfo)
   }
 }
@@ -226,20 +226,20 @@ object FakeAuthenticator {
  * @tparam E The type of the environment.
  */
 final case class FakeEnvironment[E <: Env](
-  identities: Seq[(LoginInfo, E#I)],
+  identities: Seq[(LoginInfo, I[E])],
   requestProviders: Seq[RequestProvider] = Seq.empty,
   eventBus: EventBus = EventBus())(
   implicit
   val executionContext: ExecutionContext,
-  tt: TypeTag[E#A]) extends Environment[E] {
+  tt: TypeTag[A[E]]) extends Environment[E] {
 
   /**
    * The identity service implementation.
    */
-  val identityService: IdentityService[E#I] = new FakeIdentityService[E#I](identities: _*)
+  val identityService: IdentityService[I[E]] = new FakeIdentityService[I[E]](identities: _*)
 
   /**
    * The authenticator service implementation.
    */
-  val authenticatorService: AuthenticatorService[E#A] = FakeAuthenticatorService[E#A]()
+  val authenticatorService: AuthenticatorService[A[E]] = FakeAuthenticatorService[A[E]]()
 }

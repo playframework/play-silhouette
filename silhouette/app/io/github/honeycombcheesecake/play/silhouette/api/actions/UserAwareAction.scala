@@ -26,6 +26,7 @@ import play.api.{ Configuration, Environment => PlayEnv }
 import play.api.inject.Module
 import play.api.mvc._
 
+import scala.annotation.nowarn
 import scala.concurrent.{ ExecutionContext, Future }
 
 /**
@@ -72,6 +73,7 @@ object UserAwareRequest {
    * @tparam E The type of the environment.
    * @tparam B The type of the request body.
    */
+  @nowarn
   def unapply[E <: Env, B](userAwareRequest: UserAwareRequest[E, B]): Option[(Option[I[E]], Option[A[E]], Request[B])] = {
     userAwareRequest match {
       case duar: DefaultUserAwareRequest[E, B] =>
