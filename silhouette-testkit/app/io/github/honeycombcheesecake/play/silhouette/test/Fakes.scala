@@ -23,12 +23,12 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.{ Authenticato
 import io.github.honeycombcheesecake.play.silhouette.api.util.Clock
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators._
 import io.github.honeycombcheesecake.play.silhouette.impl.util.{ DefaultFingerprintGenerator, SecureRandomIDGenerator }
+import izumi.reflect.Tag
 import play.api.mvc.{ DefaultCookieHeaderEncoding, DefaultSessionCookieBaker, RequestHeader }
 
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
-import scala.reflect.runtime.universe._
 import scala.util
 import scala.util.Success
 
@@ -175,13 +175,13 @@ object FakeAuthenticatorService {
    * @tparam T The type of the authenticator.
    * @return A fully configured authenticator instance.
    */
-  def apply[T <: Authenticator: TypeTag](): AuthenticatorService[T] = {
-    (typeOf[T] match {
-      case t if t <:< typeOf[SessionAuthenticator] => FakeSessionAuthenticatorService
-      case t if t <:< typeOf[CookieAuthenticator] => FakeCookieAuthenticatorService
-      case t if t <:< typeOf[BearerTokenAuthenticator] => FakeBearerTokenAuthenticatorService
-      case t if t <:< typeOf[JWTAuthenticator] => FakeJWTAuthenticatorService
-      case t if t <:< typeOf[DummyAuthenticator] => FakeDummyAuthenticatorService
+  def apply[T <: Authenticator: Tag](): AuthenticatorService[T] = {
+    (Tag[T] match {
+      case t if t <:< Tag[SessionAuthenticator] => FakeSessionAuthenticatorService
+      case t if t <:< Tag[CookieAuthenticator] => FakeCookieAuthenticatorService
+      case t if t <:< Tag[BearerTokenAuthenticator] => FakeBearerTokenAuthenticatorService
+      case t if t <:< Tag[JWTAuthenticator] => FakeJWTAuthenticatorService
+      case t if t <:< Tag[DummyAuthenticator] => FakeDummyAuthenticatorService
       case _ => throw new Exception("Invalid type specified.")
     }).asInstanceOf[AuthenticatorService[T]]
   }
@@ -231,7 +231,7 @@ final case class FakeEnvironment[E <: Env](
   eventBus: EventBus = EventBus())(
   implicit
   val executionContext: ExecutionContext,
-  tt: TypeTag[A[E]]) extends Environment[E] {
+  tt: Tag[A[E]]) extends Environment[E] {
 
   /**
    * The identity service implementation.

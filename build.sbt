@@ -227,6 +227,7 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.test,
+        Library.izumiReflect,
         Library.Play.specs2 % Test,
         Library.Specs2.matcherExtra % Test,
         Library.mockito % Test,
