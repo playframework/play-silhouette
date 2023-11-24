@@ -20,7 +20,7 @@
 package io.github.honeycombcheesecake.play.silhouette.api.services
 
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ ExtractableRequest, ExecutionContextProvider }
-import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginInfo }
+import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginInfo, Value }
 import play.api.http.HttpEntity
 import play.api.libs.typedmap.TypedMap
 import play.api.mvc._
@@ -115,7 +115,7 @@ trait AuthenticatorService[T <: Authenticator] extends ExecutionContextProvider 
    * @param request The request header.
    * @return The serialized authenticator value.
    */
-  def init(authenticator: T)(implicit request: RequestHeader): Future[T#Value]
+  def init(authenticator: T)(implicit request: RequestHeader): Future[Value[T]]
 
   /**
    * Embeds authenticator specific artifacts into the response.
@@ -125,7 +125,7 @@ trait AuthenticatorService[T <: Authenticator] extends ExecutionContextProvider 
    * @param request The request header.
    * @return The manipulated result.
    */
-  def embed(value: T#Value, result: Result)(implicit request: RequestHeader): Future[AuthenticatorResult]
+  def embed(value: Value[T], result: Result)(implicit request: RequestHeader): Future[AuthenticatorResult]
 
   /**
    * Embeds authenticator specific artifacts into the request.
@@ -141,7 +141,7 @@ trait AuthenticatorService[T <: Authenticator] extends ExecutionContextProvider 
    * @param request The request header.
    * @return The manipulated request header.
    */
-  def embed(value: T#Value, request: RequestHeader): RequestHeader
+  def embed(value: Value[T], request: RequestHeader): RequestHeader
 
   /**
    * Touches an authenticator.
@@ -182,7 +182,7 @@ trait AuthenticatorService[T <: Authenticator] extends ExecutionContextProvider 
    * @param request The request header.
    * @return The serialized expression of the authenticator.
    */
-  def renew(authenticator: T)(implicit request: RequestHeader): Future[T#Value]
+  def renew(authenticator: T)(implicit request: RequestHeader): Future[Value[T]]
 
   /**
    * Renews the expiration of an authenticator.

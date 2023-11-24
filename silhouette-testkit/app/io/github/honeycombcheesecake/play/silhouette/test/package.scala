@@ -43,8 +43,8 @@ package object test {
    * @param f A fake request instance.
    * @tparam A The type of the body.
    */
-  implicit class FakeRequestWithAuthenticator[A](f: FakeRequest[A]) {
-    implicit val request: FakeRequest[A] = f
+  implicit class FakeRequestWithAuthenticator[F](f: FakeRequest[F]) {
+    implicit val request: FakeRequest[F] = f
 
     /**
      * Creates a fake request with an embedded authenticator.
@@ -54,7 +54,7 @@ package object test {
      * @tparam E The type of the environment.
      * @return A fake request.
      */
-    def withAuthenticator[E <: Env](authenticator: E#A)(implicit env: Environment[E]): FakeRequest[A] = {
+    def withAuthenticator[E <: Env](authenticator: A[E])(implicit env: Environment[E]): FakeRequest[F] = {
       implicit val ec = env.executionContext
       val rh = env.authenticatorService.init(authenticator).map(v => env.authenticatorService.embed(v, f))
 
@@ -69,7 +69,7 @@ package object test {
      * @tparam E The type of the environment.
      * @return A fake request.
      */
-    def withAuthenticator[E <: Env](loginInfo: LoginInfo)(implicit env: Environment[E]): FakeRequest[A] = {
+    def withAuthenticator[E <: Env](loginInfo: LoginInfo)(implicit env: Environment[E]): FakeRequest[F] = {
       withAuthenticator(FakeAuthenticator[E](loginInfo))
     }
   }

@@ -54,10 +54,21 @@ trait Authenticator {
   def isValid: Boolean
 }
 
+
+// match types
+type Value[A <: Authenticator] = A match
+  case Authenticator.AuxV[v] => v // lower case is significant
+
+type Settings[A <: Authenticator] = A match
+  case Authenticator.AuxS[s] => s // lower case is significant
+
 /**
  * The `Authenticator` companion object.
  */
 object Authenticator {
+
+  type AuxV[_V] = Authenticator {type Value = _V}
+  type AuxS[_S] = Authenticator {type Settings = _S}
 
   /**
    * Some implicits.

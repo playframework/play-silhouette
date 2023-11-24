@@ -36,7 +36,7 @@ class ErrorHandlerSpec extends PlaySpecification {
         expectedContentType = HTML,
         expectedResponseFragment = "<html>",
         expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+        f = { (r: RequestHeader) => notAuthenticated.onNotAuthenticated(r) })
     }
 
     "return a JSON response for a JSON request" in new WithApplication with Context {

@@ -37,12 +37,12 @@ trait UserAwareRequestHeader[E <: Env] extends RequestHeader {
   /**
    * @return Some identity implementation if authentication was successful, None otherwise.
    */
-  def identity: Option[E#I]
+  def identity: Option[I[E]]
 
   /**
    * @return Some authenticator implementation if authentication was successful, None otherwise.
    */
-  def authenticator: Option[E#A]
+  def authenticator: Option[A[E]]
 }
 
 trait UserAwareRequest[E <: Env, +B] extends Request[B] with UserAwareRequestHeader[E]
@@ -59,8 +59,8 @@ object UserAwareRequest {
    * @tparam B The type of the request body.
    */
   def apply[E <: Env, B](
-    identity: Option[E#I],
-    authenticator: Option[E#A],
+    identity: Option[I[E]],
+    authenticator: Option[A[E]],
     request: Request[B]): UserAwareRequest[E, B] = {
     new DefaultUserAwareRequest(identity, authenticator, request)
   }
@@ -72,7 +72,7 @@ object UserAwareRequest {
    * @tparam E The type of the environment.
    * @tparam B The type of the request body.
    */
-  def unapply[E <: Env, B](userAwareRequest: UserAwareRequest[E, B]): Option[(Option[E#I], Option[E#A], Request[B])] = {
+  def unapply[E <: Env, B](userAwareRequest: UserAwareRequest[E, B]): Option[(Option[I[E]], Option[A[E]], Request[B])] = {
     userAwareRequest match {
       case duar: DefaultUserAwareRequest[E, B] =>
         Some((duar.identity, duar.authenticator, duar.request))
@@ -83,8 +83,8 @@ object UserAwareRequest {
 }
 
 class DefaultUserAwareRequest[E <: Env, B](
-  val identity: Option[E#I],
-  val authenticator: Option[E#A],
+  val identity: Option[I[E]],
+  val authenticator: Option[A[E]],
   val request: Request[B]) extends WrappedRequest(request) with UserAwareRequest[E, B]
 
 /**

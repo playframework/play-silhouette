@@ -46,6 +46,18 @@ trait Env {
   type A <: Authenticator
 }
 
+object Env {
+  type AuxI[_I <: Identity] = Env {type I = _I}
+  type AuxA[_A <: Authenticator] = Env {type A = _A}
+}
+
+  // match types
+type I[E <: Env] <: Identity = E match
+  case Env.AuxI[i] => i // lower case is significant
+
+type A[E <: Env] <: Authenticator = E match
+  case Env.AuxA[a] => a
+
 /**
  * Provides the components needed to handle a secured request.
  *
@@ -62,14 +74,14 @@ trait Environment[E <: Env] extends ExecutionContextProvider {
    *
    * @return The identity service implementation.
    */
-  def identityService: IdentityService[E#I]
+  def identityService: IdentityService[I[E]]
 
   /**
    * Gets the authenticator service implementation.
    *
    * @return The authenticator service implementation.
    */
-  def authenticatorService: AuthenticatorService[E#A]
+  def authenticatorService: AuthenticatorService[A[E]]
 
   /**
    * Gets the list of request providers.
@@ -96,8 +108,8 @@ trait Environment[E <: Env] extends ExecutionContextProvider {
  */
 object Environment {
   def apply[E <: Env](
-    identityServiceImpl: IdentityService[E#I],
-    authenticatorServiceImpl: AuthenticatorService[E#A],
+    identityServiceImpl: IdentityService[I[E]],
+    authenticatorServiceImpl: AuthenticatorService[A[E]],
     requestProvidersImpl: Seq[RequestProvider],
     eventBusImpl: EventBus)(implicit ec: ExecutionContext) = new Environment[E] {
     val identityService = identityServiceImpl

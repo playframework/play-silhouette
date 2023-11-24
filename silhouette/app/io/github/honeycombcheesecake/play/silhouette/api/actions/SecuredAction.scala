@@ -20,14 +20,14 @@
 package io.github.honeycombcheesecake.play.silhouette.api.actions
 
 import javax.inject.Inject
-
 import io.github.honeycombcheesecake.play.silhouette.api._
 import play.api.i18n.MessagesApi
 import play.api.inject.Module
 import play.api.mvc._
-import play.api.{ Configuration, Environment => PlayEnv }
+import play.api.{Configuration, Environment => PlayEnv}
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 /**
  * A request header that only allows access if an identity is authenticated and authorized.
@@ -38,12 +38,12 @@ trait SecuredRequestHeader[E <: Env] extends RequestHeader {
   /**
    * @return The identity implementation.
    */
-  def identity: E#I
+  def identity: I[E]
 
   /**
    * @return The authenticator implementation.
    */
-  def authenticator: E#A
+  def authenticator: A[E]
 }
 
 /**
@@ -64,7 +64,7 @@ object SecuredRequest {
    * @tparam E The type of the environment.
    * @tparam B The type of the request body.
    */
-  def apply[E <: Env, B](identity: E#I, authenticator: E#A, request: Request[B]): SecuredRequest[E, B] = {
+  def apply[E <: Env, B](identity: I[E], authenticator: A[E], request: Request[B]): SecuredRequest[E, B] = {
     new DefaultSecuredRequest(identity, authenticator, request)
   }
 
@@ -75,7 +75,7 @@ object SecuredRequest {
    * @tparam E The type of the environment.
    * @tparam B The type of the request body.
    */
-  def unapply[E <: Env, B](securedRequest: SecuredRequest[E, B]): Option[(E#I, E#A, Request[B])] = {
+  def unapply[E <: Env, B](securedRequest: SecuredRequest[E, B]): Option[(I[E], A[E], Request[B])] = {
     securedRequest match {
       case dsr: DefaultSecuredRequest[E, B] =>
         Some((dsr.identity, dsr.authenticator, dsr.request))
@@ -86,8 +86,8 @@ object SecuredRequest {
 }
 
 class DefaultSecuredRequest[E <: Env, B](
-  val identity: E#I,
-  val authenticator: E#A,
+  val identity: I[E],
+  val authenticator: A[E],
   val request: Request[B]) extends WrappedRequest(request) with SecuredRequest[E, B]
 
 /**
@@ -101,7 +101,7 @@ class DefaultSecuredRequest[E <: Env, B](
 final case class SecuredRequestHandlerBuilder[E <: Env](
   environment: Environment[E],
   errorHandler: SecuredErrorHandler,
-  authorization: Option[Authorization[E#I, E#A]])
+  authorization: Option[Authorization[I[E], A[E]]])
   extends RequestHandlerBuilder[E, ({ type R[B] = SecuredRequest[E, B] })#R] {
 
   /**
@@ -119,7 +119,7 @@ final case class SecuredRequestHandlerBuilder[E <: Env](
    * @param specifiedAuthorization An authorization object that checks if the user is authorized to invoke the action.
    * @return A secured action handler builder with an authorization in place.
    */
-  def apply(specifiedAuthorization: Authorization[E#I, E#A]): SecuredRequestHandlerBuilder[E] =
+  def apply(specifiedAuthorization: Authorization[I[E], A[E]]): SecuredRequestHandlerBuilder[E] =
     SecuredRequestHandlerBuilder[E](environment, errorHandler, Some(specifiedAuthorization))
 
   /**
@@ -165,7 +165,7 @@ final case class SecuredRequestHandlerBuilder[E <: Env](
    * @tparam B The type of the request body.
    * @return The authentication result with the additional authorization status.
    */
-  private def withAuthorization[B](result: Future[(Option[Either[E#A, E#A]], Option[E#I])])(implicit request: Request[B]) = {
+  private def withAuthorization[B](result: Future[(Option[Either[A[E], A[E]]], Option[I[E]])])(implicit request: Request[B]) = {
     result.flatMap {
       case (Some(a), Some(i)) =>
         authorization.map(_.isAuthorized(i, a.extract)).getOrElse(Future.successful(true)).map(b => (Some(a), Some(i), Some(b)))
@@ -247,7 +247,7 @@ final case class SecuredActionBuilder[E <: Env, P](
    * @param authorization An authorization object that checks if the user is authorized to invoke the action.
    * @return A secured action builder.
    */
-  def apply(authorization: Authorization[E#I, E#A]): SecuredActionBuilder[E, P] = SecuredActionBuilder[E, P](requestHandler(authorization), parser)
+  def apply(authorization: Authorization[I[E], A[E]]): SecuredActionBuilder[E, P] = SecuredActionBuilder[E, P](requestHandler(authorization), parser)
 
   /**
    * Invokes the block.

@@ -57,7 +57,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
   /**
    * The execution context to handle the asynchronous operations.
    */
-  implicit lazy val executionContext: ExecutionContext = environment.executionContext
+  implicit /*lazy*/ val executionContext: ExecutionContext = environment.executionContext
 
   /**
    * The environment instance to handle the request.
@@ -114,7 +114,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
    * @tparam T The type of the data included in the handler result.
    * @return A handler result.
    */
-  protected def handleBlock[T](authenticator: Either[E#A, E#A], block: E#A => Future[HandlerResult[T]])(implicit request: RequestHeader) = {
+  protected def handleBlock[T](authenticator: Either[A[E], A[E]], block: A[E] => Future[HandlerResult[T]])(implicit request: RequestHeader) = {
     authenticator match {
       case Left(a) => handleInitializedAuthenticator(a, block)
       case Right(a) => handleUninitializedAuthenticator(a, block)
@@ -134,7 +134,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
    * @return A tuple which consists of (maybe the existing authenticator on the left or a
    *         new authenticator on the right -> maybe the identity).
    */
-  protected def handleAuthentication[B](implicit request: Request[B]): Future[(Option[Either[E#A, E#A]], Option[E#I])] = {
+  protected def handleAuthentication[B](implicit request: Request[B]): Future[(Option[Either[A[E], A[E]]], Option[I[E]])] = {
     environment.authenticatorService.retrieve.flatMap {
       // A valid authenticator was found so we retrieve also the identity
       case Some(a) if a.isValid => environment.identityService.retrieve(a.loginInfo).map(i => Some(Left(a)) -> i)
@@ -164,7 +164,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
    * @tparam T The type of the data included in the handler result.
    * @return A handler result.
    */
-  private def handleInitializedAuthenticator[T](authenticator: E#A, block: E#A => Future[HandlerResult[T]])(implicit request: RequestHeader) = {
+  private def handleInitializedAuthenticator[T](authenticator: A[E], block: A[E] => Future[HandlerResult[T]])(implicit request: RequestHeader) = {
     val auth = environment.authenticatorService.touch(authenticator)
     block(auth.fold(identity, identity)).flatMap {
       case hr @ HandlerResult(pr: AuthenticatorResult, _) => Future.successful(hr)
@@ -189,7 +189,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
    * @tparam T The type of the data included in the handler result.
    * @return A handler result.
    */
-  private def handleUninitializedAuthenticator[T](authenticator: E#A, block: E#A => Future[HandlerResult[T]])(implicit request: RequestHeader) = {
+  private def handleUninitializedAuthenticator[T](authenticator: A[E], block: A[E] => Future[HandlerResult[T]])(implicit request: RequestHeader) = {
     block(authenticator).flatMap {
       case hr @ HandlerResult(pr: AuthenticatorResult, _) => Future.successful(hr)
       case hr @ HandlerResult(pr, _) =>
