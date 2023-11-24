@@ -110,7 +110,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers with NoLan
         when(basicAuthRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
         when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
         when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-        when(env.authenticatorService.init(any())(any())).thenAnswer { p: Any => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
+        when(env.authenticatorService.init(any())(any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
         when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
           Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
         }
@@ -163,7 +163,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers with NoLan
         when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
         when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
         when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-        when(env.authenticatorService.init(any())(any())).thenAnswer { p: Any => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
+        when(env.authenticatorService.init(any())(any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
         when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
           Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
         }
