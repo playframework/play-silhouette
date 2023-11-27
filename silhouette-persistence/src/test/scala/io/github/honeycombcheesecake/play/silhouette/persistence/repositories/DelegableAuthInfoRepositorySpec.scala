@@ -26,7 +26,6 @@ import io.github.honeycombcheesecake.play.silhouette.persistence.repositories.De
 import io.github.honeycombcheesecake.play.silhouette.test.WaitPatience
 import net.codingwell.scalaguice.ScalaModule
 import org.specs2.concurrent.ExecutionEnv
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 import org.mockito.Mockito._
@@ -39,7 +38,7 @@ import scala.language.postfixOps
  * Test case for the [[DelegableAuthInfoRepository]] trait.
  */
 class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
-  extends Specification with NoLanguageFeatures with WaitPatience {
+  extends Specification with WaitPatience {
 
   "The `find` method" should {
     "delegate the PasswordInfo to the correct DAO" in new Context {

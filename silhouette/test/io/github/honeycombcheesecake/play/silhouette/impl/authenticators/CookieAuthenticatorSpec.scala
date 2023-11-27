@@ -26,7 +26,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorS
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, FingerprintGenerator, IDGenerator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticatorService._
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.MatchResult
 import org.specs2.specification.Scope
 import play.api.mvc.{ AnyContentAsEmpty, Cookie, DefaultCookieHeaderEncoding, Results }
@@ -45,7 +44,7 @@ import scala.util.{ Failure, Success }
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticator]].
  */
-class CookieAuthenticatorSpec extends PlaySpecification with NoLanguageFeatures {
+class CookieAuthenticatorSpec extends PlaySpecification {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {

@@ -25,7 +25,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, Fingerpri
 import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginInfo }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -43,7 +42,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator]].
  */
-class SessionAuthenticatorSpec extends PlaySpecification with NoLanguageFeatures {
+class SessionAuthenticatorSpec extends PlaySpecification {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {

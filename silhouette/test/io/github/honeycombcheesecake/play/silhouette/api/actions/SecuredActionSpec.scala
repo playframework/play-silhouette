@@ -24,7 +24,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.actions.SecuredActionSp
 import io.github.honeycombcheesecake.play.silhouette.api.exceptions.{ NotAuthenticatedException, NotAuthorizedException }
 import io.github.honeycombcheesecake.play.silhouette.api.services.{ AuthenticatorResult, AuthenticatorService, IdentityService }
 import net.codingwell.scalaguice.ScalaModule
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.inject.bind
@@ -46,7 +45,7 @@ import scala.reflect.ClassTag
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.api.actions.SecuredActionSpec]].
  */
-class SecuredActionSpec extends PlaySpecification with JsonMatchers with NoLanguageFeatures {
+class SecuredActionSpec extends PlaySpecification with JsonMatchers {
 
   "The `SecuredAction` action" should {
     "restrict access if no valid authenticator can be retrieved" in new InjectorContext {

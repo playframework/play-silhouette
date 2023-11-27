@@ -21,7 +21,6 @@ import io.github.honeycombcheesecake.play.silhouette.api._
 import io.github.honeycombcheesecake.play.silhouette.api.actions.UserAwareActionSpec._
 import io.github.honeycombcheesecake.play.silhouette.api.services.{ AuthenticatorResult, AuthenticatorService, IdentityService }
 import net.codingwell.scalaguice.ScalaModule
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.i18n.{ Lang, Langs, MessagesApi }
@@ -39,7 +38,7 @@ import scala.concurrent.Future
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.api.actions.UserAwareAction]].
  */
-class UserAwareActionSpec extends PlaySpecification with JsonMatchers with NoLanguageFeatures {
+class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
 
   "The `UserAwareAction` action" should {
     "invoke action without identity and authenticator if no authenticator could be found" in new InjectorContext {

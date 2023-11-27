@@ -22,7 +22,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.repositories.Authentica
 import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorService._
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ RequestPart, Clock, IDGenerator }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.BearerTokenAuthenticatorService._
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.specification.Scope
 import play.api.mvc.{ Results, AnyContentAsEmpty }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
@@ -39,7 +38,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.BearerTokenAuthenticator]].
  */
-class BearerTokenAuthenticatorSpec extends PlaySpecification with NoLanguageFeatures {
+class BearerTokenAuthenticatorSpec extends PlaySpecification {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {

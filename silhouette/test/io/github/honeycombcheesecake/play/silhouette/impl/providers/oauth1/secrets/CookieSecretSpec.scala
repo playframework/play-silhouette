@@ -23,7 +23,6 @@ import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.OAuth1Token
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.OAuth1Info
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecret._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecretProvider._
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.mvc.{ AnyContentAsEmpty, Cookie, Results }
@@ -42,7 +41,7 @@ import scala.util.{ Failure, Success }
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.secrets.CookieSecret]] class.
  */
-class CookieSecretSpec extends PlaySpecification with JsonMatchers with NoLanguageFeatures {
+class CookieSecretSpec extends PlaySpecification with JsonMatchers {
 
   "The `isExpired` method of the secret" should {
     "return true if the secret is expired" in new Context {

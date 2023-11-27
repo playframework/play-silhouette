@@ -28,6 +28,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{ FakeRequest, WithApplication }
 import test.Helper
 import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.any
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
@@ -65,17 +66,17 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
       }
     }
 
-    "fail with UnexpectedResponseException if OAuth2Info can be build because of an unexpected response" in new WithApplication with Context {
+    "fail with UnexpectedResponseException if OAuth2Info can be build because of an unexpected response" in new WithApplication {
       val wsRequest = mock(classOf[MockWSRequest])
       val wsResponse = mock(classOf[MockWSRequest#Response])
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
       when(wsResponse.status).thenReturn(200)
       when(wsResponse.json).thenReturn(Json.obj())
       when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-      when(wsRequest.post[Map[String, Seq[String]]](any)(any))).thenReturn(Future.successful(wsResponse))
-      when(httpLayer.url(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
-      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]))).thenReturn(Future.successful(state))
-      when(stateProvider.state(any[ExecutionContext]))).thenReturn(Future.successful(state))
+      when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
       failed[UnexpectedResponseException](provider.authenticate()) {
         case e => e.getMessage must startWith(InvalidInfoFormat.format(provider.id, ""))
@@ -86,13 +87,13 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
       val wsRequest = mock(classOf[MockWSRequest])
       val wsResponse = mock(classOf[MockWSRequest#Response])
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
-      when(wsResponse.status)).thenReturn(200)
-      when(wsResponse.json)).thenReturn(oAuthInfo)
-      when(wsRequest.withHttpHeaders(any))).thenReturn(wsRequest)
-      when(wsRequest.post[Map[String, Seq[String]]](any)(any))).thenReturn(Future.successful(wsResponse))
-      when(httpLayer.url(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
-      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]))).thenReturn(Future.successful(state))
-      when(stateProvider.state(any[ExecutionContext]))).thenReturn(Future.successful(state))
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(oAuthInfo)
+      when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+      when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+      when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+      when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
       authInfo(provider.authenticate())(_ must be equalTo oAuthInfo.as[OAuth2Info])
     }
@@ -105,7 +106,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
       when(wsResponse.status).thenReturn(400)
       when(wsResponse.json).thenReturn(Helper.loadJson("providers/custom/facebook.error.json"))
       when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-      when(httpLayer.url(API.format("my.access.token")))).thenReturn(wsRequest)
+      when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 
       failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
         case e => e.getMessage must equalTo(SpecifiedProfileError.format(
@@ -119,9 +120,9 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
     "fail with ProfileRetrievalException if an unexpected error occurred" in new WithApplication with Context {
       val wsRequest = mock(classOf[MockWSRequest])
       val wsResponse = mock(classOf[MockWSRequest#Response])
-      when(wsResponse.status)).thenReturn(500)
+      when(wsResponse.status).thenReturn(500)
       wsResponse.json throws new RuntimeException("")
-      when(wsRequest.get())).thenReturn(Future.successful(wsResponse))
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
       when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 
       failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
@@ -132,8 +133,8 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
     "return the social profile" in new WithApplication with Context {
       val wsRequest = mock(classOf[MockWSRequest])
       val wsResponse = mock(classOf[MockWSRequest#Response])
-      when(wsResponse.status)).thenReturn(200)
-      when(wsResponse.json)).thenReturn(Helper.loadJson("providers/custom/facebook.success.json"))
+      when(wsResponse.status).thenReturn(200)
+      when(wsResponse.json).thenReturn(Helper.loadJson("providers/custom/facebook.success.json"))
       when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
       when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 
@@ -157,34 +158,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
    */
   override protected def context: OAuth2ProviderSpecContext = new Context {}
 
-  /**
-   * The context.
-   */
-  trait Context extends OAuth2ProviderSpecContext {
 
-    /**
-     * The OAuth2 settings.
-     */
-    override lazy val oAuthSettings = org.mockito.Mockito.spy(OAuth2Settings(
-      authorizationURL = Some("https://graph.facebook.com/oauth/authorize"),
-      accessTokenURL = "https://graph.facebook.com/oauth/access_token",
-      redirectURL = Some("https://www.mohiva.com"),
-      clientID = "my.client.id",
-      clientSecret = "my.client.secret",
-      scope = Some("email")))
-
-    /**
-     * The OAuth2 info returned by Facebook.
-     *
-     * @see https://developers.facebook.com/docs/facebook-login/access-tokens
-     */
-    override lazy val oAuthInfo = Helper.loadJson("providers/oauth2/facebook.access.token.json")
-
-    /**
-     * The provider to test.
-     */
-    lazy val provider = new CustomFacebookProvider(httpLayer, stateProvider, oAuthSettings)
-  }
 
   /**
    * A custom social profile for testing purpose.

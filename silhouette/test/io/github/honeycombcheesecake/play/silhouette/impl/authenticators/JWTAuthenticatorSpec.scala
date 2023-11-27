@@ -25,7 +25,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorS
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, IDGenerator, RequestPart }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticatorService._
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.libs.json.{ JsNull, JsObject, Json }
@@ -45,7 +44,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.JWTAuthenticator]].
  */
-class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers with NoLanguageFeatures {
+class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {

@@ -18,7 +18,6 @@ package io.github.honeycombcheesecake.play.silhouette.persistence.daos
 import io.github.honeycombcheesecake.play.silhouette.api.{ AuthInfo, LoginInfo }
 import io.github.honeycombcheesecake.play.silhouette.test.WaitPatience
 import org.specs2.concurrent.ExecutionEnv
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 
@@ -29,7 +28,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[InMemoryAuthInfoDAO]] trait.
  */
-class InMemoryAuthInfoDAOSpec(implicit ev: ExecutionEnv) extends Specification with NoLanguageFeatures with WaitPatience {
+class InMemoryAuthInfoDAOSpec(implicit ev: ExecutionEnv) extends Specification with WaitPatience {
 
   "The `find` method" should {
     "find an OAuth1 info for the given login info" in new Context {

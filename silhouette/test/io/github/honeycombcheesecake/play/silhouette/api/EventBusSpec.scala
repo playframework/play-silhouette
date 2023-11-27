@@ -17,7 +17,6 @@ package io.github.honeycombcheesecake.play.silhouette.api
 
 import akka.actor.{ Actor, ActorSystem, Props }
 import akka.testkit.TestProbe
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.specification.Scope
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
@@ -27,7 +26,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.api.EventBus]] class.
  */
-class EventBusSpec extends PlaySpecification with NoLanguageFeatures {
+class EventBusSpec extends PlaySpecification {
 
   "The event bus" should {
     "handle an subclass event" in new WithApplication with Context {
