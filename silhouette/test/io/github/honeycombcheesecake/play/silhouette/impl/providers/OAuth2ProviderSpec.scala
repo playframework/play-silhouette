@@ -154,7 +154,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           implicit val req = FakeRequest[AnyContent](
             method = GET,
             uri = "/request-path/something",
-            headers = FakeHeaders(Seq(HeaderNames.HOST -> "www.example.com")),
+            headers = FakeHeaders(Seq((HeaderNames.HOST, "www.example.com"))),
             body = AnyContentAsEmpty,
             secure = secure)
 
@@ -187,7 +187,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           implicit val req = FakeRequest[AnyContent](
             method = GET,
             uri = "/request-path/something",
-            headers = FakeHeaders(Seq(HeaderNames.HOST -> "www.example.com")),
+            headers = FakeHeaders(Seq((HeaderNames.HOST, "www.example.com"))),
             body = AnyContentAsEmpty,
             secure = secure)
 

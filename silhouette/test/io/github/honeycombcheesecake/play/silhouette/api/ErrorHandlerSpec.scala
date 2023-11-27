@@ -193,7 +193,7 @@ class ErrorHandlerSpec extends PlaySpecification {
       expectedMessage: String,
       f: RequestHeader => Future[Result]) = {
       implicit val request = acceptedMediaType match {
-        case Some(mediaType) => FakeRequest().withHeaders(ACCEPT -> mediaType)
+        case Some(mediaType) => FakeRequest().withHeaders((ACCEPT, mediaType))
         case None => FakeRequest()
       }
 
