@@ -40,7 +40,7 @@ class SocialProviderRegistrySpec extends PlaySpecification {
     "return a provider by its ID as SocialProvider" in new Context {
       val provider = registry.get[SocialProvider](GoogleProvider.ID)
 
-      provider must beSome.like {
+      provider must beSome[SocialProvider].like {
         case value =>
           value.id must be equalTo providers(1).id
           value must beAnInstanceOf[SocialProvider]
@@ -50,7 +50,7 @@ class SocialProviderRegistrySpec extends PlaySpecification {
     "return a provider by its ID as OAuth2Provider" in new Context {
       val provider = registry.get[OAuth2Provider](GoogleProvider.ID)
 
-      provider must beSome.like {
+      provider must beSome[OAuth2Provider].like {
         case value =>
           value.id must be equalTo providers(1).id
           value must beAnInstanceOf[OAuth2Provider]

@@ -99,7 +99,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           result(c.provider.authenticate()) { result =>
             status(result) must equalTo(SEE_OTHER)
             session(result).get(sessionKey) must beSome(c.stateProvider.serialize(c.state))
-            redirectLocation(result) must beSome.which { url =>
+            redirectLocation(result) must beSome[String].which { url =>
               val urlParams = c.urlParams(url)
               val redirectParam = c.oAuthSettings.redirectURL match {
                 case Some(rUri) => List((RedirectURI, rUri))
@@ -173,7 +173,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           }
 
           result(c.provider.authenticate()) { result =>
-            redirectLocation(result) must beSome.which { url: String =>
+            redirectLocation(result) must beSome[String].which { url =>
               url must contain(s"$RedirectURI=${encode(resolvedRedirectURL, "UTF-8")}")
             }
           }
@@ -208,13 +208,13 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           redirectURL match {
             case Some(_) =>
               result(c.provider.authenticate()) { result =>
-                redirectLocation(result) must beSome.which { url: String =>
+                redirectLocation(result) must beSome[String].which { url =>
                   url must contain(s"$RedirectURI=${encode(resolvedRedirectURL, "UTF-8")}")
                 }
               }
             case None =>
               result(c.provider.authenticate()) { result =>
-                redirectLocation(result) must beSome.which { url: String =>
+                redirectLocation(result) must beSome[String].which { url =>
                   url must not contain s"$RedirectURI="
                 }
               }
@@ -236,7 +236,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           }
 
           result(c.provider.authenticate())(result =>
-            redirectLocation(result) must beSome.which(_ must not contain State))
+            redirectLocation(result) must beSome[String].which(_ must not contain State))
       }
     }
 

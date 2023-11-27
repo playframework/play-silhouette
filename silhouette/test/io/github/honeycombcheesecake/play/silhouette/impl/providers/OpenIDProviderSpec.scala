@@ -58,7 +58,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
 
       result(c.provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
-        redirectLocation(result) must beSome.which(_ == c.openIDSettings.providerURL)
+        redirectLocation(result) must beSome[String].which(_ == c.openIDSettings.providerURL)
       }
     }
 
@@ -68,7 +68,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
 
       result(c.provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
-        redirectLocation(result) must beSome.which(_ == c.openIDSettings.providerURL)
+        redirectLocation(result) must beSome[String].which(_ == c.openIDSettings.providerURL)
       }
     }
 

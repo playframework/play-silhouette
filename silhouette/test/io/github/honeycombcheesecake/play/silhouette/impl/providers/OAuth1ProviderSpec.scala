@@ -81,7 +81,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
 
       result(c.provider.authenticate()) { result =>
         status(result) must equalTo(SEE_OTHER)
-        redirectLocation(result) must beSome.which(_ == c.oAuthSettings.authorizationURL)
+        redirectLocation(result) must beSome[String].which(_ == c.oAuthSettings.authorizationURL)
       }
     }
 
