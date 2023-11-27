@@ -67,7 +67,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
       }
     }
 
-    "fail with UnexpectedResponseException if OAuth2Info can be build because of an unexpected response" in new WithApplication {
+    "fail with UnexpectedResponseException if OAuth2Info can be build because of an unexpected response" in new WithApplication with Context {
       val wsRequest = mock(classOf[MockWSRequest])
       val wsResponse = mock(classOf[MockWSRequest#Response])
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
@@ -122,7 +122,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
       val wsRequest = mock(classOf[MockWSRequest])
       val wsResponse = mock(classOf[MockWSRequest#Response])
       when(wsResponse.status).thenReturn(500)
-      wsResponse.json throws new RuntimeException("")
+      when(wsResponse.json).thenThrow(new RuntimeException(""))
       when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
       when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
 

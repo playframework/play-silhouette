@@ -173,7 +173,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           }
 
           result(c.provider.authenticate()) { result =>
-            redirectLocation(result) must beSome.which { url =>
+            redirectLocation(result) must beSome.which { url: String =>
               url must contain(s"$RedirectURI=${encode(resolvedRedirectURL, "UTF-8")}")
             }
           }
@@ -208,13 +208,13 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           redirectURL match {
             case Some(_) =>
               result(c.provider.authenticate()) { result =>
-                redirectLocation(result) must beSome.which { url =>
+                redirectLocation(result) must beSome.which { url: String =>
                   url must contain(s"$RedirectURI=${encode(resolvedRedirectURL, "UTF-8")}")
                 }
               }
             case None =>
               result(c.provider.authenticate()) { result =>
-                redirectLocation(result) must beSome.which { url =>
+                redirectLocation(result) must beSome.which { url: String =>
                   url must not contain s"$RedirectURI="
                 }
               }
