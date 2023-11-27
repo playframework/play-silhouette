@@ -158,7 +158,34 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
    */
   override protected def context: OAuth2ProviderSpecContext = new Context {}
 
+  /**
+   * The context.
+   */
+  trait Context extends OAuth2ProviderSpecContext {
 
+    /**
+     * The OAuth2 settings.
+     */
+    override lazy val oAuthSettings = spy(OAuth2Settings(
+      authorizationURL = Some("https://graph.facebook.com/oauth/authorize"),
+      accessTokenURL = "https://graph.facebook.com/oauth/access_token",
+      redirectURL = Some("https://www.mohiva.com"),
+      clientID = "my.client.id",
+      clientSecret = "my.client.secret",
+      scope = Some("email")))
+
+    /**
+     * The OAuth2 info returned by Facebook.
+     *
+     * @see https://developers.facebook.com/docs/facebook-login/access-tokens
+     */
+    override lazy val oAuthInfo = Helper.loadJson("providers/oauth2/facebook.access.token.json")
+
+    /**
+     * The provider to test.
+     */
+    lazy val provider = new CustomFacebookProvider(httpLayer, stateProvider, oAuthSettings)
+  }
 
   /**
    * A custom social profile for testing purpose.
