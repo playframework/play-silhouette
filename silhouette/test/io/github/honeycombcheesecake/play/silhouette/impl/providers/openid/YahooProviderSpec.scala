@@ -30,7 +30,7 @@ class YahooProviderSpec extends OpenIDProviderSpec {
       val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
         s.copy("new-provider-url")
       }
-      val s = provider.withSettings(overrideSettingsFunction)
+      val s: YahooProvider = provider.withSettings(overrideSettingsFunction)
 
       s.settings.providerURL must be equalTo "new-provider-url"
       verify(openIDService).withSettings(overrideSettingsFunction)
@@ -85,6 +85,6 @@ class YahooProviderSpec extends OpenIDProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new YahooProvider(httpLayer, openIDService, openIDSettings)
+    lazy val provider: YahooProvider = new YahooProvider(httpLayer, openIDService, openIDSettings)
   }
 }

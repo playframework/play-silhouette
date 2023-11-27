@@ -39,7 +39,7 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: FoursquareProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -279,6 +279,6 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new FoursquareProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: FoursquareProvider = new FoursquareProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

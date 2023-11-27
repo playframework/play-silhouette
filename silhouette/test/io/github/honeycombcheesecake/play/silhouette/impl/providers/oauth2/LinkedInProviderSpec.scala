@@ -39,7 +39,7 @@ class LinkedInProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: LinkedInProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -244,6 +244,6 @@ class LinkedInProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new LinkedInProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: LinkedInProvider = new LinkedInProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

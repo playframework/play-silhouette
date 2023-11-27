@@ -39,7 +39,7 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: DropboxProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -226,6 +226,6 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new DropboxProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: DropboxProvider = new DropboxProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

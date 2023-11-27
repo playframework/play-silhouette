@@ -39,7 +39,7 @@ class VKProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: VKProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -273,6 +273,6 @@ class VKProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new VKProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: VKProvider = new VKProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

@@ -97,7 +97,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
       implicit val req = FakeRequest[AnyContent](
         method = GET,
         uri = "/request-path/something",
-        headers = FakeHeaders(Seq(HeaderNames.HOST -> "www.example.com")),
+        headers = FakeHeaders(Seq((HeaderNames.HOST, "www.example.com"))),
         body = AnyContentAsEmpty,
         secure = secure)
 

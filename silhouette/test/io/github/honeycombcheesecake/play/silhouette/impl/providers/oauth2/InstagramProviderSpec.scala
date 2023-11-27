@@ -39,7 +39,7 @@ class InstagramProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: InstagramProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -218,6 +218,6 @@ class InstagramProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new InstagramProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: InstagramProvider = new InstagramProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

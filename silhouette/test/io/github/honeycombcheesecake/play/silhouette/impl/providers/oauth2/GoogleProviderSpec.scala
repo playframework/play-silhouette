@@ -39,7 +39,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: GoogleProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -293,6 +293,6 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new GoogleProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: GoogleProvider = new GoogleProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

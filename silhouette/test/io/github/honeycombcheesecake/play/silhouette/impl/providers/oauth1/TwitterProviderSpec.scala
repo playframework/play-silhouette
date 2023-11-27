@@ -39,7 +39,7 @@ class TwitterProviderSpec extends OAuth1ProviderSpec {
       val overrideSettingsFunction: OAuth1Settings => OAuth1Settings = { s =>
         s.copy("new-request-token-url")
       }
-      val s = provider.withSettings(overrideSettingsFunction)
+      val s: TwitterProvider = provider.withSettings(overrideSettingsFunction)
 
       s.settings.requestTokenURL must be equalTo "new-request-token-url"
       verify(oAuthService).withSettings(overrideSettingsFunction)
@@ -151,6 +151,6 @@ class TwitterProviderSpec extends OAuth1ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new TwitterProvider(httpLayer, oAuthService, oAuthTokenSecretProvider, oAuthSettings)
+    lazy val provider: TwitterProvider = new TwitterProvider(httpLayer, oAuthService, oAuthTokenSecretProvider, oAuthSettings)
   }
 }

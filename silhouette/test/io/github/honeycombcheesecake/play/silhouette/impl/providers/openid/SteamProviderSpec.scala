@@ -30,7 +30,7 @@ class SteamProviderSpec extends OpenIDProviderSpec {
       val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
         s.copy("new-provider-url")
       }
-      val s = provider.withSettings(overrideSettingsFunction)
+      val s: SteamProvider = provider.withSettings(overrideSettingsFunction)
 
       s.settings.providerURL must be equalTo "new-provider-url"
       verify(openIDService).withSettings(overrideSettingsFunction)
@@ -74,6 +74,6 @@ class SteamProviderSpec extends OpenIDProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new SteamProvider(httpLayer, openIDService, openIDSettings)
+    lazy val provider: SteamProvider = new SteamProvider(httpLayer, openIDService, openIDSettings)
   }
 }

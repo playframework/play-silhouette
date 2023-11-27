@@ -39,7 +39,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: FacebookProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -221,6 +221,6 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new FacebookProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: FacebookProvider = new FacebookProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }

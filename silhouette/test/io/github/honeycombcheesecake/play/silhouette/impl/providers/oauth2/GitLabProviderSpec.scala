@@ -39,7 +39,7 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: GitLabProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -217,7 +217,7 @@ class GitLabProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new GitLabProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: GitLabProvider = new GitLabProvider(httpLayer, stateProvider, oAuthSettings)
   }
 
 }

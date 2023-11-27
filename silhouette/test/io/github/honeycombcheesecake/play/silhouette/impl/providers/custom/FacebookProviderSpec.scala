@@ -29,6 +29,7 @@ import play.api.test.{ FakeRequest, WithApplication }
 import test.Helper
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyString
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ ExecutionContext, Future }
@@ -40,7 +41,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: CustomFacebookProvider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -184,7 +185,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new CustomFacebookProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: CustomFacebookProvider = new CustomFacebookProvider(httpLayer, stateProvider, oAuthSettings)
   }
 
   /**

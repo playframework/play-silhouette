@@ -39,7 +39,7 @@ class LinkedInProviderSpec extends OAuth1ProviderSpec {
       val overrideSettingsFunction: OAuth1Settings => OAuth1Settings = { s =>
         s.copy("new-request-token-url")
       }
-      val s = provider.withSettings(overrideSettingsFunction)
+      val s: LinkedInProvider = provider.withSettings(overrideSettingsFunction)
 
       s.settings.requestTokenURL must be equalTo "new-request-token-url"
       verify(oAuthService).withSettings(overrideSettingsFunction)
@@ -140,6 +140,6 @@ class LinkedInProviderSpec extends OAuth1ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new LinkedInProvider(httpLayer, oAuthService, oAuthTokenSecretProvider, oAuthSettings)
+    lazy val provider: LinkedInProvider = new LinkedInProvider(httpLayer, oAuthService, oAuthTokenSecretProvider, oAuthSettings)
   }
 }

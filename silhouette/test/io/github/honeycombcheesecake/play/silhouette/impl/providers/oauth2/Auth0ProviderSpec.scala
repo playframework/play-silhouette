@@ -38,7 +38,7 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
+      val s: Auth0Provider = provider.withSettings { s =>
         s.copy(accessTokenURL = "new-access-token-url")
       }
 
@@ -218,6 +218,6 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new Auth0Provider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: Auth0Provider = new Auth0Provider(httpLayer, stateProvider, oAuthSettings)
   }
 }
