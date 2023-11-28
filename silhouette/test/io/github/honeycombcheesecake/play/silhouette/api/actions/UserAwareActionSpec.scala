@@ -434,7 +434,7 @@ object UserAwareActionSpec {
      *
      * @return The result to send to the client.
      */
-    def defaultAction = silhouette.UserAwareAction { implicit request =>
+    def defaultAction = silhouette.UserAwareAction { implicit request: UserAwareRequest[UserAwareEnv, AnyContent] =>
       if (request.identity.isDefined && request.authenticator.isDefined) {
         Ok("with.identity.and.authenticator")
       } else if (request.authenticator.isDefined) {

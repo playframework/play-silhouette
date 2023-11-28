@@ -756,7 +756,7 @@ object SecuredActionSpec {
      *
      * @return The result to send to the client.
      */
-    def defaultAction = silhouette.SecuredAction { implicit request =>
+    def defaultAction = silhouette.SecuredAction { implicit request: SecuredRequest[SecuredEnv, AnyContent] =>
       render {
         case Accepts.Json() => Ok(Json.obj("result" -> "full.access"))
         case Accepts.Html() => Ok("full.access")

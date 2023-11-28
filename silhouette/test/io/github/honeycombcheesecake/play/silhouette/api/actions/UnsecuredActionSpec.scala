@@ -379,7 +379,7 @@ object UnsecuredActionSpec {
      * An unsecured request handler.
      */
     def defaultHandler = Action.async { implicit request =>
-      silhouette.UnsecuredRequestHandler { _ =>
+      silhouette.UnsecuredRequestHandler { (_: Request[AnyContent]) =>
         Future.successful(HandlerResult(Ok, Some("data")))
       }.map {
         case HandlerResult(r, Some(data)) => Ok(data)

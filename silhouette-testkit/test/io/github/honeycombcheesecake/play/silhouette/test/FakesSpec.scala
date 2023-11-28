@@ -17,6 +17,7 @@ package io.github.honeycombcheesecake.play.silhouette.test
 
 import javax.inject.Inject
 import io.github.honeycombcheesecake.play.silhouette.api.*
+import io.github.honeycombcheesecake.play.silhouette.api.actions.{SecuredRequest, UserAwareRequest}
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.*
 import io.github.honeycombcheesecake.play.silhouette.test.FakesSpec.*
 import net.codingwell.scalaguice.ScalaModule
@@ -25,7 +26,7 @@ import org.specs2.specification.Scope
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.{AbstractController, AnyContentAsEmpty, ControllerComponents}
+import play.api.mvc.{AbstractController, AnyContent, AnyContentAsEmpty, ControllerComponents}
 import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -363,7 +364,7 @@ object FakesSpec {
      *
      * @return The result to send to the client.
      */
-    def defaultSecuredAction = silhouette.SecuredAction { implicit request =>
+    def defaultSecuredAction = silhouette.SecuredAction { implicit request: SecuredRequest[CookieEnv, AnyContent] =>
       Ok(Json.toJson(request.identity.loginInfo))
     }
 
@@ -372,7 +373,7 @@ object FakesSpec {
      *
      * @return The result to send to the client.
      */
-    def defaultUserAwareAction = silhouette.UserAwareAction { implicit request =>
+    def defaultUserAwareAction = silhouette.UserAwareAction { implicit request: UserAwareRequest[CookieEnv, AnyContent] =>
       request.identity match {
         case Some(identity) => Ok(Json.toJson(identity.loginInfo))
         case None => Unauthorized
