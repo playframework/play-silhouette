@@ -37,7 +37,7 @@ class PlayOpenIDServiceSpec extends PlaySpecification {
         "image" -> "http://axschema.org/media/image/default"),
       realm = Some("http://localhost:9000"))
 
-    val service = new PlayOpenIDService(mock(classOf[OpenIdClient]), openIDSettings)
+    lazy val service = new PlayOpenIDService(mock(classOf[OpenIdClient]), openIDSettings)
   }
 
 }

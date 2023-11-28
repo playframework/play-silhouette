@@ -331,7 +331,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification {
     "remove authenticator from backing store" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      when(repository.remove(authenticator.id)).thenReturn(Future.successful(authenticator))
+      when(repository.remove(authenticator.id)).thenReturn(Future.unit)
 
       await(service.discard(authenticator, Results.Ok))
 
