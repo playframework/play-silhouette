@@ -52,7 +52,7 @@ class GoogleTotpProviderSpec extends PasswordProviderSpec {
       override def running() = {
         val googleAuthenticator = new GoogleAuthenticator()
         val validVerificationCode = googleAuthenticator.getTotpPassword(testSharedKey)
-        await(provider.authenticate(testSharedKey, validVerificationCode.toString)) should not be empty
+        await(provider.authenticate(testSharedKey, validVerificationCode.toString)) should not be None
       }
     }
   }
@@ -94,7 +94,7 @@ class GoogleTotpProviderSpec extends PasswordProviderSpec {
         when(fooHasher.hash(any())).thenReturn(testPasswordInfo)
         when(barHasher.matches(testPasswordInfo, testScratchCode)).thenReturn(true)
         val result = provider.createCredentials(credentials.identifier)
-        await(provider.authenticate(result.totpInfo, testScratchCode)) should not be empty
+        await(provider.authenticate(result.totpInfo, testScratchCode)) should not be None
       }
     }
   }

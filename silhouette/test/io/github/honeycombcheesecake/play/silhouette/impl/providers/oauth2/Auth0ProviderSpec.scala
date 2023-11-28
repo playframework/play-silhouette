@@ -166,7 +166,7 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
       override def running() = {
         val wsRequest = mock[MockWSRequest]
         val wsResponse = mock[MockWSRequest#Response]
-        val userProfile = Helper.loadJson(Auth0UserProfileJson)
+        val userProfile = Helper.loadJson("providers/custom/auth0.profile.json")
 
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(userProfile)
@@ -198,13 +198,6 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
   trait Context extends OAuth2ProviderSpecContext {
 
     /**
-     * Paths to the Json fixtures.
-     */
-    val Auth0ErrorJson = "providers/custom/auth0.error.json"
-    val Auth0SuccessJson = "providers/custom/auth0.success.json"
-    val Auth0UserProfileJson = "providers/custom/auth0.profile.json"
-
-    /**
      * The OAuth2 settings.
      */
     override lazy val oAuthSettings = spy(OAuth2Settings(
@@ -219,7 +212,7 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
     /**
      * The OAuth2 info returned by Auth0.
      */
-    override lazy val oAuthInfo = Helper.loadJson(Auth0SuccessJson)
+    override lazy val oAuthInfo = Helper.loadJson("providers/custom/auth0.success.json")
 
     /**
      * The OAuth2 info deserialized as case class object
