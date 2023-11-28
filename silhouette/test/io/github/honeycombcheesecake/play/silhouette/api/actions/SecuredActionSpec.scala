@@ -15,6 +15,8 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.api.actions
 
+import com.google.inject.AbstractModule
+
 import javax.inject.Inject
 
 import akka.actor.{ Actor, ActorSystem, Props }
@@ -28,6 +30,7 @@ import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
@@ -536,14 +539,14 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
      * The guice application builder.
      */
     lazy val app = new GuiceApplicationBuilder()
-      .bindings(new GuiceModule)
+      .bindings(GuiceableModule.guiceable(new GuiceModule))
       .overrides(bind[SecuredErrorHandler].to[GlobalSecuredErrorHandler])
       .build()
 
     /**
      * The guice module.
      */
-    class GuiceModule extends ScalaModule {
+    class GuiceModule extends AbstractModule with ScalaModule {
       override def configure(): Unit = {
         bind[Environment[SecuredEnv]].toInstance(env)
         bind[Authorization[SecuredEnv#I, SecuredEnv#A]].toInstance(authorization)

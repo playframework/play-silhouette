@@ -15,6 +15,8 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.test
 
+import com.google.inject.AbstractModule
+
 import javax.inject.Inject
 
 import io.github.honeycombcheesecake.play.silhouette.api._
@@ -25,6 +27,7 @@ import net.codingwell.scalaguice.ScalaModule
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
 import play.api.mvc.{ AbstractController, AnyContent, AnyContentAsEmpty, ControllerComponents }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
@@ -288,13 +291,13 @@ class FakesSpec extends PlaySpecification with JsonMatchers {
      * The guice application builder.
      */
     lazy val app = new GuiceApplicationBuilder()
-      .bindings(new GuiceModule)
+      .bindings(GuiceableModule.guiceable(new GuiceModule))
       .build()
 
     /**
      * The guice module.
      */
-    class GuiceModule extends ScalaModule {
+    class GuiceModule extends AbstractModule with ScalaModule {
       override def configure(): Unit = {
         bind[Silhouette[CookieEnv]].to[SilhouetteProvider[CookieEnv]]
         bind[Environment[CookieEnv]].toInstance(env)
