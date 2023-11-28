@@ -16,18 +16,18 @@
 package io.github.honeycombcheesecake.play.silhouette.test
 
 import javax.inject.Inject
-import io.github.honeycombcheesecake.play.silhouette.api.*
-import io.github.honeycombcheesecake.play.silhouette.api.actions.{SecuredRequest, UserAwareRequest}
-import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.*
-import io.github.honeycombcheesecake.play.silhouette.test.FakesSpec.*
+
+import io.github.honeycombcheesecake.play.silhouette.api._
+import io.github.honeycombcheesecake.play.silhouette.api.actions.{ SecuredRequest, UserAwareRequest }
+import io.github.honeycombcheesecake.play.silhouette.impl.authenticators._
+import io.github.honeycombcheesecake.play.silhouette.test.FakesSpec._
 import net.codingwell.scalaguice.ScalaModule
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
-import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.mvc.{AbstractController, AnyContent, AnyContentAsEmpty, ControllerComponents}
-import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
+import play.api.mvc.{ AbstractController, AnyContent, AnyContentAsEmpty, ControllerComponents }
+import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

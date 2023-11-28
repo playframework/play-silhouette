@@ -20,14 +20,15 @@
 package io.github.honeycombcheesecake.play.silhouette.api.actions
 
 import javax.inject.Inject
+
 import io.github.honeycombcheesecake.play.silhouette.api._
 import play.api.i18n.MessagesApi
 import play.api.inject.Module
 import play.api.mvc._
-import play.api.{Configuration, Environment => PlayEnv}
+import play.api.{ Configuration, Environment => PlayEnv }
 
 import scala.annotation.nowarn
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.ClassTag
 
 /**
