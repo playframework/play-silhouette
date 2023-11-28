@@ -45,52 +45,64 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
   "The provider" should {
     val c = context
     "throw a RuntimeException if the unsafe 1.0 specification should be used" in new WithApplication {
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
-      when(c.oAuthService.use10a).thenReturn(false)
-      c.provider.authenticate() must throwA[RuntimeException]
+      override def running() = {
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
+        when(c.oAuthService.use10a).thenReturn(false)
+        c.provider.authenticate() must throwA[RuntimeException]
+      }
     }
   }
 
   "The authenticate method" should {
     val c = context
     "fail with an AccessDeniedException if denied key exists in query string" in new WithApplication {
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
-      failed[AccessDeniedException](c.provider.authenticate()) {
-        case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, ""))
+      override def running() = {
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
+        failed[AccessDeniedException](c.provider.authenticate()) {
+          case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, ""))
+        }
       }
     }
 
     "fail with an UnexpectedResponseException if request token cannot be retrieved" in new WithApplication {
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      when(c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL)).thenReturn(Future.failed(new Exception("")))
+      override def running() = {
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        when(c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL)).thenReturn(Future.failed(new Exception("")))
 
-      failed[UnexpectedResponseException](c.provider.authenticate()) {
-        case e => e.getMessage must startWith(ErrorRequestToken.format(c.provider.id, ""))
+        failed[UnexpectedResponseException](c.provider.authenticate()) {
+          case e => e.getMessage must startWith(ErrorRequestToken.format(c.provider.id, ""))
+        }
       }
     }
 
     "redirect to authorization URL if request token could be retrieved" in new WithApplication {
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val serializedTokenSecret = "my.serialized.token.secret"
+      override def running() = {
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val serializedTokenSecret = "my.serialized.token.secret"
 
-      when(c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL)).thenReturn(Future.successful(c.oAuthInfo))
-      when(c.oAuthService.redirectUrl(any())).thenAnswer(_ => c.oAuthSettings.authorizationURL)
-      when(c.oAuthTokenSecretProvider.build(any())(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
-      // when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_.getArguments.asInstanceOf[Array[Any]](0).asInstanceOf[Result])
-      when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_.getArgument(0).asInstanceOf[Result])
+        when(c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL)).thenReturn(Future.successful(c.oAuthInfo))
+        when(c.oAuthService.redirectUrl(any())).thenAnswer(_ => c.oAuthSettings.authorizationURL)
+        when(c.oAuthTokenSecretProvider.build(any())(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+        // when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_.getArguments.asInstanceOf[Array[Any]](0).asInstanceOf[Result])
+        when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_.getArgument(0).asInstanceOf[Result])
 
-      result(c.provider.authenticate()) { result =>
-        status(result) must equalTo(SEE_OTHER)
-        redirectLocation(result) must beSome[String].which(_ == c.oAuthSettings.authorizationURL)
+        result(c.provider.authenticate()) { result =>
+          status(result) must equalTo(SEE_OTHER)
+          redirectLocation(result) must beSome[String].which(_ == c.oAuthSettings.authorizationURL)
+        }
       }
     }
 
     "resolves relative redirectURLs before starting the flow" in new WithApplication {
-      verifyCallbackURLResolution("/callback-url", secure = false, "http://www.example.com/callback-url")
+      override def running() = {
+        verifyCallbackURLResolution("/callback-url", secure = false, "http://www.example.com/callback-url")
+      }
     }
 
     "resolves path relative redirectURLS before starting the flow" in new WithApplication {
-      verifyCallbackURLResolution("callback-url", secure = false, "http://www.example.com/request-path/callback-url")
+      override def running() = {
+        verifyCallbackURLResolution("callback-url", secure = false, "http://www.example.com/request-path/callback-url")
+      }
     }
 
     def verifyCallbackURLResolution(callbackURL: String, secure: Boolean, resolvedCallbackURL: String) = {
@@ -115,31 +127,37 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
     }
 
     "resolves relative redirectURLs before starting the flow over https" in new WithApplication {
-      verifyCallbackURLResolution("/callback-url", secure = true, "https://www.example.com/callback-url")
+      override def running() = {
+        verifyCallbackURLResolution("/callback-url", secure = true, "https://www.example.com/callback-url")
+      }
     }
 
     "fail with an UnexpectedResponseException if access token cannot be retrieved" in new WithApplication {
-      val tokenSecret = "my.token.secret"
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
+      override def running() = {
+        val tokenSecret = "my.token.secret"
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
-      when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
-      when(c.oAuthTokenSecretProvider.retrieve(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
-      when(c.oAuthService.retrieveAccessToken(c.oAuthInfo.copy(secret = tokenSecret), "my.verifier")).thenReturn(Future.failed(new Exception("")))
+        when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
+        when(c.oAuthTokenSecretProvider.retrieve(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+        when(c.oAuthService.retrieveAccessToken(c.oAuthInfo.copy(secret = tokenSecret), "my.verifier")).thenReturn(Future.failed(new Exception("")))
 
-      failed[UnexpectedResponseException](c.provider.authenticate()) {
-        case e => e.getMessage must startWith(ErrorAccessToken.format(c.provider.id, ""))
+        failed[UnexpectedResponseException](c.provider.authenticate()) {
+          case e => e.getMessage must startWith(ErrorAccessToken.format(c.provider.id, ""))
+        }
       }
     }
 
     "return the auth info" in new WithApplication {
-      val tokenSecret = "my.token.secret"
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
+      override def running() = {
+        val tokenSecret = "my.token.secret"
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
-      when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
-      when(c.oAuthTokenSecretProvider.retrieve(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
-      when(c.oAuthService.retrieveAccessToken(c.oAuthInfo.copy(secret = tokenSecret), "my.verifier")).thenReturn(Future.successful(c.oAuthInfo))
+        when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
+        when(c.oAuthTokenSecretProvider.retrieve(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+        when(c.oAuthService.retrieveAccessToken(c.oAuthInfo.copy(secret = tokenSecret), "my.verifier")).thenReturn(Future.successful(c.oAuthInfo))
 
-      authInfo(c.provider.authenticate())(_ must be equalTo c.oAuthInfo)
+        authInfo(c.provider.authenticate())(_ must be equalTo c.oAuthInfo)
+      }
     }
   }
 

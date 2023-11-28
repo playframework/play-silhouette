@@ -11,11 +11,13 @@ class PlayOpenIDServiceSpec extends PlaySpecification {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = service.withSettings { s =>
-        s.copy("new-provider-url")
-      }
+      override def running() = {
+        val s = service.withSettings { s =>
+          s.copy("new-provider-url")
+        }
 
-      s.settings.providerURL must be equalTo "new-provider-url"
+        s.settings.providerURL must be equalTo "new-provider-url"
+      }
     }
   }
 

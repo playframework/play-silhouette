@@ -77,9 +77,11 @@ class DummyAuthenticatorSpec extends PlaySpecification {
 
   "The `touch` method of the service" should {
     "not update the authenticator" in new WithApplication with Context {
-      service.touch(authenticator) must beRight[DummyAuthenticator].like {
-        case a =>
-          a.loginInfo must be equalTo loginInfo
+      override def running() = {
+        service.touch(authenticator) must beRight[DummyAuthenticator].like {
+          case a =>
+            a.loginInfo must be equalTo loginInfo
+        }
       }
     }
   }

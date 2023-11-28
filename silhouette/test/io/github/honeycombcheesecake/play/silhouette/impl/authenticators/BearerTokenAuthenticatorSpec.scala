@@ -223,22 +223,26 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification {
 
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
-      when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service.touch(authenticator) must beLeft[BearerTokenAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo clock.now
+        service.touch(authenticator) must beLeft[BearerTokenAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo clock.now
+        }
       }
     }
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
-      when(settings.authenticatorIdleTimeout).thenReturn(None)
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(None)
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service.touch(authenticator) must beRight[BearerTokenAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        service.touch(authenticator) must beRight[BearerTokenAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        }
       }
     }
   }

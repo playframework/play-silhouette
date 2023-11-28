@@ -53,398 +53,438 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
   "The `SecuredAction` action" should {
     "restrict access if no valid authenticator can be retrieved" in new InjectorContext {
       new WithApplication(app) with Context {
-        withEvent[NotAuthenticatedEvent] {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+        override def running() = {
+          withEvent[NotAuthenticatedEvent] {
+            when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
 
-          val result = controller.defaultAction(request)
+            val result = controller.defaultAction(request)
 
-          status(result) must equalTo(UNAUTHORIZED)
-          contentAsString(result) must contain("global.not.authenticated")
-          theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
+            status(result) must equalTo(UNAUTHORIZED)
+            contentAsString(result) must contain("global.not.authenticated")
+            theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
+          }
         }
       }
     }
 
     "restrict access and discard authenticator if an invalid authenticator can be retrieved" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
 
-        withEvent[NotAuthenticatedEvent] {
-          val result = controller.defaultAction(request)
+          withEvent[NotAuthenticatedEvent] {
+            val result = controller.defaultAction(request)
 
-          status(result) must equalTo(UNAUTHORIZED)
-          contentAsString(result) must contain("global.not.authenticated")
-          verify(env.authenticatorService).discard(any(), any())(any())
-          theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
+            status(result) must equalTo(UNAUTHORIZED)
+            contentAsString(result) must contain("global.not.authenticated")
+            verify(env.authenticatorService).discard(any(), any())(any())
+            theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
+          }
         }
       }
     }
 
     "restrict access and discard authenticator if no identity could be found for an authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
 
-        withEvent[NotAuthenticatedEvent] {
-          val result = controller.defaultAction(request)
+          withEvent[NotAuthenticatedEvent] {
+            val result = controller.defaultAction(request)
 
-          status(result) must equalTo(UNAUTHORIZED)
-          contentAsString(result) must contain("global.not.authenticated")
-          verify(env.authenticatorService).discard(any(), any())(any())
-          theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
+            status(result) must equalTo(UNAUTHORIZED)
+            contentAsString(result) must contain("global.not.authenticated")
+            verify(env.authenticatorService).discard(any(), any())(any())
+            theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
+          }
         }
       }
     }
 
     "display local not-authenticated result if user isn't authenticated[authorization and error handler]" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
+
+          val result = controller.actionWithAuthorizationAndErrorHandler(request)
+
+          status(result) must equalTo(UNAUTHORIZED)
+          contentAsString(result) must contain("local.not.authenticated")
         }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
-
-        val result = controller.actionWithAuthorizationAndErrorHandler(request)
-
-        status(result) must equalTo(UNAUTHORIZED)
-        contentAsString(result) must contain("local.not.authenticated")
       }
     }
 
     "display local not-authenticated result if user isn't authenticated[error handler only]" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
+
+          val result = controller.actionWithErrorHandler(request)
+
+          status(result) must equalTo(UNAUTHORIZED)
+          contentAsString(result) must contain("local.not.authenticated")
         }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
-
-        val result = controller.actionWithErrorHandler(request)
-
-        status(result) must equalTo(UNAUTHORIZED)
-        contentAsString(result) must contain("local.not.authenticated")
       }
     }
 
     "display global not-authenticated result if user isn't authenticated" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(UNAUTHORIZED)
+          contentAsString(result) must contain("global.not.authenticated")
         }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(UNAUTHORIZED)
-        contentAsString(result) must contain("global.not.authenticated")
       }
     }
 
     "restrict access and update authenticator if a user is authenticated but not authorized" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-        when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+          when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
 
-        withEvent[NotAuthorizedEvent[FakeIdentity]] {
-          val result = controller.actionWithAuthorization(request)
+          withEvent[NotAuthorizedEvent[FakeIdentity]] {
+            val result = controller.actionWithAuthorization(request)
 
-          status(result) must equalTo(FORBIDDEN)
-          contentAsString(result) must contain("global.not.authorized")
-          verify(env.authenticatorService).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, NotAuthorizedEvent(identity, request))
+            status(result) must equalTo(FORBIDDEN)
+            contentAsString(result) must contain("global.not.authorized")
+            verify(env.authenticatorService).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, NotAuthorizedEvent(identity, request))
+          }
         }
       }
     }
 
     "display local not-authorized result if user isn't authorized" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+          when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
+
+          val result = controller.actionWithAuthorizationAndErrorHandler(request)
+
+          status(result) must equalTo(FORBIDDEN)
+          contentAsString(result) must contain("local.not.authorized")
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-        when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
-
-        val result = controller.actionWithAuthorizationAndErrorHandler(request)
-
-        status(result) must equalTo(FORBIDDEN)
-        contentAsString(result) must contain("local.not.authorized")
-        verify(env.authenticatorService).touch(any())
-        verify(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "display global not-authorized result if user isn't authorized" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+          when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
+
+          val result = controller.actionWithAuthorization(request)
+
+          status(result) must equalTo(FORBIDDEN)
+          contentAsString(result) must contain("global.not.authorized")
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-        when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
-
-        val result = controller.actionWithAuthorization(request)
-
-        status(result) must equalTo(FORBIDDEN)
-        contentAsString(result) must contain("global.not.authorized")
-        verify(env.authenticatorService).touch(any())
-        verify(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "invoke action without authorization if user is authenticated" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.defaultAction(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.defaultAction(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("full.access")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("full.access")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "invoke action with authorization if user is authenticated but not authorized" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.actionWithAuthorization(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.actionWithAuthorization(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("full.access")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("full.access")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "use next request provider in the chain if first isn't responsible" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(None))
-        when(basicAuthRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-        when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-        when(env.authenticatorService.init(any())(any[RequestHeader]())).thenAnswer { p =>
-          Future.successful(p.getArgument(0).asInstanceOf[FakeAuthenticator#Value])
-        }
-        when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(None))
+          when(basicAuthRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(any[RequestHeader]())).thenAnswer { p =>
+            Future.successful(p.getArgument(0).asInstanceOf[FakeAuthenticator#Value])
+          }
+          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.actionWithAuthorization(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.actionWithAuthorization(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("full.access")
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).init(any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("full.access")
+            verify(env.authenticatorService).create(any())(any())
+            verify(env.authenticatorService).init(any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "update an initialized authenticator if it was touched" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.actionWithAuthorization(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.actionWithAuthorization(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("full.access")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("full.access")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "do not update an initialized authenticator if it was not touched" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Right(authenticator))
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Right(authenticator))
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.actionWithAuthorization(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.actionWithAuthorization(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("full.access")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("full.access")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService, never()).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "init an uninitialized authenticator" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-        when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-        when(env.authenticatorService.init(any())(any[RequestHeader]())).thenAnswer { p =>
-          Future.successful(p.getArgument(0).asInstanceOf[FakeAuthenticator#Value])
-        }
-        when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(any[RequestHeader]())).thenAnswer { p =>
+            Future.successful(p.getArgument(0).asInstanceOf[FakeAuthenticator#Value])
+          }
+          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.actionWithAuthorization(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.actionWithAuthorization(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("full.access")
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).init(any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("full.access")
+            verify(env.authenticatorService).create(any())(any())
+            verify(env.authenticatorService).init(any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "renew an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.renewAction(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.renewAction(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("renewed")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).renew(any(), any())(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("renewed")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService).renew(any(), any())(any())
+            verify(env.authenticatorService, never()).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "renew an uninitialized authenticator" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-        when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-        when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.renewAction(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.renewAction(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("renewed")
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).renew(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("renewed")
+            verify(env.authenticatorService).create(any())(any())
+            verify(env.authenticatorService).renew(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "discard an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.discardAction(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.discardAction(request)
 
-          status(result) must equalTo(OK)
-          contentAsString(result) must contain("discarded")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).discard(any(), any())(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            contentAsString(result) must contain("discarded")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService).discard(any(), any())(any())
+            verify(env.authenticatorService, never()).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "discard an uninitialized authenticator" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-        when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.discardAction(request)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.discardAction(request)
 
-          status(result) must equalTo(OK)
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).discard(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+            status(result) must equalTo(OK)
+            verify(env.authenticatorService).create(any())(any())
+            verify(env.authenticatorService).discard(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
+          }
         }
       }
     }
 
     "handle an Ajax request" in new InjectorContext {
       new WithApplication(app) with Context {
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Accept" -> "application/json")
+        override def running() = {
+          implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Accept" -> "application/json")
 
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
-        }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        withEvent[AuthenticatedEvent[FakeIdentity]] {
-          val result = controller.defaultAction(req)
+          withEvent[AuthenticatedEvent[FakeIdentity]] {
+            val result = controller.defaultAction(req)
 
-          status(result) must equalTo(OK)
-          contentType(result) must beSome("application/json")
-          contentAsString(result) must /("result" -> "full.access")
-          verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
-          theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, req))
+            status(result) must equalTo(OK)
+            contentType(result) must beSome("application/json")
+            contentAsString(result) must /("result" -> "full.access")
+            verify(env.authenticatorService).touch(any())
+            verify(env.authenticatorService).update(any(), any())(any())
+            theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, req))
+          }
         }
       }
     }
@@ -453,31 +493,35 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
   "The `SecuredRequestHandler`" should {
     "return status 401 if authentication was not successful" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
 
-        val result = controller.defaultHandler(request)
+          val result = controller.defaultHandler(request)
 
-        status(result) must equalTo(UNAUTHORIZED)
-        verify(env.authenticatorService, never()).touch(any())
-        verify(env.authenticatorService, never()).update(any(), any())(any())
+          status(result) must equalTo(UNAUTHORIZED)
+          verify(env.authenticatorService, never()).touch(any())
+          verify(env.authenticatorService, never()).update(any(), any())(any())
+        }
       }
     }
 
     "return the user if authentication was successful" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-        when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-        when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.defaultHandler(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must */("providerID" -> "test") and */("providerKey" -> "1")
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-        when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-
-        val result = controller.defaultHandler(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must */("providerID" -> "test") and */("providerKey" -> "1")
-        verify(env.authenticatorService).touch(any())
-        verify(env.authenticatorService).update(any(), any())(any())
       }
     }
   }
@@ -485,29 +529,33 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
   "The `exceptionHandler` method of the SecuredErrorHandler" should {
     "translate an ForbiddenException into a 403 Forbidden result" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+
+          val failed = Future.failed(new NotAuthorizedException("Access denied"))
+          val result = controller.recover(failed)
+
+          status(result) must equalTo(FORBIDDEN)
         }
-
-        val failed = Future.failed(new NotAuthorizedException("Access denied"))
-        val result = controller.recover(failed)
-
-        status(result) must equalTo(FORBIDDEN)
       }
     }
 
     "translate an UnauthorizedException into a 401 Unauthorized result" in new InjectorContext {
       new WithApplication(app) with Context {
-        when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-        when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
-          Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+
+          val failed = Future.failed(new NotAuthenticatedException("Not authenticated"))
+          val result = controller.recover(failed)
+
+          status(result) must equalTo(UNAUTHORIZED)
         }
-
-        val failed = Future.failed(new NotAuthenticatedException("Not authenticated"))
-        val result = controller.recover(failed)
-
-        status(result) must equalTo(UNAUTHORIZED)
       }
     }
   }

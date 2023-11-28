@@ -65,48 +65,60 @@ class CookieAuthenticatorSpec extends PlaySpecification {
 
   "The `serialize` method of the authenticator" should {
     "sign the cookie" in new WithApplication with Context {
-      serialize(authenticator, signer, authenticatorEncoder)
+      override def running() = {
+        serialize(authenticator, signer, authenticatorEncoder)
 
-      verify(signer).sign(any())
+        verify(signer).sign(any())
+      }
     }
 
     "encode the cookie" in new WithApplication with Context {
-      serialize(authenticator, signer, authenticatorEncoder)
+      override def running() = {
+        serialize(authenticator, signer, authenticatorEncoder)
 
-      verify(authenticatorEncoder).encode(any())
+        verify(authenticatorEncoder).encode(any())
+      }
     }
   }
 
   "The `unserialize` method of the authenticator" should {
     "throw an AuthenticatorException if the given value can't be parsed as Json" in new WithApplication with Context {
-      val value = "invalid"
-      val msg = Pattern.quote(InvalidJson.format(ID, value))
+      override def running() = {
+        val value = "invalid"
+        val msg = Pattern.quote(InvalidJson.format(ID, value))
 
-      unserialize(authenticatorEncoder.encode(value), signer, authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(authenticatorEncoder.encode(value), signer, authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
 
     "throw an AuthenticatorException if the given value is in the wrong Json format" in new WithApplication with Context {
-      val value = "{}"
-      val msg = "^" + Pattern.quote(InvalidJsonFormat.format(ID, "")) + ".*"
+      override def running() = {
+        val value = "{}"
+        val msg = "^" + Pattern.quote(InvalidJsonFormat.format(ID, "")) + ".*"
 
-      unserialize(authenticatorEncoder.encode(value), signer, authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(authenticatorEncoder.encode(value), signer, authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
 
     "throw an AuthenticatorException if the cookie signer declines the authenticator" in new WithApplication with Context {
-      val value = "value"
-      val msg = "^" + Pattern.quote(InvalidCookieSignature.format(ID, "")) + ".*"
+      override def running() = {
+        val value = "value"
+        val msg = "^" + Pattern.quote(InvalidCookieSignature.format(ID, "")) + ".*"
 
-      when(signer.extract(any())).thenReturn(Failure(new Exception("invalid")))
+        when(signer.extract(any())).thenReturn(Failure(new Exception("invalid")))
 
-      unserialize(authenticatorEncoder.encode(value), signer, authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(authenticatorEncoder.encode(value), signer, authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
   }
 
   "The `serialize/unserialize` method of the authenticator" should {
     "serialize/unserialize an authenticator" in new WithApplication with Context {
-      val value = serialize(authenticator, signer, authenticatorEncoder)
+      override def running() = {
+        val value = serialize(authenticator, signer, authenticatorEncoder)
 
-      unserialize(value, signer, authenticatorEncoder) must beSuccessfulTry.withValue(authenticator)
+        unserialize(value, signer, authenticatorEncoder) must beSuccessfulTry.withValue(authenticator)
+      }
     }
   }
 
@@ -202,10 +214,12 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] return None if no authenticator could be unserialized from cookie" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, authenticatorEncoder.encode("invalid")))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, authenticatorEncoder.encode("invalid")))
 
-      await(service(None).retrieve) must beNone
-      verify(repository, never()).find(any())
+        await(service(None).retrieve) must beNone
+        verify(repository, never()).find(any())
+      }
     }
 
     "[stateful] return None if authenticator fingerprint doesn't match current fingerprint" in new Context {
@@ -220,14 +234,16 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] return None if authenticator fingerprint doesn't match current fingerprint" in new WithApplication with Context {
-      when(fingerprintGenerator.generate(any())).thenReturn("false")
-      when(settings.useFingerprinting).thenReturn(true)
-      when(authenticator.fingerprint).thenReturn(Some("test"))
+      override def running() = {
+        when(fingerprintGenerator.generate(any())).thenReturn("false")
+        when(settings.useFingerprinting).thenReturn(true)
+        when(authenticator.fingerprint).thenReturn(Some("test"))
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, serialize(authenticator, signer, authenticatorEncoder)))
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, serialize(authenticator, signer, authenticatorEncoder)))
 
-      await(service(None).retrieve) must beNone
-      verify(repository, never()).find(any())
+        await(service(None).retrieve) must beNone
+        verify(repository, never()).find(any())
+      }
     }
 
     "[stateful] return authenticator if authenticator fingerprint matches current fingerprint" in new Context {
@@ -242,14 +258,16 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] return authenticator if authenticator fingerprint matches current fingerprint" in new WithApplication with Context {
-      when(fingerprintGenerator.generate(any())).thenReturn("test")
-      when(settings.useFingerprinting).thenReturn(true)
-      when(authenticator.fingerprint).thenReturn(Some("test"))
+      override def running() = {
+        when(fingerprintGenerator.generate(any())).thenReturn("test")
+        when(settings.useFingerprinting).thenReturn(true)
+        when(authenticator.fingerprint).thenReturn(Some("test"))
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, serialize(authenticator, signer, authenticatorEncoder)))
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, serialize(authenticator, signer, authenticatorEncoder)))
 
-      await(service(None).retrieve) must beSome(authenticator)
-      verify(repository, never()).find(any())
+        await(service(None).retrieve) must beSome(authenticator)
+        verify(repository, never()).find(any())
+      }
     }
 
     "[stateful] return authenticator if fingerprinting is disabled" in new Context {
@@ -262,13 +280,15 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] return authenticator if fingerprinting is disabled" in new WithApplication with Context {
-      when(settings.useFingerprinting).thenReturn(false)
+      override def running() = {
+        when(settings.useFingerprinting).thenReturn(false)
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, serialize(authenticator, signer, authenticatorEncoder)))
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, serialize(authenticator, signer, authenticatorEncoder)))
 
-      when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator)))
+        when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator)))
 
-      await(service(None).retrieve) must beSome(authenticator)
+        await(service(None).retrieve) must beSome(authenticator)
+      }
     }
 
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new Context {
@@ -296,12 +316,14 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] return a cookie with a serialized authenticator" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      val cookie = await(service(None).init(authenticator))
+        val cookie = await(service(None).init(authenticator))
 
-      unserialize(cookie.value, signer, authenticatorEncoder) must be equalTo unserialize(statelessCookie.value, signer, authenticatorEncoder)
-      verify(repository, never()).add(any())
+        unserialize(cookie.value, signer, authenticatorEncoder) must be equalTo unserialize(statelessCookie.value, signer, authenticatorEncoder)
+        verify(repository, never()).add(any())
+      }
     }
 
     "throws an AuthenticatorInitializationException exception if an error occurred during initialization" in new Context {
@@ -359,22 +381,26 @@ class CookieAuthenticatorSpec extends PlaySpecification {
 
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
-      when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service(Some(repository)).touch(authenticator) must beLeft[CookieAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo clock.now
+        service(Some(repository)).touch(authenticator) must beLeft[CookieAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo clock.now
+        }
       }
     }
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
-      when(settings.authenticatorIdleTimeout).thenReturn(None)
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(None)
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service(Some(repository)).touch(authenticator) must beRight[CookieAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        service(Some(repository)).touch(authenticator) must beRight[CookieAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        }
       }
     }
   }
@@ -400,12 +426,14 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] update the cookie for the updated authenticator" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val result = service(None).update(authenticator, Results.Ok)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val result = service(None).update(authenticator, Results.Ok)
 
-      status(result) must be equalTo OK
-      cookies(result).get(settings.cookieName) should beSome[Cookie].which(statelessResponseCookieMatcher(authenticator))
-      verify(repository, never()).update(authenticator)
+        status(result) must be equalTo OK
+        cookies(result).get(settings.cookieName) should beSome[Cookie].which(statelessResponseCookieMatcher(authenticator))
+        verify(repository, never()).update(authenticator)
+      }
     }
 
     "throws an AuthenticatorUpdateException exception if an error occurred during update" in new Context {
@@ -453,19 +481,21 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] renew the authenticator and return the response with the updated cookie value" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val now = ZonedDateTime.now
-      val id = "new-test-id"
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val now = ZonedDateTime.now
+        val id = "new-test-id"
 
-      when(settings.useFingerprinting).thenReturn(false)
-      when(idGenerator.generate).thenReturn(Future.successful(id))
-      when(clock.now).thenReturn(now)
+        when(settings.useFingerprinting).thenReturn(false)
+        when(idGenerator.generate).thenReturn(Future.successful(id))
+        when(clock.now).thenReturn(now)
 
-      val result = service(None).renew(authenticator, Results.Ok)
+        val result = service(None).renew(authenticator, Results.Ok)
 
-      cookies(result).get(settings.cookieName) should beSome[Cookie].which(statelessResponseCookieMatcher(
-        authenticator.copy(id = id, lastUsedDateTime = now, expirationDateTime = now + settings.authenticatorExpiry)))
-      verify(repository, never()).add(any())
+        cookies(result).get(settings.cookieName) should beSome[Cookie].which(statelessResponseCookieMatcher(
+          authenticator.copy(id = id, lastUsedDateTime = now, expirationDateTime = now + settings.authenticatorExpiry)))
+        verify(repository, never()).add(any())
+      }
     }
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
@@ -505,18 +535,20 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     }
 
     "[stateless] discard the cookie from response" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val result = service(None).discard(authenticator, Results.Ok.withCookies(statelessCookie))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val result = service(None).discard(authenticator, Results.Ok.withCookies(statelessCookie))
 
-      cookies(result).get(settings.cookieName) should beSome[Cookie].which { c =>
-        c.name must be equalTo settings.cookieName
-        c.value must be equalTo ""
-        c.maxAge must beSome(Cookie.DiscardedMaxAge)
-        c.path must be equalTo settings.cookiePath
-        c.domain must be equalTo settings.cookieDomain
-        c.secure must be equalTo settings.secureCookie
+        cookies(result).get(settings.cookieName) should beSome[Cookie].which { c =>
+          c.name must be equalTo settings.cookieName
+          c.value must be equalTo ""
+          c.maxAge must beSome(Cookie.DiscardedMaxAge)
+          c.path must be equalTo settings.cookiePath
+          c.domain must be equalTo settings.cookieDomain
+          c.secure must be equalTo settings.secureCookie
+        }
+        verify(repository, never()).remove(authenticator.id)
       }
-      verify(repository, never()).remove(authenticator.id)
     }
 
     "throws an AuthenticatorDiscardingException exception if an error occurred during discarding" in new Context {

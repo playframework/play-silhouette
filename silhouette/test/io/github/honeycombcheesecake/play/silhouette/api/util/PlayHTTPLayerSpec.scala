@@ -27,13 +27,15 @@ class PlayHTTPLayerSpec extends PlaySpecification {
 
   "The `url` method" should {
     "return a new WS.WSRequest instance" in new WithApplication {
-      val url = "http://silhouette.mohiva.com"
-      val client = app.injector.instanceOf[WSClient]
-      val httpLayer = new PlayHTTPLayer(client)
-      val requestHolder = httpLayer.url(url)
+      override def running() = {
+        val url = "http://silhouette.mohiva.com"
+        val client = app.injector.instanceOf[WSClient]
+        val httpLayer = new PlayHTTPLayer(client)
+        val requestHolder = httpLayer.url(url)
 
-      requestHolder should beAnInstanceOf[WSRequest]
-      requestHolder.url must be equalTo url
+        requestHolder should beAnInstanceOf[WSRequest]
+        requestHolder.url must be equalTo url
+      }
     }
   }
 }

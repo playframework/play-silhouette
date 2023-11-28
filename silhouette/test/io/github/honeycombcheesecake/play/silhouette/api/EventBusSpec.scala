@@ -30,102 +30,116 @@ class EventBusSpec extends PlaySpecification {
 
   "The event bus" should {
     "handle an subclass event" in new WithApplication with Context {
-      val eventBus = new EventBus
-      val listener = system.actorOf(Props(new Actor {
-        def receive = {
-          case e => theProbe.ref ! e
-        }
-      }))
+      override def running() = {
+        val eventBus = new EventBus
+        val listener = system.actorOf(Props(new Actor {
+          def receive = {
+            case e => theProbe.ref ! e
+          }
+        }))
 
-      eventBus.subscribe(listener, classOf[SilhouetteEvent])
+        eventBus.subscribe(listener, classOf[SilhouetteEvent])
 
-      eventBus.publish(loginEvent)
-      theProbe.expectMsg(500 millis, loginEvent)
+        eventBus.publish(loginEvent)
+        theProbe.expectMsg(500 millis, loginEvent)
 
-      eventBus.publish(logoutEvent)
-      theProbe.expectMsg(500 millis, logoutEvent)
+        eventBus.publish(logoutEvent)
+        theProbe.expectMsg(500 millis, logoutEvent)
+      }
     }
 
     "handle an event" in new WithApplication with Context {
-      val eventBus = new EventBus
-      val listener = system.actorOf(Props(new Actor {
-        def receive = {
-          case e @ LoginEvent(_, _) => theProbe.ref ! e
-        }
-      }))
+      override def running() = {
+        val eventBus = new EventBus
+        val listener = system.actorOf(Props(new Actor {
+          def receive = {
+            case e@LoginEvent(_, _) => theProbe.ref ! e
+          }
+        }))
 
-      eventBus.subscribe(listener, classOf[LoginEvent[TestIdentity]])
-      eventBus.publish(loginEvent)
+        eventBus.subscribe(listener, classOf[LoginEvent[TestIdentity]])
+        eventBus.publish(loginEvent)
 
-      theProbe.expectMsg(500 millis, loginEvent)
+        theProbe.expectMsg(500 millis, loginEvent)
+      }
     }
 
     "handle multiple events" in new WithApplication with Context {
-      val eventBus = new EventBus
-      val listener = system.actorOf(Props(new Actor {
-        def receive = {
-          case e @ LoginEvent(_, _) => theProbe.ref ! e
-          case e @ LogoutEvent(_, _) => theProbe.ref ! e
-        }
-      }))
+      override def running() = {
+        val eventBus = new EventBus
+        val listener = system.actorOf(Props(new Actor {
+          def receive = {
+            case e@LoginEvent(_, _) => theProbe.ref ! e
+            case e@LogoutEvent(_, _) => theProbe.ref ! e
+          }
+        }))
 
-      eventBus.subscribe(listener, classOf[LoginEvent[TestIdentity]])
-      eventBus.subscribe(listener, classOf[LogoutEvent[TestIdentity]])
-      eventBus.publish(loginEvent)
-      eventBus.publish(logoutEvent)
+        eventBus.subscribe(listener, classOf[LoginEvent[TestIdentity]])
+        eventBus.subscribe(listener, classOf[LogoutEvent[TestIdentity]])
+        eventBus.publish(loginEvent)
+        eventBus.publish(logoutEvent)
 
-      theProbe.expectMsg(500 millis, loginEvent)
-      theProbe.expectMsg(500 millis, logoutEvent)
+        theProbe.expectMsg(500 millis, loginEvent)
+        theProbe.expectMsg(500 millis, logoutEvent)
+      }
     }
 
     "differentiate between event classes" in new WithApplication with Context {
-      val eventBus = new EventBus
-      val listener = system.actorOf(Props(new Actor {
-        def receive = {
-          case e @ LoginEvent(_, _) => theProbe.ref ! e
-        }
-      }))
+      override def running() = {
+        val eventBus = new EventBus
+        val listener = system.actorOf(Props(new Actor {
+          def receive = {
+            case e@LoginEvent(_, _) => theProbe.ref ! e
+          }
+        }))
 
-      eventBus.subscribe(listener, classOf[LogoutEvent[TestIdentity]])
-      eventBus.publish(logoutEvent)
+        eventBus.subscribe(listener, classOf[LogoutEvent[TestIdentity]])
+        eventBus.publish(logoutEvent)
 
-      theProbe.expectNoMessage(500 millis)
+        theProbe.expectNoMessage(500 millis)
+      }
     }
 
     "not handle not subscribed events" in new WithApplication with Context {
-      val eventBus = new EventBus
-      val listener = system.actorOf(Props(new Actor {
-        def receive = {
-          case e @ LoginEvent(_, _) => theProbe.ref ! e
-        }
-      }))
+      override def running() = {
+        val eventBus = new EventBus
+        val listener = system.actorOf(Props(new Actor {
+          def receive = {
+            case e@LoginEvent(_, _) => theProbe.ref ! e
+          }
+        }))
 
-      eventBus.publish(loginEvent)
+        eventBus.publish(loginEvent)
 
-      theProbe.expectNoMessage(500 millis)
+        theProbe.expectNoMessage(500 millis)
+      }
     }
 
     "not handle events between different event buses" in new WithApplication with Context {
-      val eventBus1 = new EventBus
-      val eventBus2 = new EventBus
+      override def running() = {
+        val eventBus1 = new EventBus
+        val eventBus2 = new EventBus
 
-      val listener = system.actorOf(Props(new Actor {
-        def receive = {
-          case e @ LoginEvent(_, _) => theProbe.ref ! e
-        }
-      }))
+        val listener = system.actorOf(Props(new Actor {
+          def receive = {
+            case e@LoginEvent(_, _) => theProbe.ref ! e
+          }
+        }))
 
-      eventBus1.subscribe(listener, classOf[LoginEvent[TestIdentity]])
-      eventBus2.publish(loginEvent)
+        eventBus1.subscribe(listener, classOf[LoginEvent[TestIdentity]])
+        eventBus2.publish(loginEvent)
 
-      theProbe.expectNoMessage(500 millis)
+        theProbe.expectNoMessage(500 millis)
+      }
     }
 
     "returns a singleton event bus" in new WithApplication with Context {
-      val eventBus1 = EventBus()
-      val eventBus2 = EventBus()
+      override def running() = {
+        val eventBus1 = EventBus()
+        val eventBus2 = EventBus()
 
-      eventBus1 ==== eventBus2
+        eventBus1 ==== eventBus2
+      }
     }
   }
 

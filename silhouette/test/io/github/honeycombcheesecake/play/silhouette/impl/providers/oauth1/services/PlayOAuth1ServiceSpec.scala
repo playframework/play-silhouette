@@ -32,11 +32,13 @@ class PlayOAuth1ServiceSpec extends PlaySpecification {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = service.withSettings { s =>
-        s.copy("new-request-token-url")
-      }
+      override def running() = {
+        val s = service.withSettings { s =>
+          s.copy("new-request-token-url")
+        }
 
-      s.settings.requestTokenURL must be equalTo "new-request-token-url"
+        s.settings.requestTokenURL must be equalTo "new-request-token-url"
+      }
     }
   }
 

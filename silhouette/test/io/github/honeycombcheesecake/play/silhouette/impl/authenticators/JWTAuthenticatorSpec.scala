@@ -65,128 +65,153 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
 
   "The `serialize` method of the authenticator" should {
     "return a JWT with an expiration time" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings)
-      val json = Base64.decode(jwt.split('.').apply(1))
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
+        val json = Base64.decode(jwt.split('.').apply(1))
 
-      json must /("exp" -> authenticator.expirationDateTime.toEpochSecond.toInt)
+        json must /("exp" -> authenticator.expirationDateTime.toEpochSecond.toInt)
+      }
     }
 
     "return a JWT with an encoded subject" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings)
-      val json = Json.parse(Base64.decode(jwt.split('.').apply(1)))
-      val sub = Json.parse(authenticatorEncoder.decode((json \ "sub").as[String])).as[LoginInfo]
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
+        val json = Json.parse(Base64.decode(jwt.split('.').apply(1)))
+        val sub = Json.parse(authenticatorEncoder.decode((json \ "sub").as[String])).as[LoginInfo]
 
-      sub must be equalTo authenticator.loginInfo
+        sub must be equalTo authenticator.loginInfo
+      }
     }
 
     "return a JWT with an issuer" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings)
-      val json = Base64.decode(jwt.split('.').apply(1))
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
+        val json = Base64.decode(jwt.split('.').apply(1))
 
-      json must /("iss" -> settings.issuerClaim)
+        json must /("iss" -> settings.issuerClaim)
+      }
     }
 
     "return a JWT with an issued-at time" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings)
-      val json = Base64.decode(jwt.split('.').apply(1))
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
+        val json = Base64.decode(jwt.split('.').apply(1))
 
-      json must /("iat" -> authenticator.lastUsedDateTime.toEpochSecond.toInt)
+        json must /("iat" -> authenticator.lastUsedDateTime.toEpochSecond.toInt)
+      }
     }
 
     "throw an AuthenticatorException if a reserved claim will be overridden" in new WithApplication with Context {
-      val claims = Json.obj(
-        "jti" -> "reserved")
+      override def running() = {
+        val claims = Json.obj(
+          "jti" -> "reserved")
 
-      serialize(authenticator.copy(customClaims = Some(claims)), authenticatorEncoder, settings) must throwA[AuthenticatorException].like {
-        case e => e.getMessage must startWith(OverrideReservedClaim.format(ID, "jti", ""))
+        serialize(authenticator.copy(customClaims = Some(claims)), authenticatorEncoder, settings) must throwA[AuthenticatorException].like {
+          case e => e.getMessage must startWith(OverrideReservedClaim.format(ID, "jti", ""))
+        }
       }
     }
 
     "throw an AuthenticatorException if an unexpected value was found in the arbitrary claims" in new WithApplication with Context {
-      val claims = Json.obj(
-        "null" -> JsNull)
+      override def running() = {
+        val claims = Json.obj(
+          "null" -> JsNull)
 
-      serialize(authenticator.copy(customClaims = Some(claims)), authenticatorEncoder, settings) must throwA[AuthenticatorException].like {
-        case e => e.getMessage must startWith(UnexpectedJsonValue.format(ID, ""))
+        serialize(authenticator.copy(customClaims = Some(claims)), authenticatorEncoder, settings) must throwA[AuthenticatorException].like {
+          case e => e.getMessage must startWith(UnexpectedJsonValue.format(ID, ""))
+        }
       }
     }
 
     "return a JWT with arbitrary claims" in new WithApplication with Context {
-      val jwt = serialize(authenticator.copy(customClaims = Some(customClaims)), authenticatorEncoder, settings)
-      val json = Base64.decode(jwt.split('.').apply(1))
+      override def running() = {
+        val jwt = serialize(authenticator.copy(customClaims = Some(customClaims)), authenticatorEncoder, settings)
+        val json = Base64.decode(jwt.split('.').apply(1))
 
-      json must /("boolean" -> true)
-      json must /("string" -> "string")
-      json must /("number" -> 1234567890)
-      json must /("array") /# 0 / 1
-      json must /("array") /# 1 / 2
-      json must /("object") / "array" /# 0 / "string1"
-      json must /("object") / "array" /# 1 / "string2"
-      json must /("object") / "object" / "array" /# 0 / "string"
-      json must /("object") / "object" / "array" /# 1 / false
-      json must /("object") / "object" / "array" /# 2 / ("number" -> 1)
+        json must /("boolean" -> true)
+        json must /("string" -> "string")
+        json must /("number" -> 1234567890)
+        json must /("array") /# 0 / 1
+        json must /("array") /# 1 / 2
+        json must /("object") / "array" /# 0 / "string1"
+        json must /("object") / "array" /# 1 / "string2"
+        json must /("object") / "object" / "array" /# 0 / "string"
+        json must /("object") / "object" / "array" /# 1 / false
+        json must /("object") / "object" / "array" /# 2 / ("number" -> 1)
+      }
     }
   }
 
   "The `unserialize` method of the authenticator" should {
     "throw an AuthenticatorException if the given token can't be parsed" in new WithApplication with Context {
-      val jwt = "invalid"
-      val msg = Pattern.quote(InvalidJWTToken.format(ID, jwt))
+      override def running() = {
+        val jwt = "invalid"
+        val msg = Pattern.quote(InvalidJWTToken.format(ID, jwt))
 
-      unserialize(jwt, authenticatorEncoder, settings) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(jwt, authenticatorEncoder, settings) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
 
     "throw an AuthenticatorException if the given token couldn't be verified" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings) + "-wrong-sig"
-      val msg = Pattern.quote(InvalidJWTToken.format(ID, jwt))
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings) + "-wrong-sig"
+        val msg = Pattern.quote(InvalidJWTToken.format(ID, jwt))
 
-      unserialize(jwt, authenticatorEncoder, settings) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(jwt, authenticatorEncoder, settings) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
 
     "unserialize a JWT" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings)
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
 
-      unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+        unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+      }
     }
 
     "unserialize a JWT with a custom clock" in new WithApplication with Context {
+      override def running() = {
+        val lastUsedDateTime: ZonedDateTime = ZonedDateTime
+          .of(2015, 2, 25, 19, 0, 0, 0, ZoneId.systemDefault())
+          .`with`(ChronoField.MILLI_OF_SECOND, 0)
 
-      val lastUsedDateTime: ZonedDateTime = ZonedDateTime
-        .of(2015, 2, 25, 19, 0, 0, 0, ZoneId.systemDefault())
-        .`with`(ChronoField.MILLI_OF_SECOND, 0)
+        val authenticatorCustomClock: JWTAuthenticator = authenticator
+          .copy(
+            expirationDateTime = lastUsedDateTime + settings.authenticatorExpiry,
+            lastUsedDateTime = lastUsedDateTime)
 
-      val authenticatorCustomClock: JWTAuthenticator = authenticator
-        .copy(
-          expirationDateTime = lastUsedDateTime + settings.authenticatorExpiry,
-          lastUsedDateTime = lastUsedDateTime)
+        val jwt: String = serialize(authenticatorCustomClock, authenticatorEncoder, settings)
 
-      val jwt: String = serialize(authenticatorCustomClock, authenticatorEncoder, settings)
+        when(clock.now).thenReturn(lastUsedDateTime)
+        implicit val customClock: Option[Clock] = Some(clock)
 
-      when(clock.now).thenReturn(lastUsedDateTime)
-      implicit val customClock: Option[Clock] = Some(clock)
-
-      unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticatorCustomClock.copy(
-        expirationDateTime = authenticatorCustomClock.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticatorCustomClock.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+        unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticatorCustomClock.copy(
+          expirationDateTime = authenticatorCustomClock.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticatorCustomClock.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+      }
     }
 
     "unserialize a JWT with arbitrary claims" in new WithApplication with Context {
-      val jwt = serialize(authenticator.copy(customClaims = Some(customClaims)), authenticatorEncoder, settings)
+      override def running() = {
+        val jwt = serialize(authenticator.copy(customClaims = Some(customClaims)), authenticatorEncoder, settings)
 
-      unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.like {
-        case a =>
-          a.customClaims must beSome(customClaims)
+        unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.like {
+          case a =>
+            a.customClaims must beSome(customClaims)
+        }
       }
     }
   }
 
   "The `serialize/unserialize` method of the authenticator" should {
     "serialize/unserialize an authenticator" in new WithApplication with Context {
-      val jwt = serialize(authenticator, authenticatorEncoder, settings)
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
 
-      unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticator)
+        unserialize(jwt, authenticatorEncoder, settings) must beSuccessfulTry.withValue(authenticator)
+      }
     }
   }
 
@@ -261,84 +286,98 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
     }
 
     "return authenticator if DAO is enabled and an authenticator is stored for the token located in the the header" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))))
+        when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))))
 
-      await(service(Some(repository)).retrieve) must beSome(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+        await(service(Some(repository)).retrieve) must beSome(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+      }
     }
 
     "return authenticator if DAO is enabled and an authenticator is stored for the token located in the the query string" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
-      when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))))
+        when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
+        when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))))
 
-      await(service(Some(repository)).retrieve) must beSome(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+        await(service(Some(repository)).retrieve) must beSome(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+      }
     }
 
     "return authenticator if DAO is disabled and authenticator was found in the header" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      await(service(None).retrieve) must beSome(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
-      verify(repository, never()).find(any())
+        await(service(None).retrieve) must beSome(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+        verify(repository, never()).find(any())
+      }
     }
 
     "return authenticator if DAO is disabled and authenticator was found in the query string" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
-      await(service(None).retrieve) must beSome(authenticator.copy(
-        expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
-        lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
-      verify(repository, never()).find(any())
+        when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
+        await(service(None).retrieve) must beSome(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+        verify(repository, never()).find(any())
+      }
     }
 
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders(settings.fieldName -> serialize(authenticator, authenticatorEncoder, settings))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      when(repository.find(authenticator.id)).thenReturn(Future.failed(new RuntimeException("Cannot find authenticator")))
+        when(repository.find(authenticator.id)).thenReturn(Future.failed(new RuntimeException("Cannot find authenticator")))
 
-      await(service(Some(repository)).retrieve) must throwA[AuthenticatorRetrievalException].like {
-        case e =>
-          e.getMessage must startWith(RetrieveError.format(ID, ""))
+        await(service(Some(repository)).retrieve) must throwA[AuthenticatorRetrievalException].like {
+          case e =>
+            e.getMessage must startWith(RetrieveError.format(ID, ""))
+        }
       }
     }
   }
 
   "The `init` method of the service" should {
     "return the token if DAO is enabled and authenticator could be saved in backing store" in new WithApplication with Context {
-      when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      override def running() = {
+        when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      val token = await(service(Some(repository)).init(authenticator))
+        val token = await(service(Some(repository)).init(authenticator))
 
-      unserialize(token, authenticatorEncoder, settings).get must be equalTo authenticator
-      verify(repository).add(any())
+        unserialize(token, authenticatorEncoder, settings).get must be equalTo authenticator
+        verify(repository).add(any())
+      }
     }
 
     "return the token if DAO is disabled" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      val token = await(service(None).init(authenticator))
+        val token = await(service(None).init(authenticator))
 
-      unserialize(token, authenticatorEncoder, settings).get must be equalTo authenticator
-      verify(repository, never()).add(any())
+        unserialize(token, authenticatorEncoder, settings).get must be equalTo authenticator
+        verify(repository, never()).add(any())
+      }
     }
 
     "throws an AuthenticatorInitializationException exception if an error occurred during initialization" in new Context {
@@ -356,171 +395,199 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
 
   "The result `embed` method of the service" should {
     "return the response with a header" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val token = serialize(authenticator, authenticatorEncoder, settings)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val token = serialize(authenticator, authenticatorEncoder, settings)
 
-      val result = service(Some(repository)).embed(token, Results.Ok)
+        val result = service(Some(repository)).embed(token, Results.Ok)
 
-      header(settings.fieldName, result) should beSome(token)
+        header(settings.fieldName, result) should beSome(token)
+      }
     }
   }
 
   "The request `embed` method of the service" should {
     "return the request with a header " in new WithApplication with Context {
-      val token = serialize(authenticator, authenticatorEncoder, settings)
-      val request = service(Some(repository)).embed(token, FakeRequest())
+      override def running() = {
+        val token = serialize(authenticator, authenticatorEncoder, settings)
+        val request = service(Some(repository)).embed(token, FakeRequest())
 
-      unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
+        unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
+      }
     }
 
     "override an existing token" in new WithApplication with Context {
-      val token = serialize(authenticator, authenticatorEncoder, settings)
-      val request = service(Some(repository)).embed(token, FakeRequest().withHeaders(settings.fieldName -> "test"))
+      override def running() = {
+        val token = serialize(authenticator, authenticatorEncoder, settings)
+        val request = service(Some(repository)).embed(token, FakeRequest().withHeaders(settings.fieldName -> "test"))
 
-      unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
+        unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
+      }
     }
 
     "keep non authenticator related headers" in new WithApplication with Context {
-      val token = serialize(authenticator, authenticatorEncoder, settings)
-      val request = service(Some(repository)).embed(token, FakeRequest().withHeaders("test" -> "test"))
+      override def running() = {
+        val token = serialize(authenticator, authenticatorEncoder, settings)
+        val request = service(Some(repository)).embed(token, FakeRequest().withHeaders("test" -> "test"))
 
-      unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
-      request.headers.get("test") should beSome("test")
+        unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
+        request.headers.get("test") should beSome("test")
+      }
     }
 
     "keep other request parts" in new WithApplication with Context {
-      val token = serialize(authenticator, authenticatorEncoder, settings)
-      val request = service(Some(repository)).embed(token, FakeRequest().withSession("test" -> "test"))
+      override def running() = {
+        val token = serialize(authenticator, authenticatorEncoder, settings)
+        val request = service(Some(repository)).embed(token, FakeRequest().withSession("test" -> "test"))
 
-      unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
-      request.session.get("test") should beSome("test")
+        unserialize(request.headers.get(settings.fieldName).get, authenticatorEncoder, settings).get must be equalTo authenticator
+        request.session.get("test") should beSome("test")
+      }
     }
   }
 
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
-      when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service(None).touch(authenticator) must beLeft[JWTAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo clock.now
+        service(None).touch(authenticator) must beLeft[JWTAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo clock.now
+        }
       }
     }
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
-      when(settings.authenticatorIdleTimeout).thenReturn(None)
-      when(clock.now).thenReturn(ZonedDateTime.now)
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(None)
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service(None).touch(authenticator) must beRight[JWTAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        service(None).touch(authenticator) must beRight[JWTAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        }
       }
     }
   }
 
   "The `update` method of the service" should {
     "update the authenticator in backing store" in new WithApplication with Context {
-      when(repository.update(any())).thenAnswer { _ => Future.successful(authenticator) }
+      override def running() = {
+        when(repository.update(any())).thenAnswer { _ => Future.successful(authenticator) }
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      await(service(Some(repository)).update(authenticator, Results.Ok))
+        await(service(Some(repository)).update(authenticator, Results.Ok))
 
-      verify(repository).update(authenticator)
+        verify(repository).update(authenticator)
+      }
     }
 
     "return the result if the authenticator could be stored in backing store" in new WithApplication with Context {
-      when(repository.update(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+      override def running() = {
+        when(repository.update(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val result = service(Some(repository)).update(authenticator, Results.Ok)
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val result = service(Some(repository)).update(authenticator, Results.Ok)
 
-      status(result) must be equalTo OK
-      unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator
-      verify(repository).update(authenticator)
+        status(result) must be equalTo OK
+        unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator
+        verify(repository).update(authenticator)
+      }
     }
 
     "return the result if backing store is disabled" in new WithApplication with Context {
-      when(repository.update(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+      override def running() = {
+        when(repository.update(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val result = service(None).update(authenticator, Results.Ok)
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val result = service(None).update(authenticator, Results.Ok)
 
-      status(result) must be equalTo OK
-      unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator
-      verify(repository, never()).update(any())
+        status(result) must be equalTo OK
+        unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator
+        verify(repository, never()).update(any())
+      }
     }
 
     "throws an AuthenticatorUpdateException exception if an error occurred during update" in new WithApplication with Context {
-      when(repository.update(any())).thenReturn(Future.failed(new Exception("Cannot store authenticator")))
+      override def running() = {
+        when(repository.update(any())).thenReturn(Future.failed(new Exception("Cannot store authenticator")))
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      await(service(Some(repository)).update(authenticator, Results.Ok)) must throwA[AuthenticatorUpdateException].like {
-        case e =>
-          e.getMessage must startWith(UpdateError.format(ID, ""))
+        await(service(Some(repository)).update(authenticator, Results.Ok)) must throwA[AuthenticatorUpdateException].like {
+          case e =>
+            e.getMessage must startWith(UpdateError.format(ID, ""))
+        }
       }
     }
   }
 
   "The `renew` method of the service" should {
     "renew the authenticator and return the response with a new JWT if DAO is enabled" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val id = "new-test-id"
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val id = "new-test-id"
 
-      when(repository.remove(any())).thenAnswer { _ => Future.successful(()) }
-      when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
-      when(idGenerator.generate).thenReturn(Future.successful(id))
-      when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
+        when(repository.remove(any())).thenAnswer { _ => Future.successful(()) }
+        when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+        when(idGenerator.generate).thenReturn(Future.successful(id))
+        when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
 
-      val result = service(Some(repository)).renew(authenticator, Results.Ok)
+        val result = service(Some(repository)).renew(authenticator, Results.Ok)
 
-      unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator.copy(
-        id = id,
-        expirationDateTime = clock.now + settings.authenticatorExpiry,
-        lastUsedDateTime = clock.now)
+        unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator.copy(
+          id = id,
+          expirationDateTime = clock.now + settings.authenticatorExpiry,
+          lastUsedDateTime = clock.now)
 
-      verify(repository).add(any())
-      verify(repository).remove(authenticator.id)
+        verify(repository).add(any())
+        verify(repository).remove(authenticator.id)
+      }
     }
 
     "renew an authenticator with custom claims" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val id = "new-test-id"
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val id = "new-test-id"
 
-      when(repository.remove(any())).thenReturn(Future.successful(()))
-      when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
-      when(idGenerator.generate).thenReturn(Future.successful(id))
-      when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
+        when(repository.remove(any())).thenReturn(Future.successful(()))
+        when(repository.add(any())).thenAnswer { p => Future.successful(p.getArgument(0).asInstanceOf[JWTAuthenticator]) }
+        when(idGenerator.generate).thenReturn(Future.successful(id))
+        when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
 
-      val result = service(Some(repository)).renew(authenticator.copy(customClaims = Some(customClaims)), Results.Ok)
+        val result = service(Some(repository)).renew(authenticator.copy(customClaims = Some(customClaims)), Results.Ok)
 
-      unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator.copy(
-        id = id,
-        expirationDateTime = clock.now + settings.authenticatorExpiry,
-        lastUsedDateTime = clock.now,
-        customClaims = Some(customClaims))
+        unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator.copy(
+          id = id,
+          expirationDateTime = clock.now + settings.authenticatorExpiry,
+          lastUsedDateTime = clock.now,
+          customClaims = Some(customClaims))
 
-      verify(repository).add(any())
-      verify(repository).remove(authenticator.id)
+        verify(repository).add(any())
+        verify(repository).remove(authenticator.id)
+      }
     }
 
     "renew the authenticator and return the response with a new JWT if DAO is disabled" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val id = "new-test-id"
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val id = "new-test-id"
 
-      when(idGenerator.generate).thenReturn(Future.successful(id))
-      when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
+        when(idGenerator.generate).thenReturn(Future.successful(id))
+        when(clock.now).thenReturn(ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0))
 
-      val result = service(None).renew(authenticator, Results.Ok)
+        val result = service(None).renew(authenticator, Results.Ok)
 
-      unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator.copy(
-        id = id,
-        expirationDateTime = clock.now + settings.authenticatorExpiry,
-        lastUsedDateTime = clock.now)
-      verify(repository, never()).remove(any())
-      verify(repository, never()).add(any())
+        unserialize(header(settings.fieldName, result).get, authenticatorEncoder, settings).get must be equalTo authenticator.copy(
+          id = id,
+          expirationDateTime = clock.now + settings.authenticatorExpiry,
+          lastUsedDateTime = clock.now)
+        verify(repository, never()).remove(any())
+        verify(repository, never()).add(any())
+      }
     }
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {

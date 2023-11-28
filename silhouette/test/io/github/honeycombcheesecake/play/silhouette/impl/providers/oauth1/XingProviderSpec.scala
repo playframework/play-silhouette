@@ -36,77 +36,87 @@ class XingProviderSpec extends OAuth1ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val overrideSettingsFunction: OAuth1Settings => OAuth1Settings = { s =>
-        s.copy("new-request-token-url")
-      }
-      val s: XingProvider = provider.withSettings(overrideSettingsFunction)
+      override def running() = {
+        val overrideSettingsFunction: OAuth1Settings => OAuth1Settings = { s =>
+          s.copy("new-request-token-url")
+        }
+        val s: XingProvider = provider.withSettings(overrideSettingsFunction)
 
-      s.settings.requestTokenURL must be equalTo "new-request-token-url"
-      verify(oAuthService).withSettings(overrideSettingsFunction)
+        s.settings.requestTokenURL must be equalTo "new-request-token-url"
+        verify(oAuthService).withSettings(overrideSettingsFunction)
+      }
     }
   }
 
   "The `retrieveProfile` method" should {
     "fail with ProfileRetrievalException if API returns error" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      when(wsRequest.sign(any)).thenReturn(wsRequest)
-      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/xing.error.json"))
-      when(httpLayer.url(API)).thenReturn(wsRequest)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/xing.error.json"))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
-        case e => e.getMessage must equalTo(SpecifiedProfileError.format(
-          provider.id,
-          "INVALID_PARAMETERS",
-          "Invalid parameters (Limit must be a non-negative number.)"))
+        failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
+          case e => e.getMessage must equalTo(SpecifiedProfileError.format(
+            provider.id,
+            "INVALID_PARAMETERS",
+            "Invalid parameters (Limit must be a non-negative number.)"))
+        }
       }
     }
 
     "throw ProfileRetrievalException if an unexpected error occurred" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      when(wsRequest.sign(any)).thenReturn(wsRequest)
-      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-      when(wsResponse.json).thenThrow(new RuntimeException(""))
-      when(httpLayer.url(API)).thenReturn(wsRequest)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenThrow(new RuntimeException(""))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
-        case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
+        failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
+          case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
+        }
       }
     }
 
     "use the overridden API URL" in new WithApplication with Context {
-      val url = "https://custom.api.url"
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      when(oAuthSettings.apiURL).thenReturn(Some(url))
-      when(wsRequest.sign(any)).thenReturn(wsRequest)
-      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/xing.success.json"))
-      when(httpLayer.url(url)).thenReturn(wsRequest)
+      override def running() = {
+        val url = "https://custom.api.url"
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(oAuthSettings.apiURL).thenReturn(Some(url))
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/xing.success.json"))
+        when(httpLayer.url(url)).thenReturn(wsRequest)
 
-      await(provider.retrieveProfile(oAuthInfo))
+        await(provider.retrieveProfile(oAuthInfo))
 
-      verify(httpLayer).url(url)
+        verify(httpLayer).url(url)
+      }
     }
 
     "return the social profile" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      when(wsRequest.sign(any)).thenReturn(wsRequest)
-      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-      when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/xing.success.json"))
-      when(httpLayer.url(API)).thenReturn(wsRequest)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/xing.success.json"))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      profile(provider.retrieveProfile(oAuthInfo)) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "1235468792"),
-          firstName = Some("Apollonia"),
-          lastName = Some("Vanova"),
-          fullName = Some("Apollonia Vanova"),
-          avatarURL = Some("http://www.xing.com/img/users/e/3/d/f94ef165a.123456,1.140x185.jpg"),
-          email = Some("apollonia.vanova@watchmen.com"))
+        profile(provider.retrieveProfile(oAuthInfo)) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "1235468792"),
+            firstName = Some("Apollonia"),
+            lastName = Some("Vanova"),
+            fullName = Some("Apollonia Vanova"),
+            avatarURL = Some("http://www.xing.com/img/users/e/3/d/f94ef165a.123456,1.140x185.jpg"),
+            email = Some("apollonia.vanova@watchmen.com"))
+        }
       }
     }
   }

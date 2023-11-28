@@ -27,21 +27,25 @@ class SteamProviderSpec extends OpenIDProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
-        s.copy("new-provider-url")
-      }
-      val s: SteamProvider = provider.withSettings(overrideSettingsFunction)
+      override def running() = {
+        val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
+          s.copy("new-provider-url")
+        }
+        val s: SteamProvider = provider.withSettings(overrideSettingsFunction)
 
-      s.settings.providerURL must be equalTo "new-provider-url"
-      verify(openIDService).withSettings(overrideSettingsFunction)
+        s.settings.providerURL must be equalTo "new-provider-url"
+        verify(openIDService).withSettings(overrideSettingsFunction)
+      }
     }
   }
 
   "The `retrieveProfile` method" should {
     "return the social profile" in new WithApplication with Context {
-      profile(provider.retrieveProfile(openIDInfo)) {
-        case p => p must be equalTo new CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "http://steamcommunity.com/openid/id/16261495063738643"))
+      override def running() = {
+        profile(provider.retrieveProfile(openIDInfo)) {
+          case p => p must be equalTo new CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "http://steamcommunity.com/openid/id/16261495063738643"))
+        }
       }
     }
   }

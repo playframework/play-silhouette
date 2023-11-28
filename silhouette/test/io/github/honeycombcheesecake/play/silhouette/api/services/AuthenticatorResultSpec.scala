@@ -34,28 +34,34 @@ class AuthenticatorResultSpec extends PlaySpecification {
 
   "The `withSession` method" should {
     "return new a new instance of an authenticator result" in new WithApplication {
-      val result = Results.Ok
-      val authenticatorResult = AuthenticatorResult(result)
+      override def running() = {
+        val result = Results.Ok
+        val authenticatorResult = AuthenticatorResult(result)
 
-      authenticatorResult.withSession("name" -> "value") must beAnInstanceOf[AuthenticatorResult]
+        authenticatorResult.withSession("name" -> "value") must beAnInstanceOf[AuthenticatorResult]
+      }
     }
   }
 
   "The `withCookies` method" should {
     "return new a new instance of an authenticator result" in new WithApplication {
-      val result = Results.Ok
-      val authenticatorResult = AuthenticatorResult(result)
+      override def running() = {
+        val result = Results.Ok
+        val authenticatorResult = AuthenticatorResult(result)
 
-      authenticatorResult.withCookies(Cookie("name", "value")) must beAnInstanceOf[AuthenticatorResult]
+        authenticatorResult.withCookies(Cookie("name", "value")) must beAnInstanceOf[AuthenticatorResult]
+      }
     }
   }
 
   "The `withHeaders` method" should {
     "return new a new instance of an authenticator result" in new WithApplication {
-      val result = Results.Ok
-      val authenticatorResult = AuthenticatorResult(result)
+      override def running() = {
+        val result = Results.Ok
+        val authenticatorResult = AuthenticatorResult(result)
 
-      authenticatorResult.withHeaders("name" -> "value") must beAnInstanceOf[AuthenticatorResult]
+        authenticatorResult.withHeaders("name" -> "value") must beAnInstanceOf[AuthenticatorResult]
+      }
     }
   }
 }
