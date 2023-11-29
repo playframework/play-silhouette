@@ -16,7 +16,7 @@ ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / organization := "io.github.honeycomb-cheesecake"
 ThisBuild / organizationName := "honeycomb-cheesecake"
-ThisBuild / scalaVersion := scala213
+ThisBuild / scalaVersion := scala3
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
   "-feature",
