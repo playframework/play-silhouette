@@ -19,17 +19,22 @@ ThisBuild / organizationName := "honeycomb-cheesecake"
 ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
-  //"-unchecked",
-  //"-deprecation",
   "-feature",
-  //"-encoding", "utf8",
-  "-Xfatal-warnings",
-  //"-Xlint",
-  //"-Xlint:adapted-args",
-  //"-Xlint:inaccessible",
-  //"-Xlint:infer-any",
-  //"-Xlint:nullary-unit"
-)
+  "-Xfatal-warnings"
+) ++
+  (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, _)) => Seq(
+      "-encoding", "utf8",
+      "-unchecked",
+      "-deprecation",
+      "-Xlint",
+      "-Xlint:adapted-args",
+      "-Xlint:inaccessible",
+      "-Xlint:infer-any",
+      "-Xlint:nullary-unit"
+    )
+    case _ => Seq()
+  })
 ThisBuild / Test / scalacOptions ~= { options: Seq[String] =>
   // Allow dead code in tests (to support using mockito).
   options filterNot (_ == "-Ywarn-dead-code")
@@ -100,10 +105,6 @@ lazy val root = (project in file("."))
 lazy val silhouette = (project in file("silhouette"))
   .settings(
     name := "play-silhouette",
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.akka", name = "akka-testkit"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "om.auth0", name = "java-jwt"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.cache,
@@ -126,8 +127,6 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
   .settings(
     name := "play-silhouette-cas",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.casClient,
@@ -144,8 +143,6 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
   .settings(
     name := "play-silhouette-totp",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.googleAuth,
@@ -158,11 +155,6 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
   .settings(
     name := "play-silhouette-crypto-jca",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-codec", name = "commons-codec"),
-
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.commonsCodec,
@@ -176,8 +168,6 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
   .settings(
     name := "play-silhouette-password-argon2",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.argon2,
@@ -190,8 +180,6 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
   .settings(
     name := "play-silhouette-password-bcrypt",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.jbcrypt,
@@ -204,9 +192,6 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
   .settings(
     name := "play-silhouette-persistence",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-core"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Specs2.core % Test,
@@ -221,9 +206,6 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
   .settings(
     name := "play-silhouette-testkit",
     dependencyUpdatesFailBuild := false,
-    dependencyUpdatesFilter -= moduleFilter(organization = "org.specs2", name = "specs2-matcher-extra"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "com.typesafe.akka", name = "akka-testkit"),
-    dependencyUpdatesFilter -= moduleFilter(organization = "commons-io", name = "commons-io"),
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.test,
