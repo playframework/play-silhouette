@@ -611,7 +611,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
     "remove authenticator from backing store if DAO is enabled" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      when(repository.remove(authenticator.id)).thenReturn(Future.successful(authenticator))
+      when(repository.remove(authenticator.id)).thenReturn(Future.unit)
 
       await(service(Some(repository)).discard(authenticator, Results.Ok))
 
@@ -644,7 +644,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
    */
   trait Context extends Scope {
 
-    private val lastUsedDateTime = ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0)
+    private lazy val lastUsedDateTime = ZonedDateTime.now.`with`(ChronoField.MILLI_OF_SECOND, 0)
 
     /**
      * The repository implementation.
