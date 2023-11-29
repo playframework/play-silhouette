@@ -27,7 +27,6 @@ ThisBuild / scalacOptions ++= Seq(
       "-encoding", "utf8",
       "-unchecked",
       "-deprecation",
-      "-Xlint",
       "-Xlint:adapted-args",
       "-Xlint:inaccessible",
       "-Xlint:infer-any",
