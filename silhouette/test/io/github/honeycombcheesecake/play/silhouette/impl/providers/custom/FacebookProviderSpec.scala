@@ -27,7 +27,7 @@ import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{ FakeRequest, WithApplication }
 import test.Helper
-import org.mockito.Mockito.*
+import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
 
