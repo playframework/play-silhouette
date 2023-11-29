@@ -3,8 +3,8 @@ import sbt.CrossVersion
 
 lazy val repo: String = "https://s01.oss.sonatype.org"
 lazy val scala213: String = "2.13.12"
-lazy val scala3: String = "3.3.1" // Ready for cross build, currently not yet supported by play.
-lazy val supportedScalaVersions: Seq[String] = Seq(/*scala213,*/ scala3)
+lazy val scala3: String = "3.3.1"
+lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
 
 Global / evictionErrorLevel   := Level.Info
 
@@ -16,7 +16,7 @@ ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / organization := "io.github.honeycomb-cheesecake"
 ThisBuild / organizationName := "honeycomb-cheesecake"
-ThisBuild / scalaVersion := scala3
+ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
   //"-unchecked",
@@ -227,13 +227,18 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.test,
-        Library.izumiReflect,
         Library.Play.specs2 % Test,
         Library.Specs2.matcherExtra % Test,
         Library.mockito % Test,
         Library.scalaGuice % Test,
         Library.akkaTestkit % Test
       )
+      ++ {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((3, _)) => Seq(Library.izumiReflect)
+          case _ => Seq.empty
+        }
+      }
   )
   .enablePlugins(PlayScala)
   .dependsOn(silhouette)

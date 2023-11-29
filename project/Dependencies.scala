@@ -35,7 +35,7 @@ object Dependencies {
     }
 
     object Specs2 {
-      private val version = "4.20.2"  // Versions later than this will fail due to removed dependencies.
+      private val version = "4.20.2"
       val core = "org.specs2" %% "specs2-core" % version
       val matcherExtra = "org.specs2" %% "specs2-matcher-extra" % version
     }
@@ -51,6 +51,6 @@ object Dependencies {
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
-    val izumiReflect = "dev.zio" %% "izumi-reflect" % "2.3.8"
+    val izumiReflect = "dev.zio" %% "izumi-reflect" % "2.3.8" // Scala 3 replacement for scala 2 reflect universe
   }
 }
