@@ -14,7 +14,7 @@ ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/playfram
 ThisBuild / publishMavenStyle := true
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / organization := "org.playframework"
+ThisBuild / organization := "org.playframework.silhouette"
 ThisBuild / organizationName := "The play framework"
 ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
