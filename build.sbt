@@ -64,7 +64,7 @@ dependencyCheckSuppressionFiles := Seq[sbt.File](new sbt.File("dependency-check-
 ThisBuild / pomExtra := {
   <scm>
     <url>git@github.com:play-silhouette/play-silhouette.git</url>
-    <connection>scm:git:git@github.com:play-framework/play-silhouette.git</connection>
+    <connection>scm:git:git@github.com:playframework/play-silhouette.git</connection>
   </scm>
     <developers>
       <developer>
