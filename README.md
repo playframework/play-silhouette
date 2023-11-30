@@ -1,7 +1,7 @@
 # Silhouette
 
-[![Scala CI](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml/badge.svg)](https://github.com/honeycomb-cheesecake/play-silhouette/actions/workflows/scala.yml)
-[![Coverage Status](https://coveralls.io/repos/github/honeycomb-cheesecake/play-silhouette/badge.svg?branch=main)](https://coveralls.io/github/honeycomb-cheesecake/play-silhouette?branch=main)
+[![Scala CI](https://github.com/playframework/play-silhouette/actions/workflows/scala.yml/badge.svg)](https://github.com/playframework/play-silhouette/actions/workflows/scala.yml)
+[![Coverage Status](https://coveralls.io/repos/github/playframework/play-silhouette/badge.svg?branch=main)](https://coveralls.io/github/honeycomb-cheesecake/play-silhouette?branch=main)
 [![Discord](https://img.shields.io/discord/975331299692773447)](https://discord.com/channels/975331299692773447)
 [![Gitter](https://img.shields.io/badge/Gitter-Join%20Chat-blue?color=informational)](https://gitter.im/mohiva/play-silhouette)
 
@@ -27,14 +27,14 @@ See [the project documentation] for more information.
 To get the latest production release(s) from this repository, add the following to your project's `build.sbt` file, replacing `x.x.x` (>= 7.0.1) with the `play-silhouette` version of choice:
 
 ```
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-cas" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-crypto-jca" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-password-argon2" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-password-bcrypt" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-persistence" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-totp" % "x.x.x"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-testkit" % "x.x.x" % Test
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-cas" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-crypto-jca" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-password-argon2" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-password-bcrypt" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-persistence" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-totp" % "x.x.x"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-testkit" % "x.x.x" % Test
 ```
 
 ### Latest Snapshot Versions
@@ -43,14 +43,14 @@ This fork of `play-silhouette` shall also be releasing SNAPSHOTS of the latest p
 
 ```
 resolvers += "snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-cas" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-crypto-jca" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-password-argon2" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-password-bcrypt" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-persistence" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-totp" % "x.x.x-SNAPSHOT"
-libraryDependencies += "io.github.honeycomb-cheesecake" %% "play-silhouette-testkit" % "x.x.x-SNAPSHOT" % Test
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-cas" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-crypto-jca" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-password-argon2" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-password-bcrypt" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-persistence" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-totp" % "x.x.x-SNAPSHOT"
+libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-testkit" % "x.x.x-SNAPSHOT" % Test
 ```
 
 ## Support
