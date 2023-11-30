@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.providers.openid.services
+package play.silhouette.impl.providers.openid.services
 
 import play.silhouette.impl.providers.{ OpenIDInfo, OpenIDService, OpenIDSettings }
 import play.api.libs.openid.OpenIdClient

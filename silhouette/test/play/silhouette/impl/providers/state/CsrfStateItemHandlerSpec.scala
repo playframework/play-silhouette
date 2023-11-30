@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.providers.state
+package play.silhouette.impl.providers.state
 
 import play.silhouette.api.crypto.Signer
 import play.silhouette.api.util.IDGenerator

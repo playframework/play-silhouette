@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.password
+package play.silhouette.password
 
 import play.silhouette.api.util.PasswordInfo
 import org.specs2.mutable.Specification

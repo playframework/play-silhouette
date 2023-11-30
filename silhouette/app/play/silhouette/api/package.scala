@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette
+package play.silhouette
 
 /**
  * The collection of traits and utility classes that form the stable API of Silhouette.

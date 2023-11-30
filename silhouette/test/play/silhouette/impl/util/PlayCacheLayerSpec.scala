@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.util
+package play.silhouette.impl.util
 
 import org.mockito.Mockito._
 import org.specs2.specification.Scope

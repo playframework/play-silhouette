@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api.exceptions
+package play.silhouette.api.exceptions
 
 /**
  * Indicates that the authenticated user is not authorized to access a secured endpoint.

@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.providers.oauth1.services
+package play.silhouette.impl.providers.oauth1.services
 
 import play.silhouette.api.Logger
 import play.silhouette.impl.providers.oauth1.services.PlayOAuth1Service._

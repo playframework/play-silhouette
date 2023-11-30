@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.test
+package play.silhouette.test
 
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.matcher.FutureMatchers.FutureMatchable

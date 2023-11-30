@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl
+package play.silhouette.impl
 
 /**
  * Contains [[play.silhouette.api.Provider]] implementations that provide authentication

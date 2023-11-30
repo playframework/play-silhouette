@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette
+package play.silhouette
 
 import play.silhouette.api._
 import play.api.mvc.Request

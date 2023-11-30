@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.providers.oauth1.services
+package play.silhouette.impl.providers.oauth1.services
 
 import play.silhouette.impl.providers.{ OAuth1Info, OAuth1Settings }
 import org.specs2.specification.Scope

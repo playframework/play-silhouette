@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.authenticators
+package play.silhouette.impl.authenticators
 
 import java.util.regex.Pattern
 import play.silhouette.api.Authenticator.Implicits._

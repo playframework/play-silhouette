@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.providers
+package play.silhouette.impl.providers
 
 import play.silhouette.impl.providers.oauth1.TwitterProvider
 import play.silhouette.impl.providers.oauth2.{ GoogleProvider, FacebookProvider }

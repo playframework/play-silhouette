@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.authenticators
+package play.silhouette.impl.authenticators
 
 import play.silhouette.api.Authenticator.Implicits._
 import play.silhouette.api.LoginInfo

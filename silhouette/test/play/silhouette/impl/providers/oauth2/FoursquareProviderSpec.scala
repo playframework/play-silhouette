@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.impl.providers.oauth2
+package play.silhouette.impl.providers.oauth2
 
 import play.silhouette.api.LoginInfo
 import play.silhouette.api.util.{ ExtractableRequest, MockWSRequest }

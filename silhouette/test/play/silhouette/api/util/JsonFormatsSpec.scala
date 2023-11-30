@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api.util
+package play.silhouette.api.util
 
 import play.silhouette.api.util.JsonFormats._
 import org.specs2.matcher.JsonMatchers

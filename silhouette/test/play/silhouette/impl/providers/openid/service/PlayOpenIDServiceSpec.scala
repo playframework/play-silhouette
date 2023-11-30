@@ -1,4 +1,4 @@
-package  play.silhouette.impl.providers.openid.service
+package play.silhouette.impl.providers.openid.service
 
 import play.silhouette.impl.providers.OpenIDSettings
 import play.silhouette.impl.providers.openid.services.PlayOpenIDService

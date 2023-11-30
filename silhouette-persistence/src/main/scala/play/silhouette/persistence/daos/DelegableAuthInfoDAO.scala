@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.persistence.daos
+package play.silhouette.persistence.daos
 
 import play.silhouette.api.AuthInfo
 

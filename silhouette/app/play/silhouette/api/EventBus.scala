@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api
+package play.silhouette.api
 
 import akka.event.{ ActorEventBus, SubchannelClassification }
 import akka.util.Subclassification

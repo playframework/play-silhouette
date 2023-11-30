@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api.util
+package play.silhouette.api.util
 
 import org.specs2.specification.Scope
 import play.api.libs.json.{ JsValue, Json, JsObject }

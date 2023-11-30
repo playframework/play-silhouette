@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api.exceptions
+package play.silhouette.api.exceptions
 
 /**
  * Indicates an error occurred with an authentication provider.

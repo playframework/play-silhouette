@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api.util
+package play.silhouette.api.util
 
 import java.time.{ Instant, ZonedDateTime, ZoneId, Clock => JavaClock }
 

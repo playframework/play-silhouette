@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.persistence.repositories
+package play.silhouette.persistence.repositories
 
 import com.google.inject.{ AbstractModule, Guice, Provides }
 import play.silhouette.api.exceptions.ConfigurationException

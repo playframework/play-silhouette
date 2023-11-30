@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package  play.silhouette.api.crypto
+package play.silhouette.api.crypto
 
 import play.api.test._
 

@@ -1,4 +1,4 @@
-package  play.silhouette.helpers
+package play.silhouette.helpers
 
 private[silhouette] object Transform {
 
