@@ -1,4 +1,4 @@
-addSbtPlugin(dependency = "ch.epfl.scala" % "sbt-version-policy" % "2.1.3")
+addSbtPlugin(dependency = "ch.epfl.scala" % "sbt-version-policy" % "3.0.0")
 addSbtPlugin(dependency = "com.github.sbt" % "sbt-release" % "1.1.0")
 addSbtPlugin(dependency = "com.github.sbt" % "sbt-unidoc" % "0.5.0")
 addSbtPlugin(dependency = "com.jsuereth" % "sbt-pgp" % "2.1.1")
