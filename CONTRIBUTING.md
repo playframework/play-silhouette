@@ -52,8 +52,8 @@ copyright license to the Mohiva Organisation, unless the contribution clearly st
 (e.g., it contains original work by a third party).
 
 
-[GitHub]: https://github.com/honeycomb-cheesecake/play-silhouette
-[GitHub issue tracker]: https://github.com/honeycomb-cheesecake/play-silhouette/issues
+[GitHub]: https://github.com/playframework/play-silhouette
+[GitHub issue tracker]: https://github.com/playframework/play-silhouette/issues
 [GitHub workflow for submitting pull requests]: https://www.playframework.com/documentation/2.8.x/WorkingWithGit
 [chat]: https://gitter.im/mohiva/play-silhouette
 [mailing list]: https://groups.google.com/forum/#!forum/play-silhouette
