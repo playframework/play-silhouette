@@ -19,7 +19,6 @@ import io.github.honeycombcheesecake.play.silhouette.api.AuthInfo
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ SocialProfile, SocialStateItem, StatefulAuthInfo }
 import org.specs2.execute.{ AsResult, Result => Specs2Result }
 import org.specs2.matcher.{ JsonMatchers, MatchResult }
-import org.specs2.mutable.Around
 import play.api.libs.json.{ JsValue, Json }
 import play.api.mvc.{ Result => PlayResult }
 import play.api.test.PlaySpecification
@@ -28,37 +27,6 @@ import scala.concurrent.Future
 import scala.io.{ Codec, Source }
 import scala.reflect.ClassTag
 import org.mockito.Mockito
-
-/**
- * Executes a before method in the context of the around method.
- */
-trait BeforeWithinAround extends Around {
-  def before: Any
-  abstract override def around[T: AsResult](t: => T): Specs2Result = super.around {
-    before; t
-  }
-}
-
-/**
- * Executes an after method in the context of the around method.
- */
-trait AfterWithinAround extends Around {
-  def after: Any
-  abstract override def around[T: AsResult](t: => T): Specs2Result = super.around {
-    try { t } finally { after }
-  }
-}
-
-/**
- * Executes before and after methods in the context of the around method.
- */
-trait BeforeAfterWithinAround extends Around {
-  def before: Any
-  def after: Any
-  abstract override def around[T: AsResult](t: => T): Specs2Result = super.around {
-    try { before; t } finally { after }
-  }
-}
 
 /**
  * Base test case for the social providers.
