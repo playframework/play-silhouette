@@ -27,7 +27,7 @@ class DefaultFingerprintGeneratorSpec extends PlaySpecification {
     "return fingerprint including the `User-Agent` header" in {
       val userAgent = "test-user-agent"
       val generator = new DefaultFingerprintGenerator()
-      implicit val request = FakeRequest().withHeaders(USER_AGENT -> userAgent)
+      implicit val request = FakeRequest().withHeaders((USER_AGENT, userAgent))
 
       generator.generate must be equalTo Hash.sha1(userAgent + ":::")
     }
@@ -35,7 +35,7 @@ class DefaultFingerprintGeneratorSpec extends PlaySpecification {
     "return fingerprint including the `Accept-Language` header" in {
       val acceptLanguage = "test-accept-language"
       val generator = new DefaultFingerprintGenerator()
-      implicit val request = FakeRequest().withHeaders(ACCEPT_LANGUAGE -> acceptLanguage)
+      implicit val request = FakeRequest().withHeaders((ACCEPT_LANGUAGE, acceptLanguage))
 
       generator.generate must be equalTo Hash.sha1(":" + acceptLanguage + "::")
     }
@@ -43,7 +43,7 @@ class DefaultFingerprintGeneratorSpec extends PlaySpecification {
     "return fingerprint including the `Accept-Charset` header" in {
       val acceptCharset = "test-accept-charset"
       val generator = new DefaultFingerprintGenerator()
-      implicit val request = FakeRequest().withHeaders(ACCEPT_CHARSET -> acceptCharset)
+      implicit val request = FakeRequest().withHeaders((ACCEPT_CHARSET, acceptCharset))
 
       generator.generate must be equalTo Hash.sha1("::" + acceptCharset + ":")
     }
@@ -61,9 +61,9 @@ class DefaultFingerprintGeneratorSpec extends PlaySpecification {
       val acceptCharset = "test-accept-charset"
       val generator = new DefaultFingerprintGenerator(true)
       implicit val request = FakeRequest().withHeaders(
-        USER_AGENT -> userAgent,
-        ACCEPT_LANGUAGE -> acceptLanguage,
-        ACCEPT_CHARSET -> acceptCharset)
+        (USER_AGENT, userAgent),
+        (ACCEPT_LANGUAGE, acceptLanguage),
+        (ACCEPT_CHARSET, acceptCharset))
 
       generator.generate must be equalTo Hash.sha1(
         userAgent + ":" + acceptLanguage + ":" + acceptCharset + ":127.0.0.1")

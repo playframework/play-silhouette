@@ -25,12 +25,13 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.{ Clock, Fingerpri
 import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, LoginInfo }
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
-import org.specs2.control.NoLanguageFeatures
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.{ mockSmart, mock }
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,7 +42,7 @@ import scala.language.postfixOps
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticator]].
  */
-class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLanguageFeatures {
+class SessionAuthenticatorSpec extends PlaySpecification {
 
   "The `isValid` method of the authenticator" should {
     "return false if the authenticator is expired" in new Context {
@@ -62,25 +63,31 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
   "The `unserialize` method of the authenticator" should {
     "throw an AuthenticatorException if the given value can't be parsed as Json" in new WithApplication with Context {
-      val value = "invalid"
-      val msg = Pattern.quote(JsonParseError.format(ID, value))
+      override def running() = {
+        val value = "invalid"
+        val msg = Pattern.quote(JsonParseError.format(ID, value))
 
-      unserialize(authenticatorEncoder.encode(value), authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(authenticatorEncoder.encode(value), authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
 
     "throw an AuthenticatorException if the given value is in the wrong Json format" in new WithApplication with Context {
-      val value = "{}"
-      val msg = "^" + Pattern.quote(InvalidJsonFormat.format(ID, "")) + ".*"
+      override def running() = {
+        val value = "{}"
+        val msg = "^" + Pattern.quote(InvalidJsonFormat.format(ID, "")) + ".*"
 
-      unserialize(authenticatorEncoder.encode(value), authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+        unserialize(authenticatorEncoder.encode(value), authenticatorEncoder) must beFailedTry.withThrowable[AuthenticatorException](msg)
+      }
     }
   }
 
   "The `serialize/unserialize` method of the authenticator" should {
     "serialize/unserialize an authenticator" in new WithApplication with Context {
-      val value = serialize(authenticator, authenticatorEncoder)
+      override def running() = {
+        val value = serialize(authenticator, authenticatorEncoder)
 
-      unserialize(value, authenticatorEncoder) must beSuccessfulTry.withValue(authenticator)
+        unserialize(value, authenticatorEncoder) must beSuccessfulTry.withValue(authenticator)
+      }
     }
   }
 
@@ -88,9 +95,9 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return a fingerprinted authenticator" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      clock.now returns ZonedDateTime.now
-      fingerprintGenerator.generate(any) returns "test"
-      settings.useFingerprinting returns true
+      when(clock.now).thenReturn(ZonedDateTime.now)
+      when(fingerprintGenerator.generate(any)).thenReturn("test")
+      when(settings.useFingerprinting).thenReturn(true)
 
       await(service.create(loginInfo)).fingerprint must beSome("test")
     }
@@ -98,8 +105,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "return a non fingerprinted authenticator" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      clock.now returns ZonedDateTime.now
-      settings.useFingerprinting returns false
+      when(clock.now).thenReturn(ZonedDateTime.now)
+      when(settings.useFingerprinting).thenReturn(false)
 
       await(service.create(loginInfo)).fingerprint must beNone
     }
@@ -108,7 +115,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
 
-      clock.now returns now
+      when(clock.now).thenReturn(now)
 
       await(service.create(loginInfo)).lastUsedDateTime must be equalTo now
     }
@@ -117,7 +124,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
       val now = ZonedDateTime.now
 
-      clock.now returns now
+      when(clock.now).thenReturn(now)
 
       await(service.create(loginInfo)).expirationDateTime must be equalTo now + 12.hours
     }
@@ -127,8 +134,8 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       val sixHours = 6 hours
       val now = ZonedDateTime.now
 
-      clock.now returns now
-      settings.authenticatorExpiry returns sixHours
+      when(clock.now).thenReturn(now)
+      when(settings.authenticatorExpiry).thenReturn(sixHours)
 
       await(service.create(loginInfo)).expirationDateTime must be equalTo now + sixHours
     }
@@ -136,7 +143,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     "throws an AuthenticatorCreationException exception if an error occurred during creation" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-      clock.now throws new RuntimeException("Could not get date")
+      when(clock.now).thenThrow(new RuntimeException("Could not get date"))
 
       await(service.create(loginInfo)) must throwA[AuthenticatorCreationException].like {
         case e =>
@@ -153,216 +160,260 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     }
 
     "return None if session contains invalid json" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode("{"))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode("{"))
 
-      settings.useFingerprinting returns false
+        when(settings.useFingerprinting).thenReturn(false)
 
-      await(service.retrieve) must beNone
+        await(service.retrieve) must beNone
+      }
     }
 
     "return None if session contains valid json but invalid authenticator" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode("{ \"test\": \"test\" }"))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode("{ \"test\": \"test\" }"))
 
-      settings.useFingerprinting returns false
+        when(settings.useFingerprinting).thenReturn(false)
 
-      await(service.retrieve) must beNone
+        await(service.retrieve) must beNone
+      }
     }
 
     "return None if authenticator fingerprint doesn't match current fingerprint" in new WithApplication with Context {
-      fingerprintGenerator.generate(any) returns "false"
-      settings.useFingerprinting returns true
-      authenticator.fingerprint returns Some("test")
+      override def running() = {
+        when(fingerprintGenerator.generate(any)).thenReturn("false")
+        when(settings.useFingerprinting).thenReturn(true)
+        when(authenticator.fingerprint).thenReturn(Some("test"))
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      await(service.retrieve) must beNone
+        await(service.retrieve) must beNone
+      }
     }
 
     "return authenticator if authenticator fingerprint matches current fingerprint" in new WithApplication with Context {
-      fingerprintGenerator.generate(any) returns "test"
-      settings.useFingerprinting returns true
-      authenticator.fingerprint returns Some("test")
+      override def running() = {
+        when(fingerprintGenerator.generate(any)).thenReturn("test")
+        when(settings.useFingerprinting).thenReturn(true)
+        when(authenticator.fingerprint).thenReturn(Some("test"))
 
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      await(service.retrieve) must beSome(authenticator)
+        await(service.retrieve) must beSome(authenticator)
+      }
     }
 
     "return authenticator if fingerprinting is disabled" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      settings.useFingerprinting returns false
+        when(settings.useFingerprinting).thenReturn(false)
 
-      await(service.retrieve) must beSome(authenticator)
+        await(service.retrieve) must beSome(authenticator)
+      }
     }
 
     "decode an authenticator" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-        .withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+          .withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      settings.useFingerprinting returns false
+        when(settings.useFingerprinting).thenReturn(false)
 
-      await(service.retrieve) must beSome(authenticator)
+        await(service.retrieve) must beSome(authenticator)
+      }
     }
 
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-      fingerprintGenerator.generate(any) throws new RuntimeException("Could not generate fingerprint")
-      settings.useFingerprinting returns true
+        when(fingerprintGenerator.generate(any)).thenThrow(new RuntimeException("Could not generate fingerprint"))
+        when(settings.useFingerprinting).thenReturn(true)
 
-      await(service.retrieve) must throwA[AuthenticatorRetrievalException].like {
-        case e =>
-          e.getMessage must startWith(RetrieveError.format(ID, ""))
+        await(service.retrieve) must throwA[AuthenticatorRetrievalException].like {
+          case e =>
+            e.getMessage must startWith(RetrieveError.format(ID, ""))
+        }
       }
     }
   }
 
   "The `init` method of the service" should {
     "return a session with an encoded authenticator" in new WithApplication with AppContext {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val session = await(service.init(authenticator))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val session = await(service.init(authenticator))
 
-      session must be equalTo sessionCookieBaker.deserialize(Map(settings.sessionKey -> data))
+        session must be equalTo sessionCookieBaker.deserialize(Map(settings.sessionKey -> data))
+      }
     }
 
     "override existing authenticator from request" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
-      val session = await(service.init(authenticator))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
+        val session = await(service.init(authenticator))
 
-      unserialize(session.get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator
+        unserialize(session.get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator
+      }
     }
 
     "keep non authenticator related session data" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("test" -> "test")
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val session = await(service.init(authenticator))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("test" -> "test")
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val session = await(service.init(authenticator))
 
-      session.get(settings.sessionKey) should beSome(data)
-      session.get("test") should beSome("test")
+        session.get(settings.sessionKey) should beSome(data)
+        session.get("test") should beSome("test")
+      }
     }
   }
 
   "The result `embed` method of the service" should {
     "return the response with the session" in new WithApplication with AppContext {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val result = service.embed(sessionCookieBaker.deserialize(Map(settings.sessionKey -> data)), Results.Ok)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val result = service.embed(sessionCookieBaker.deserialize(Map(settings.sessionKey -> data)), Results.Ok)
 
-      session(result).get(settings.sessionKey) should beSome(data)
+        session(result).get(settings.sessionKey) should beSome(data)
+      }
     }
 
     "override existing authenticator from request" in new WithApplication with AppContext {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val result = service.embed(sessionCookieBaker.deserialize(Map(settings.sessionKey -> data)), Results.Ok)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val result = service.embed(sessionCookieBaker.deserialize(Map(settings.sessionKey -> data)), Results.Ok)
 
-      session(result).get(settings.sessionKey) should beSome(data)
+        session(result).get(settings.sessionKey) should beSome(data)
+      }
     }
 
     "keep non authenticator related session data" in new WithApplication with AppContext {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep")
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val result = service.embed(sessionCookieBaker.deserialize(Map(settings.sessionKey -> data)), Results.Ok.addingToSession(
-        "result-other" -> "keep"))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep")
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val result = service.embed(sessionCookieBaker.deserialize(Map(settings.sessionKey -> data)), Results.Ok.addingToSession(
+          "result-other" -> "keep"))
 
-      session(result).get(settings.sessionKey) should beSome(data)
-      session(result).get("request-other") should beSome("keep")
-      session(result).get("result-other") should beSome("keep")
+        session(result).get(settings.sessionKey) should beSome(data)
+        session(result).get("request-other") should beSome("keep")
+        session(result).get("result-other") should beSome("keep")
+      }
     }
   }
 
   "The request `embed` method of the service" should {
     "return the request with the session" in new WithApplication with AppContext {
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> data))
-      val request = service.embed(session, FakeRequest())
+      override def running() = {
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> data))
+        val request = service.embed(session, FakeRequest())
 
-      request.session.get(settings.sessionKey) should beSome(data)
+        request.session.get(settings.sessionKey) should beSome(data)
+      }
     }
 
     "override an existing session" in new WithApplication with AppContext {
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> data))
-      val request = service.embed(session, FakeRequest().withSession(settings.sessionKey -> "test"))
+      override def running() = {
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> data))
+        val request = service.embed(session, FakeRequest().withSession(settings.sessionKey -> "test"))
 
-      request.session.get(settings.sessionKey) should beSome(data)
+        request.session.get(settings.sessionKey) should beSome(data)
+      }
     }
 
     "should not remove an existing session key" in new WithApplication with AppContext {
-      val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> "test"))
-      val request = service.embed(session, FakeRequest().withSession("existing" -> "test"))
+      override def running() = {
+        val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> "test"))
+        val request = service.embed(session, FakeRequest().withSession("existing" -> "test"))
 
-      request.session.get("existing") should beSome("test")
-      request.session.get(settings.sessionKey) should beSome("test")
+        request.session.get("existing") should beSome("test")
+        request.session.get(settings.sessionKey) should beSome("test")
+      }
     }
 
     "keep other request parts" in new WithApplication with AppContext {
-      val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> "test"))
-      val request = service.embed(session, FakeRequest().withCookies(Cookie("test", "test")))
+      override def running() = {
+        val session = sessionCookieBaker.deserialize(Map(settings.sessionKey -> "test"))
+        val request = service.embed(session, FakeRequest().withCookies(Cookie("test", "test")))
 
-      request.session.get(settings.sessionKey) should beSome("test")
-      request.cookies.get("test") should beSome[Cookie].which { c =>
-        c.name must be equalTo "test"
-        c.value must be equalTo "test"
+        request.session.get(settings.sessionKey) should beSome("test")
+        request.cookies.get("test") should beSome[Cookie].which { c =>
+          c.name must be equalTo "test"
+          c.value must be equalTo "test"
+        }
       }
     }
   }
 
   "The `touch` method of the service" should {
     "update the last used date if idle timeout is defined" in new WithApplication with Context {
-      settings.authenticatorIdleTimeout returns Some(1 second)
-      clock.now returns ZonedDateTime.now
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(Some(1 second))
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service.touch(authenticator) must beLeft[SessionAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo clock.now
+        service.touch(authenticator) must beLeft[SessionAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo clock.now
+        }
       }
     }
 
     "do not update the last used date if idle timeout is not defined" in new WithApplication with Context {
-      settings.authenticatorIdleTimeout returns None
-      clock.now returns ZonedDateTime.now
+      override def running() = {
+        when(settings.authenticatorIdleTimeout).thenReturn(None)
+        when(clock.now).thenReturn(ZonedDateTime.now)
 
-      service.touch(authenticator) must beRight[SessionAuthenticator].like {
-        case a =>
-          a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        service.touch(authenticator) must beRight[SessionAuthenticator].like {
+          case a =>
+            a.lastUsedDateTime must be equalTo authenticator.lastUsedDateTime
+        }
       }
     }
   }
 
   "The `update` method of the service" should {
     "update the session" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
-      val result = service.update(authenticator, Results.Ok)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator).toString())
+        val result = service.update(authenticator, Results.Ok)
 
-      status(result) must be equalTo OK
-      session(result).get(settings.sessionKey) should beSome(data)
+        status(result) must be equalTo OK
+        session(result).get(settings.sessionKey) should beSome(data)
+      }
     }
 
     "override existing authenticator from request" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
-      val result = service.update(authenticator, Results.Ok)
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
+        val result = service.update(authenticator, Results.Ok)
 
-      unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator
+        unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator
+      }
     }
 
     "non authenticator related session data" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep")
-      val result = service.update(authenticator, Results.Ok.addingToSession(
-        "result-other" -> "keep"))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep")
+        val result = service.update(authenticator, Results.Ok.addingToSession(
+          "result-other" -> "keep"))
 
-      unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator
-      session(result).get("request-other") should beSome("keep")
-      session(result).get("result-other") should beSome("keep")
+        unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator
+        session(result).get("request-other") should beSome("keep")
+        session(result).get("result-other") should beSome("keep")
+      }
     }
 
     "throws an AuthenticatorUpdateException exception if an error occurred during update" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = spy(FakeRequest())
 
-      request.session throws new RuntimeException("Cannot get session")
+      when(request.session).thenThrow(new RuntimeException("Cannot get session"))
 
       await(service.update(authenticator, Results.Ok)) must throwA[AuthenticatorUpdateException].like {
         case e =>
@@ -373,49 +424,55 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
   "The `renew` method of the service" should {
     "renew the session" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val now = ZonedDateTime.now
-      val data = authenticatorEncoder.encode(Json.toJson(authenticator.copy(
-        lastUsedDateTime = now,
-        expirationDateTime = now + settings.authenticatorExpiry)).toString())
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val now = ZonedDateTime.now
+        val data = authenticatorEncoder.encode(Json.toJson(authenticator.copy(
+          lastUsedDateTime = now,
+          expirationDateTime = now + settings.authenticatorExpiry)).toString())
 
-      settings.useFingerprinting returns false
-      clock.now returns now
+        when(settings.useFingerprinting).thenReturn(false)
+        when(clock.now).thenReturn(now)
 
-      val result = service.renew(authenticator, Results.Ok)
+        val result = service.renew(authenticator, Results.Ok)
 
-      session(result).get(settings.sessionKey) should beSome(data)
+        session(result).get(settings.sessionKey) should beSome(data)
+      }
     }
 
     "override existing authenticator from request" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
-      val now = ZonedDateTime.now
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> "existing")
+        val now = ZonedDateTime.now
 
-      settings.useFingerprinting returns false
-      clock.now returns now
+        when(settings.useFingerprinting).thenReturn(false)
+        when(clock.now).thenReturn(now)
 
-      val result = service.renew(authenticator, Results.Ok)
+        val result = service.renew(authenticator, Results.Ok)
 
-      unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator.copy(
-        lastUsedDateTime = now,
-        expirationDateTime = now + settings.authenticatorExpiry)
+        unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator.copy(
+          lastUsedDateTime = now,
+          expirationDateTime = now + settings.authenticatorExpiry)
+      }
     }
 
     "non authenticator related session data" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep")
-      val now = ZonedDateTime.now
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep")
+        val now = ZonedDateTime.now
 
-      settings.useFingerprinting returns false
-      clock.now returns now
+        when(settings.useFingerprinting).thenReturn(false)
+        when(clock.now).thenReturn(now)
 
-      val result = service.renew(authenticator, Results.Ok.addingToSession(
-        "result-other" -> "keep"))
+        val result = service.renew(authenticator, Results.Ok.addingToSession(
+          "result-other" -> "keep"))
 
-      unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator.copy(
-        lastUsedDateTime = now,
-        expirationDateTime = now + settings.authenticatorExpiry)
-      session(result).get("request-other") should beSome("keep")
-      session(result).get("result-other") should beSome("keep")
+        unserialize(session(result).get(settings.sessionKey).get, authenticatorEncoder).get must be equalTo authenticator.copy(
+          lastUsedDateTime = now,
+          expirationDateTime = now + settings.authenticatorExpiry)
+        session(result).get("request-other") should beSome("keep")
+        session(result).get("result-other") should beSome("keep")
+      }
     }
 
     "throws an AuthenticatorRenewalException exception if an error occurred during renewal" in new Context {
@@ -423,9 +480,9 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
       val now = ZonedDateTime.now
       val okResult = (_: Authenticator) => Future.successful(Results.Ok)
 
-      request.session throws new RuntimeException("Cannot get session")
-      settings.useFingerprinting returns false
-      clock.now returns now
+      when(request.session).thenThrow(new RuntimeException("Cannot get session"))
+      when(settings.useFingerprinting).thenReturn(false)
+      when(clock.now).thenReturn(now)
 
       await(service.renew(authenticator, Results.Ok)) must throwA[AuthenticatorRenewalException].like {
         case e =>
@@ -436,32 +493,38 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
 
   "The `discard` method of the service" should {
     "discard the authenticator from session" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-      val result = service.discard(authenticator, Results.Ok.withSession(
-        settings.sessionKey -> "test"))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+        val result = service.discard(authenticator, Results.Ok.withSession(
+          settings.sessionKey -> "test"))
 
-      session(result).get(settings.sessionKey) should beNone
+        session(result).get(settings.sessionKey) should beNone
+      }
     }
 
     "non authenticator related session data" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep", settings.sessionKey -> "test")
-      val result = service.discard(authenticator, Results.Ok.addingToSession(
-        "result-other" -> "keep"))
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession("request-other" -> "keep", settings.sessionKey -> "test")
+        val result = service.discard(authenticator, Results.Ok.addingToSession(
+          "result-other" -> "keep"))
 
-      session(result).get(settings.sessionKey) should beNone
-      session(result).get("request-other") should beSome("keep")
-      session(result).get("result-other") should beSome("keep")
+        session(result).get(settings.sessionKey) should beNone
+        session(result).get("request-other") should beSome("keep")
+        session(result).get("result-other") should beSome("keep")
+      }
     }
 
     "throws an AuthenticatorDiscardingException exception if an error occurred during discarding" in new WithApplication with Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = spy(FakeRequest()).withSession(settings.sessionKey -> "test")
-      val result = mock[Result]
+      override def running() = {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = spy(FakeRequest()).withSession(settings.sessionKey -> "test")
+        val result = mock[Result]
 
-      result.removingFromSession(any)(any) throws new RuntimeException("Cannot get session")
+        when(result.removingFromSession(any)(any)).thenThrow(new RuntimeException("Cannot get session"))
 
-      await(service.discard(authenticator, result)) must throwA[AuthenticatorDiscardingException].like {
-        case e =>
-          e.getMessage must startWith(DiscardError.format(ID, ""))
+        await(service.discard(authenticator, result)) must throwA[AuthenticatorDiscardingException].like {
+          case e =>
+            e.getMessage must startWith(DiscardError.format(ID, ""))
+        }
       }
     }
   }
@@ -474,7 +537,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     /**
      * The ID generator implementation.
      */
-    lazy val fingerprintGenerator = mock[FingerprintGenerator].smart
+    lazy val fingerprintGenerator = mockSmart[FingerprintGenerator]
 
     /**
      * The authenticator encoder implementation.
@@ -484,7 +547,7 @@ class SessionAuthenticatorSpec extends PlaySpecification with Mockito with NoLan
     /**
      * The clock implementation.
      */
-    lazy val clock = mock[Clock].smart
+    lazy val clock = mockSmart[Clock]
 
     /**
      * The settings.

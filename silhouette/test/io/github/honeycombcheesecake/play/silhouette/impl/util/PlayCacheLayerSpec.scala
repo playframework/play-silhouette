@@ -15,7 +15,7 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.impl.util
 
-import org.specs2.mock.Mockito
+import org.mockito.Mockito._
 import org.specs2.specification.Scope
 import play.api.cache.AsyncCacheApi
 import play.api.test.PlaySpecification
@@ -27,15 +27,15 @@ import scala.concurrent.duration.Duration
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.util.PlayCacheLayer]] class.
  */
-class PlayCacheLayerSpec extends PlaySpecification with Mockito {
+class PlayCacheLayerSpec extends PlaySpecification {
 
   "The `find` method" should {
     "return value from cache" in new Context {
-      cacheAPI.get[ZonedDateTime]("id") returns Future.successful(Some(value))
+      when(cacheAPI.get[ZonedDateTime]("id")).thenReturn(Future.successful(Some(value)))
 
       await(layer.find[ZonedDateTime]("id")) should beSome(value)
 
-      there was one(cacheAPI).get[ZonedDateTime]("id")
+      verify(cacheAPI).get[ZonedDateTime]("id")
     }
   }
 
@@ -43,7 +43,7 @@ class PlayCacheLayerSpec extends PlaySpecification with Mockito {
     "save value in cache" in new Context {
       await(layer.save("id", value))
 
-      there was one(cacheAPI).set("id", value, Duration.Inf)
+      verify(cacheAPI).set("id", value, Duration.Inf)
     }
   }
 
@@ -51,7 +51,7 @@ class PlayCacheLayerSpec extends PlaySpecification with Mockito {
     "removes value from cache" in new Context {
       await(layer.remove("id")) must beEqualTo(())
 
-      there was one(cacheAPI).remove("id")
+      verify(cacheAPI).remove("id")
     }
   }
 
@@ -63,7 +63,7 @@ class PlayCacheLayerSpec extends PlaySpecification with Mockito {
     /**
      * The cache API.
      */
-    lazy val cacheAPI = mock[AsyncCacheApi]
+    lazy val cacheAPI = mock(classOf[AsyncCacheApi])
 
     /**
      * The layer to test.

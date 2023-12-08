@@ -21,6 +21,7 @@ import io.github.honeycombcheesecake.play.silhouette.api.util.{ Credentials, Pas
 import io.github.honeycombcheesecake.play.silhouette.impl.exceptions.{ IdentityNotFoundException, InvalidPasswordException }
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.PasswordProvider._
 import play.api.test.WithApplication
+import org.mockito.Mockito._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,73 +33,85 @@ class CredentialsProviderSpec extends PasswordProviderSpec {
 
   "The `authenticate` method" should {
     "throw IdentityNotFoundException if no auth info could be found for the given credentials" in new WithApplication with Context {
-      val loginInfo = new LoginInfo(provider.id, credentials.identifier)
+      override def running() = {
+        val loginInfo = new LoginInfo(provider.id, credentials.identifier)
 
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(None)
+        when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(None))
 
-      await(provider.authenticate(credentials)) must throwA[IdentityNotFoundException].like {
-        case e => e.getMessage must beEqualTo(PasswordInfoNotFound.format(provider.id, loginInfo))
+        await(provider.authenticate(credentials)) must throwA[IdentityNotFoundException].like {
+          case e => e.getMessage must beEqualTo(PasswordInfoNotFound.format(provider.id, loginInfo))
+        }
       }
     }
 
     "throw InvalidPasswordException if password does not match" in new WithApplication with Context {
-      val passwordInfo = PasswordInfo("foo", "hashed(s3cr3t)")
-      val loginInfo = LoginInfo(provider.id, credentials.identifier)
+      override def running() = {
+        val passwordInfo = PasswordInfo("foo", "hashed(s3cr3t)")
+        val loginInfo = LoginInfo(provider.id, credentials.identifier)
 
-      fooHasher.matches(passwordInfo, credentials.password) returns false
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+        when(fooHasher.matches(passwordInfo, credentials.password)).thenReturn(false)
+        when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
-      await(provider.authenticate(credentials)) must throwA[InvalidPasswordException].like {
-        case e => e.getMessage must beEqualTo(PasswordDoesNotMatch.format(provider.id))
+        await(provider.authenticate(credentials)) must throwA[InvalidPasswordException].like {
+          case e => e.getMessage must beEqualTo(PasswordDoesNotMatch.format(provider.id))
+        }
       }
     }
 
     "throw ConfigurationException if unsupported hasher is stored" in new WithApplication with Context {
-      val passwordInfo = PasswordInfo("unknown", "hashed(s3cr3t)")
-      val loginInfo = LoginInfo(provider.id, credentials.identifier)
+      override def running() = {
+        val passwordInfo = PasswordInfo("unknown", "hashed(s3cr3t)")
+        val loginInfo = LoginInfo(provider.id, credentials.identifier)
 
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+        when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
-      await(provider.authenticate(credentials)) must throwA[ConfigurationException].like {
-        case e => e.getMessage must beEqualTo(HasherIsNotRegistered.format(provider.id, "unknown", "foo, bar"))
+        await(provider.authenticate(credentials)) must throwA[ConfigurationException].like {
+          case e => e.getMessage must beEqualTo(HasherIsNotRegistered.format(provider.id, "unknown", "foo, bar"))
+        }
       }
     }
 
     "return login info if passwords does match" in new WithApplication with Context {
-      val passwordInfo = PasswordInfo("foo", "hashed(s3cr3t)")
-      val loginInfo = LoginInfo(provider.id, credentials.identifier)
+      override def running() = {
+        val passwordInfo = PasswordInfo("foo", "hashed(s3cr3t)")
+        val loginInfo = LoginInfo(provider.id, credentials.identifier)
 
-      fooHasher.matches(passwordInfo, credentials.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
+        when(fooHasher.matches(passwordInfo, credentials.password)).thenReturn(true)
+        when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
 
-      await(provider.authenticate(credentials)) must be equalTo loginInfo
+        await(provider.authenticate(credentials)) must be equalTo loginInfo
+      }
     }
 
     "re-hash password with new hasher if hasher is deprecated" in new WithApplication with Context {
-      val passwordInfo = PasswordInfo("bar", "hashed(s3cr3t)")
-      val loginInfo = LoginInfo(provider.id, credentials.identifier)
+      override def running() = {
+        val passwordInfo = PasswordInfo("bar", "hashed(s3cr3t)")
+        val loginInfo = LoginInfo(provider.id, credentials.identifier)
 
-      fooHasher.hash(credentials.password) returns passwordInfo
-      barHasher.matches(passwordInfo, credentials.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
-      authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo) returns Future.successful(passwordInfo)
+        when(fooHasher.hash(credentials.password)).thenReturn(passwordInfo)
+        when(barHasher.matches(passwordInfo, credentials.password)).thenReturn(true)
+        when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
+        when(authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo)).thenReturn(Future.successful(passwordInfo))
 
-      await(provider.authenticate(credentials)) must be equalTo loginInfo
-      there was one(authInfoRepository).update(loginInfo, passwordInfo)
+        await(provider.authenticate(credentials)) must be equalTo loginInfo
+        verify(authInfoRepository).update(loginInfo, passwordInfo)
+      }
     }
 
     "re-hash password with new hasher if hasher is deprecated" in new WithApplication with Context {
-      val passwordInfo = PasswordInfo("foo", "hashed(s3cr3t)")
-      val loginInfo = LoginInfo(provider.id, credentials.identifier)
+      override def running() = {
+        val passwordInfo = PasswordInfo("foo", "hashed(s3cr3t)")
+        val loginInfo = LoginInfo(provider.id, credentials.identifier)
 
-      fooHasher.isDeprecated(passwordInfo) returns Some(true)
-      fooHasher.hash(credentials.password) returns passwordInfo
-      fooHasher.matches(passwordInfo, credentials.password) returns true
-      authInfoRepository.find[PasswordInfo](loginInfo) returns Future.successful(Some(passwordInfo))
-      authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo) returns Future.successful(passwordInfo)
+        when(fooHasher.isDeprecated(passwordInfo)).thenReturn(Some(true))
+        when(fooHasher.hash(credentials.password)).thenReturn(passwordInfo)
+        when(fooHasher.matches(passwordInfo, credentials.password)).thenReturn(true)
+        when(authInfoRepository.find[PasswordInfo](loginInfo)).thenReturn(Future.successful(Some(passwordInfo)))
+        when(authInfoRepository.update[PasswordInfo](loginInfo, passwordInfo)).thenReturn(Future.successful(passwordInfo))
 
-      await(provider.authenticate(credentials)) must be equalTo loginInfo
-      there was one(authInfoRepository).update(loginInfo, passwordInfo)
+        await(provider.authenticate(credentials)) must be equalTo loginInfo
+        verify(authInfoRepository).update(loginInfo, passwordInfo)
+      }
     }
   }
 

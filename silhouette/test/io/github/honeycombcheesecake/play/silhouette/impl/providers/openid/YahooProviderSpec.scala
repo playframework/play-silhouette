@@ -18,6 +18,7 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers.openid
 import io.github.honeycombcheesecake.play.silhouette.api.LoginInfo
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import play.api.test.WithApplication
+import org.mockito.Mockito._
 
 /**
  * Test case for the [[YahooProvider]] class.
@@ -26,25 +27,29 @@ class YahooProviderSpec extends OpenIDProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
-        s.copy("new-provider-url")
-      }
-      val s = provider.withSettings(overrideSettingsFunction)
+      override def running() = {
+        val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
+          s.copy("new-provider-url")
+        }
+        val s: YahooProvider = provider.withSettings(overrideSettingsFunction)
 
-      s.settings.providerURL must be equalTo "new-provider-url"
-      there was one(openIDService).withSettings(overrideSettingsFunction)
+        s.settings.providerURL must be equalTo "new-provider-url"
+        verify(openIDService).withSettings(overrideSettingsFunction)
+      }
     }
   }
 
   "The `retrieveProfile` method" should {
     "return the social profile" in new WithApplication with Context {
-      profile(provider.retrieveProfile(openIDInfo)) {
-        case p =>
-          p must be equalTo new CommonSocialProfile(
-            loginInfo = LoginInfo(provider.id, "https://me.yahoo.com/a/Xs6hPjazdrMvmbn4jhQjkjkhcasdGdsKajq9we"),
-            fullName = Some("Apollonia Vanova"),
-            email = Some("apollonia.vanova@watchmen.com"),
-            avatarURL = Some("https://s.yimg.com/dh/ap/social/profile/profile_b48.png"))
+      override def running() = {
+        profile(provider.retrieveProfile(openIDInfo)) {
+          case p =>
+            p must be equalTo new CommonSocialProfile(
+              loginInfo = LoginInfo(provider.id, "https://me.yahoo.com/a/Xs6hPjazdrMvmbn4jhQjkjkhcasdGdsKajq9we"),
+              fullName = Some("Apollonia Vanova"),
+              email = Some("apollonia.vanova@watchmen.com"),
+              avatarURL = Some("https://s.yimg.com/dh/ap/social/profile/profile_b48.png"))
+        }
       }
     }
   }
@@ -84,6 +89,6 @@ class YahooProviderSpec extends OpenIDProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new YahooProvider(httpLayer, openIDService, openIDSettings)
+    lazy val provider: YahooProvider = new YahooProvider(httpLayer, openIDService, openIDSettings)
   }
 }

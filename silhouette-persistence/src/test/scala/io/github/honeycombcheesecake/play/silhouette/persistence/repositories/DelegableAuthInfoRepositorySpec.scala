@@ -26,10 +26,9 @@ import io.github.honeycombcheesecake.play.silhouette.persistence.repositories.De
 import io.github.honeycombcheesecake.play.silhouette.test.WaitPatience
 import net.codingwell.scalaguice.ScalaModule
 import org.specs2.concurrent.ExecutionEnv
-import org.specs2.control.NoLanguageFeatures
-import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
+import org.mockito.Mockito._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -39,7 +38,7 @@ import scala.language.postfixOps
  * Test case for the [[DelegableAuthInfoRepository]] trait.
  */
 class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
-  extends Specification with Mockito with NoLanguageFeatures with WaitPatience {
+  extends Specification with WaitPatience {
 
   "The `find` method" should {
     "delegate the PasswordInfo to the correct DAO" in new Context {
@@ -48,7 +47,7 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       Await.result(passwordInfoDAO.add(loginInfo, passwordInfo), 10 seconds)
 
       service.find[PasswordInfo](loginInfo) must beSome(passwordInfo).awaitWithPatience
-      there was one(passwordInfoDAO).find(loginInfo)
+      verify(passwordInfoDAO).find(loginInfo)
     }
 
     "delegate the OAuth1Info to the correct DAO" in new Context {
@@ -57,7 +56,7 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       Await.result(oauth1InfoDAO.add(loginInfo, oauth1Info), 10 seconds)
 
       service.find[OAuth1Info](loginInfo) must beSome(oauth1Info).awaitWithPatience
-      there was one(oauth1InfoDAO).find(loginInfo)
+      verify(oauth1InfoDAO).find(loginInfo)
     }
 
     "delegate the OAuth2Info to the correct DAO" in new Context {
@@ -66,7 +65,7 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       Await.result(oauth2InfoDAO.add(loginInfo, oauth2Info), 10 seconds)
 
       service.find[OAuth2Info](loginInfo) must beSome(oauth2Info).awaitWithPatience
-      there was one(oauth2InfoDAO).find(loginInfo)
+      verify(oauth2InfoDAO).find(loginInfo)
     }
 
     "throw a ConfigurationException if an unsupported type was given" in new Context {
@@ -83,21 +82,21 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       val loginInfo = LoginInfo("credentials", "1")
 
       service.add(loginInfo, passwordInfo) must beEqualTo(passwordInfo).awaitWithPatience
-      there was one(passwordInfoDAO).add(loginInfo, passwordInfo)
+      verify(passwordInfoDAO).add(loginInfo, passwordInfo)
     }
 
     "delegate the OAuth1Info to the correct DAO" in new Context {
       val loginInfo = LoginInfo("credentials", "1")
 
       service.add(loginInfo, oauth1Info) must beEqualTo(oauth1Info).awaitWithPatience
-      there was one(oauth1InfoDAO).add(loginInfo, oauth1Info)
+      verify(oauth1InfoDAO).add(loginInfo, oauth1Info)
     }
 
     "delegate the OAuth2Info to the correct DAO" in new Context {
       val loginInfo = LoginInfo("credentials", "1")
 
       service.add(loginInfo, oauth2Info) must beEqualTo(oauth2Info).awaitWithPatience
-      there was one(oauth2InfoDAO).add(loginInfo, oauth2Info)
+      verify(oauth2InfoDAO).add(loginInfo, oauth2Info)
     }
 
     "throw a ConfigurationException if an unsupported type was given" in new Context {
@@ -114,21 +113,21 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       val loginInfo = LoginInfo("credentials", "1")
 
       service.update(loginInfo, passwordInfo) must beEqualTo(passwordInfo).awaitWithPatience
-      there was one(passwordInfoDAO).update(loginInfo, passwordInfo)
+      verify(passwordInfoDAO).update(loginInfo, passwordInfo)
     }
 
     "delegate the OAuth1Info to the correct DAO" in new Context {
       val loginInfo = LoginInfo("credentials", "1")
 
       service.update(loginInfo, oauth1Info) must beEqualTo(oauth1Info).awaitWithPatience
-      there was one(oauth1InfoDAO).update(loginInfo, oauth1Info)
+      verify(oauth1InfoDAO).update(loginInfo, oauth1Info)
     }
 
     "delegate the OAuth2Info to the correct DAO" in new Context {
       val loginInfo = LoginInfo("credentials", "1")
 
       service.update(loginInfo, oauth2Info) must beEqualTo(oauth2Info).awaitWithPatience
-      there was one(oauth2InfoDAO).update(loginInfo, oauth2Info)
+      verify(oauth2InfoDAO).update(loginInfo, oauth2Info)
     }
 
     "throw a ConfigurationException if an unsupported type was given" in new Context {
@@ -145,21 +144,21 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       val loginInfo = LoginInfo("credentials", "1")
 
       service.save(loginInfo, passwordInfo) must beEqualTo(passwordInfo).awaitWithPatience
-      there was one(passwordInfoDAO).save(loginInfo, passwordInfo)
+      verify(passwordInfoDAO).save(loginInfo, passwordInfo)
     }
 
     "delegate the OAuth1Info to the correct DAO" in new Context {
       val loginInfo = LoginInfo("credentials", "1")
 
       service.save(loginInfo, oauth1Info) must beEqualTo(oauth1Info).awaitWithPatience
-      there was one(oauth1InfoDAO).save(loginInfo, oauth1Info)
+      verify(oauth1InfoDAO).save(loginInfo, oauth1Info)
     }
 
     "delegate the OAuth2Info to the correct DAO" in new Context {
       val loginInfo = LoginInfo("credentials", "1")
 
       service.save(loginInfo, oauth2Info) must beEqualTo(oauth2Info).awaitWithPatience
-      there was one(oauth2InfoDAO).save(loginInfo, oauth2Info)
+      verify(oauth2InfoDAO).save(loginInfo, oauth2Info)
     }
 
     "throw a ConfigurationException if an unsupported type was given" in new Context {
@@ -178,7 +177,7 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       Await.result(passwordInfoDAO.add(loginInfo, passwordInfo), 10 seconds)
 
       service.remove[PasswordInfo](loginInfo) must beEqualTo(()).awaitWithPatience
-      there was one(passwordInfoDAO).remove(loginInfo)
+      verify(passwordInfoDAO).remove(loginInfo)
     }
 
     "delegate the OAuth1Info to the correct DAO" in new Context {
@@ -187,7 +186,7 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       Await.result(oauth1InfoDAO.add(loginInfo, oauth1Info), 10 seconds)
 
       service.remove[OAuth1Info](loginInfo) must beEqualTo(()).awaitWithPatience
-      there was one(oauth1InfoDAO).remove(loginInfo)
+      verify(oauth1InfoDAO).remove(loginInfo)
     }
 
     "delegate the OAuth2Info to the correct DAO" in new Context {
@@ -196,7 +195,7 @@ class DelegableAuthInfoRepositorySpec(implicit ev: ExecutionEnv)
       Await.result(oauth2InfoDAO.add(loginInfo, oauth2Info), 10 seconds)
 
       service.remove[OAuth2Info](loginInfo) must beEqualTo(()).awaitWithPatience
-      there was one(oauth2InfoDAO).remove(loginInfo)
+      verify(oauth2InfoDAO).remove(loginInfo)
     }
 
     "throw a ConfigurationException if an unsupported type was given" in new Context {

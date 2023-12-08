@@ -16,27 +16,29 @@
 package io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.services
 
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ OAuth1Info, OAuth1Settings }
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.libs.oauth.{ OAuth, RequestToken }
 import play.api.libs.ws.WSSignatureCalculator
 import play.api.test.{ PlaySpecification, WithApplication }
 import play.shaded.oauth.oauth.signpost.exception.{ OAuthException, OAuthMessageSignerException }
+import org.mockito.Mockito._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Test case for the [[PlayOAuth1Service]] class.
  */
-class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
+class PlayOAuth1ServiceSpec extends PlaySpecification {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = service.withSettings { s =>
-        s.copy("new-request-token-url")
-      }
+      override def running() = {
+        val s = service.withSettings { s =>
+          s.copy("new-request-token-url")
+        }
 
-      s.settings.requestTokenURL must be equalTo "new-request-token-url"
+        s.settings.requestTokenURL must be equalTo "new-request-token-url"
+      }
     }
   }
 
@@ -48,13 +50,13 @@ class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
 
   "The `use10a` method" should {
     "return true if the safer 1.0a specification will be used" in new Context {
-      oauth.use10a returns true
+      when(oauth.use10a).thenReturn(true)
 
       service.use10a must beTrue
     }
 
     "return false if the unsafer 1.0 specification will be used" in new Context {
-      oauth.use10a returns false
+      when(oauth.use10a).thenReturn(false)
 
       service.use10a must beFalse
     }
@@ -62,13 +64,13 @@ class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
 
   "The `retrieveRequestToken` method" should {
     "throw exception if the token couldn't be retrieved" in new Context {
-      oauth.retrieveRequestToken(settings.callbackURL) returns Left(new OAuthMessageSignerException(""))
+      when(oauth.retrieveRequestToken(settings.callbackURL)).thenReturn(Left(new OAuthMessageSignerException("")))
 
       await(service.retrieveRequestToken(settings.callbackURL)) must throwA[OAuthException]
     }
 
     "return request token" in new Context {
-      oauth.retrieveRequestToken(settings.callbackURL) returns Right(token)
+      when(oauth.retrieveRequestToken(settings.callbackURL)).thenReturn(Right(token))
 
       await(service.retrieveRequestToken(settings.callbackURL)) must be equalTo info
     }
@@ -76,13 +78,13 @@ class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
 
   "The `retrieveAccessToken` method" should {
     "throw Exception if the token couldn't be retrieved" in new Context {
-      oauth.retrieveAccessToken(token, "") returns Left(new OAuthMessageSignerException(""))
+      when(oauth.retrieveAccessToken(token, "")).thenReturn(Left(new OAuthMessageSignerException("")))
 
       await(service.retrieveAccessToken(info, "")) must throwA[OAuthException]
     }
 
     "return access token" in new Context {
-      oauth.retrieveAccessToken(token, "") returns Right(token)
+      when(oauth.retrieveAccessToken(token, "")).thenReturn(Right(token))
 
       await(service.retrieveAccessToken(info, "")) must be equalTo info
     }
@@ -90,7 +92,7 @@ class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
 
   "The `redirectUrl` method" should {
     "return the redirect Url" in new Context {
-      oauth.redirectUrl("token") returns "http://redirect.url"
+      when(oauth.redirectUrl("token")).thenReturn("http://redirect.url")
 
       service.redirectUrl("token") must be equalTo "http://redirect.url"
     }
@@ -98,7 +100,7 @@ class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
 
   "The `sign` method" should {
     "return the signature calculator" in new Context {
-      oauth.info returns PlayOAuth1Service.serviceInfo(settings)
+      when(oauth.info).thenReturn(PlayOAuth1Service.serviceInfo(settings))
 
       service.sign(info) must beAnInstanceOf[WSSignatureCalculator]
     }
@@ -133,7 +135,7 @@ class PlayOAuth1ServiceSpec extends PlaySpecification with Mockito {
     /**
      * A mock of the Play Framework OAuth implementation.
      */
-    lazy val oauth: OAuth = mock[OAuth]
+    lazy val oauth: OAuth = mock(classOf[OAuth])
 
     /**
      * The service to test.

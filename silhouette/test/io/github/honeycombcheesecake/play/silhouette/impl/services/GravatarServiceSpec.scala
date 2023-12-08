@@ -17,9 +17,11 @@ package io.github.honeycombcheesecake.play.silhouette.impl.services
 
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ MockHTTPLayer, MockWSRequest }
 import io.github.honeycombcheesecake.play.silhouette.impl.services.GravatarService._
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.test.PlaySpecification
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
+import test.Helper.mock
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -27,7 +29,7 @@ import scala.concurrent.Future
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.services.GravatarService]] class.
  */
-class GravatarServiceSpec extends PlaySpecification with Mockito {
+class GravatarServiceSpec extends PlaySpecification {
 
   "The `retrieveURL` method" should {
     "return None if email is empty" in new Context {
@@ -38,9 +40,9 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status returns 404
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(wsResponse.status).thenReturn(404)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL(email)) should beNone
     }
@@ -49,9 +51,9 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status returns 404
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(wsResponse.status).thenReturn(404)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL(email)) should beNone
     }
@@ -60,9 +62,9 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status throws new RuntimeException("Timeout error")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(wsResponse.status).thenThrow(new RuntimeException("Timeout error"))
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL(email)) should beNone
     }
@@ -71,9 +73,9 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status returns 200
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(wsResponse.status).thenReturn(200)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL(email)) should beSome(SecureURL.format(hash, "?d=404"))
     }
@@ -82,10 +84,10 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      settings.secure returns false
-      wsResponse.status returns 200
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(settings.secure).thenReturn(false)
+      when(wsResponse.status).thenReturn(200)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL(email)) should beSome(InsecureURL.format(hash, "?d=404"))
     }
@@ -94,10 +96,10 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      settings.params returns Map("d" -> "http://example.com/images/avatar.jpg", "s" -> "400")
-      wsResponse.status returns 200
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(settings.params).thenReturn(Map("d" -> "http://example.com/images/avatar.jpg", "s" -> "400"))
+      when(wsResponse.status).thenReturn(200)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL(email)) should beSome(
         SecureURL.format(hash, "?d=http%3A%2F%2Fexample.com%2Fimages%2Favatar.jpg&s=400"))
@@ -107,9 +109,9 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
       val wsRequest = mock[MockWSRequest]
       val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status returns 200
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(any) returns wsRequest
+      when(wsResponse.status).thenReturn(200)
+      when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+      when(httpLayer.url(any)).thenReturn(wsRequest)
 
       await(service.retrieveURL("123test@test.com")) should beSome(
         SecureURL.format("0d77aed6b4c5857473c9a04c2017f8b8", "?d=404"))
@@ -126,7 +128,7 @@ class GravatarServiceSpec extends PlaySpecification with Mockito {
      */
     val httpLayer = {
       val m = mock[MockHTTPLayer]
-      m.executionContext returns global
+      when(m.executionContext).thenReturn(global)
       m
     }
 

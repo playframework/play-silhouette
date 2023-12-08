@@ -25,10 +25,12 @@ import io.github.honeycombcheesecake.play.silhouette.api.{ Authenticator, Expira
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.SessionAuthenticatorService._
 import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc._
+import play.api.mvc.SessionCookieBaker
 import play.api.mvc.request.{ Cell, RequestAttrKey }
 
 import java.time.ZonedDateTime
 import scala.concurrent.duration._
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
 
@@ -214,7 +216,7 @@ class SessionAuthenticatorService(
       case None => session
     }
 
-    request.withAttrs(request.attrs.updated(RequestAttrKey.Session.bindValue(Cell(s))))
+    request.withAttrs(request.attrs.updated(RequestAttrKey.Session, Cell(s)))
   }
 
   /**

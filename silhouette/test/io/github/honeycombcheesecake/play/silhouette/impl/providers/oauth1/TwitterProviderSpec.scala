@@ -22,7 +22,10 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.SocialProfil
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth1.TwitterProvider._
 import play.api.test.WithApplication
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
 import test.Helper
+import test.Helper.mock
 
 import scala.concurrent.Future
 
@@ -33,91 +36,103 @@ class TwitterProviderSpec extends OAuth1ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val overrideSettingsFunction: OAuth1Settings => OAuth1Settings = { s =>
-        s.copy("new-request-token-url")
-      }
-      val s = provider.withSettings(overrideSettingsFunction)
+      override def running() = {
+        val overrideSettingsFunction: OAuth1Settings => OAuth1Settings = { s =>
+          s.copy("new-request-token-url")
+        }
+        val s: TwitterProvider = provider.withSettings(overrideSettingsFunction)
 
-      s.settings.requestTokenURL must be equalTo "new-request-token-url"
-      there was one(oAuthService).withSettings(overrideSettingsFunction)
+        s.settings.requestTokenURL must be equalTo "new-request-token-url"
+        verify(oAuthService).withSettings(overrideSettingsFunction)
+      }
     }
   }
 
   "The `retrieveProfile` method" should {
     "fail with ProfileRetrievalException if API returns error" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/twitter.error.json")
-      httpLayer.url(API) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/twitter.error.json"))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
-        case e => e.getMessage must equalTo(SpecifiedProfileError.format(
-          provider.id,
-          215,
-          Some("Bad Authentication data")))
+        failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
+          case e => e.getMessage must equalTo(SpecifiedProfileError.format(
+            provider.id,
+            215,
+            Some("Bad Authentication data")))
+        }
       }
     }
 
     "fail with ProfileRetrievalException if an unexpected error occurred" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json throws new RuntimeException("")
-      httpLayer.url(API) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenThrow(new RuntimeException(""))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
-        case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
+        failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo)) {
+          case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
+        }
       }
     }
 
     "use the overridden API URL" in new WithApplication with Context {
-      val url = "https://custom.api.url"
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      oAuthSettings.apiURL returns Some(url)
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/twitter.with.email.json")
-      httpLayer.url(url) returns wsRequest
+      override def running() = {
+        val url = "https://custom.api.url"
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(oAuthSettings.apiURL).thenReturn(Some(url))
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/twitter.with.email.json"))
+        when(httpLayer.url(url)).thenReturn(wsRequest)
 
-      await(provider.retrieveProfile(oAuthInfo))
+        await(provider.retrieveProfile(oAuthInfo))
 
-      there was one(httpLayer).url(url)
+        verify(httpLayer).url(url)
+      }
     }
 
     "return the social profile" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/twitter.success.json")
-      httpLayer.url(API) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/twitter.success.json"))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      profile(provider.retrieveProfile(oAuthInfo)) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "6253282"),
-          fullName = Some("Apollonia Vanova"),
-          avatarURL = Some("https://pbs.twimg.com/profile_images/1209905677/appolonia_.jpg"))
+        profile(provider.retrieveProfile(oAuthInfo)) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "6253282"),
+            fullName = Some("Apollonia Vanova"),
+            avatarURL = Some("https://pbs.twimg.com/profile_images/1209905677/appolonia_.jpg"))
+        }
       }
     }
 
     "return the social profile with email" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsRequest.sign(any) returns wsRequest
-      wsRequest.get() returns Future.successful(wsResponse)
-      wsResponse.json returns Helper.loadJson("providers/oauth1/twitter.with.email.json")
-      httpLayer.url(API) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsRequest.sign(any)).thenReturn(wsRequest)
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth1/twitter.with.email.json"))
+        when(httpLayer.url(API)).thenReturn(wsRequest)
 
-      profile(provider.retrieveProfile(oAuthInfo)) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "6253282"),
-          fullName = Some("Apollonia Vanova"),
-          email = Some("apollonia.vanova@watchmen.com"),
-          avatarURL = Some("https://pbs.twimg.com/profile_images/1209905677/appolonia_.jpg"))
+        profile(provider.retrieveProfile(oAuthInfo)) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "6253282"),
+            fullName = Some("Apollonia Vanova"),
+            email = Some("apollonia.vanova@watchmen.com"),
+            avatarURL = Some("https://pbs.twimg.com/profile_images/1209905677/appolonia_.jpg"))
+        }
       }
     }
   }
@@ -137,7 +152,7 @@ class TwitterProviderSpec extends OAuth1ProviderSpec {
     /**
      * The OAuth1 settings.
      */
-    override lazy val oAuthSettings = spy(OAuth1Settings(
+    override lazy val oAuthSettings = org.mockito.Mockito.spy(OAuth1Settings(
       requestTokenURL = "https://twitter.com/oauth/request_token",
       accessTokenURL = "https://twitter.com/oauth/access_token",
       authorizationURL = "https://twitter.com/oauth/authenticate",
@@ -148,6 +163,6 @@ class TwitterProviderSpec extends OAuth1ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new TwitterProvider(httpLayer, oAuthService, oAuthTokenSecretProvider, oAuthSettings)
+    lazy val provider: TwitterProvider = new TwitterProvider(httpLayer, oAuthService, oAuthTokenSecretProvider, oAuthSettings)
   }
 }

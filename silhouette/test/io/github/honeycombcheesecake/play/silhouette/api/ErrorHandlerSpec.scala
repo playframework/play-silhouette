@@ -30,125 +30,173 @@ class ErrorHandlerSpec extends PlaySpecification {
 
   "The `DefaultNotAuthenticatedErrorHandler.notAuthenticated` method" should {
     "return an HTML response for an HTML request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(HTML),
-        expectedStatus = UNAUTHORIZED,
-        expectedContentType = HTML,
-        expectedResponseFragment = "<html>",
-        expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(HTML),
+          expectedStatus = UNAUTHORIZED,
+          expectedContentType = HTML,
+          expectedResponseFragment = "<html>",
+          expectedMessage = "silhouette.not.authenticated",
+          f = {
+            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+          })
+      }
     }
 
     "return a JSON response for a JSON request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(JSON),
-        expectedStatus = UNAUTHORIZED,
-        expectedContentType = JSON,
-        expectedResponseFragment = "\"success\":false",
-        expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(JSON),
+          expectedStatus = UNAUTHORIZED,
+          expectedContentType = JSON,
+          expectedResponseFragment = "\"success\":false",
+          expectedMessage = "silhouette.not.authenticated",
+          f = {
+            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+          })
+      }
     }
 
     "return a XML response for a XML request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(XML),
-        expectedStatus = UNAUTHORIZED,
-        expectedContentType = XML,
-        expectedResponseFragment = "<success>false</success>",
-        expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(XML),
+          expectedStatus = UNAUTHORIZED,
+          expectedContentType = XML,
+          expectedResponseFragment = "<success>false</success>",
+          expectedMessage = "silhouette.not.authenticated",
+          f = {
+            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+          })
+      }
     }
 
     "return a plain text response for a plain text request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(TEXT),
-        expectedStatus = UNAUTHORIZED,
-        expectedContentType = TEXT,
-        expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
-        expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(TEXT),
+          expectedStatus = UNAUTHORIZED,
+          expectedContentType = TEXT,
+          expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
+          expectedMessage = "silhouette.not.authenticated",
+          f = {
+            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+          })
+      }
     }
 
     "return a plain text response for other requests" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(BINARY),
-        expectedStatus = UNAUTHORIZED,
-        expectedContentType = TEXT,
-        expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
-        expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(BINARY),
+          expectedStatus = UNAUTHORIZED,
+          expectedContentType = TEXT,
+          expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
+          expectedMessage = "silhouette.not.authenticated",
+          f = {
+            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+          })
+      }
     }
 
     "return an HTML response for a request without an Accept header" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = None,
-        expectedStatus = UNAUTHORIZED,
-        expectedContentType = HTML,
-        expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
-        expectedMessage = "silhouette.not.authenticated",
-        f = { r: RequestHeader => notAuthenticated.onNotAuthenticated(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = None,
+          expectedStatus = UNAUTHORIZED,
+          expectedContentType = HTML,
+          expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
+          expectedMessage = "silhouette.not.authenticated",
+          f = {
+            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+          })
+      }
     }
   }
 
   "The `DefaultNotAuthorizedErrorHandler.onNotAuthorized` method" should {
     "return an HTML response for an HTML request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(HTML),
-        expectedStatus = FORBIDDEN,
-        expectedContentType = HTML,
-        expectedResponseFragment = "<html>",
-        expectedMessage = "silhouette.not.authorized",
-        f = { r: RequestHeader => notAuthorized.onNotAuthorized(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(HTML),
+          expectedStatus = FORBIDDEN,
+          expectedContentType = HTML,
+          expectedResponseFragment = "<html>",
+          expectedMessage = "silhouette.not.authorized",
+          f = {
+            notAuthorized.onNotAuthorized(_: RequestHeader)
+          })
+      }
     }
 
     "return a JSON response for a JSON request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(JSON),
-        expectedStatus = FORBIDDEN,
-        expectedContentType = JSON,
-        expectedResponseFragment = "\"success\":false",
-        expectedMessage = "silhouette.not.authorized",
-        f = { r: RequestHeader => notAuthorized.onNotAuthorized(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(JSON),
+          expectedStatus = FORBIDDEN,
+          expectedContentType = JSON,
+          expectedResponseFragment = "\"success\":false",
+          expectedMessage = "silhouette.not.authorized",
+          f = {
+            notAuthorized.onNotAuthorized(_: RequestHeader)
+          })
+      }
     }
 
     "return a XML response for a XML request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(XML),
-        expectedStatus = FORBIDDEN,
-        expectedContentType = XML,
-        expectedResponseFragment = "<success>false</success>",
-        expectedMessage = "silhouette.not.authorized",
-        f = { r: RequestHeader => notAuthorized.onNotAuthorized(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(XML),
+          expectedStatus = FORBIDDEN,
+          expectedContentType = XML,
+          expectedResponseFragment = "<success>false</success>",
+          expectedMessage = "silhouette.not.authorized",
+          f = {
+            notAuthorized.onNotAuthorized(_: RequestHeader)
+          })
+      }
     }
 
     "return a plain text response for a plain text request" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(TEXT),
-        expectedStatus = FORBIDDEN,
-        expectedContentType = TEXT,
-        expectedResponseFragment = messagesApi("silhouette.not.authorized"),
-        expectedMessage = "silhouette.not.authorized",
-        f = { r: RequestHeader => notAuthorized.onNotAuthorized(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(TEXT),
+          expectedStatus = FORBIDDEN,
+          expectedContentType = TEXT,
+          expectedResponseFragment = messagesApi("silhouette.not.authorized"),
+          expectedMessage = "silhouette.not.authorized",
+          f = {
+            notAuthorized.onNotAuthorized(_: RequestHeader)
+          })
+      }
     }
 
     "return a plain text response for other requests" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = Some(BINARY),
-        expectedStatus = FORBIDDEN,
-        expectedContentType = TEXT,
-        expectedResponseFragment = messagesApi("silhouette.not.authorized"),
-        expectedMessage = "silhouette.not.authorized",
-        f = { r: RequestHeader => notAuthorized.onNotAuthorized(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = Some(BINARY),
+          expectedStatus = FORBIDDEN,
+          expectedContentType = TEXT,
+          expectedResponseFragment = messagesApi("silhouette.not.authorized"),
+          expectedMessage = "silhouette.not.authorized",
+          f = {
+            notAuthorized.onNotAuthorized(_: RequestHeader)
+          })
+      }
     }
 
     "return an HTML response for a request without an Accept header" in new WithApplication with Context {
-      testResponse(
-        acceptedMediaType = None,
-        expectedStatus = FORBIDDEN,
-        expectedContentType = HTML,
-        expectedResponseFragment = messagesApi("silhouette.not.authorized"),
-        expectedMessage = "silhouette.not.authorized",
-        f = { r: RequestHeader => notAuthorized.onNotAuthorized(r) })
+      override def running() = {
+        testResponse(
+          acceptedMediaType = None,
+          expectedStatus = FORBIDDEN,
+          expectedContentType = HTML,
+          expectedResponseFragment = messagesApi("silhouette.not.authorized"),
+          expectedMessage = "silhouette.not.authorized",
+          f = {
+            notAuthorized.onNotAuthorized(_: RequestHeader)
+          })
+      }
     }
   }
 
@@ -193,7 +241,7 @@ class ErrorHandlerSpec extends PlaySpecification {
       expectedMessage: String,
       f: RequestHeader => Future[Result]) = {
       implicit val request = acceptedMediaType match {
-        case Some(mediaType) => FakeRequest().withHeaders(ACCEPT -> mediaType)
+        case Some(mediaType) => FakeRequest().withHeaders((ACCEPT, mediaType))
         case None => FakeRequest()
       }
 

@@ -18,6 +18,7 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers.openid
 import io.github.honeycombcheesecake.play.silhouette.api.LoginInfo
 import io.github.honeycombcheesecake.play.silhouette.impl.providers._
 import play.api.test.WithApplication
+import org.mockito.Mockito._
 
 /**
  * Test case for the [[SteamProvider]] class.
@@ -26,21 +27,25 @@ class SteamProviderSpec extends OpenIDProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
-        s.copy("new-provider-url")
-      }
-      val s = provider.withSettings(overrideSettingsFunction)
+      override def running() = {
+        val overrideSettingsFunction: OpenIDSettings => OpenIDSettings = { s =>
+          s.copy("new-provider-url")
+        }
+        val s: SteamProvider = provider.withSettings(overrideSettingsFunction)
 
-      s.settings.providerURL must be equalTo "new-provider-url"
-      there was one(openIDService).withSettings(overrideSettingsFunction)
+        s.settings.providerURL must be equalTo "new-provider-url"
+        verify(openIDService).withSettings(overrideSettingsFunction)
+      }
     }
   }
 
   "The `retrieveProfile` method" should {
     "return the social profile" in new WithApplication with Context {
-      profile(provider.retrieveProfile(openIDInfo)) {
-        case p => p must be equalTo new CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "http://steamcommunity.com/openid/id/16261495063738643"))
+      override def running() = {
+        profile(provider.retrieveProfile(openIDInfo)) {
+          case p => p must be equalTo new CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "http://steamcommunity.com/openid/id/16261495063738643"))
+        }
       }
     }
   }
@@ -73,6 +78,6 @@ class SteamProviderSpec extends OpenIDProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new SteamProvider(httpLayer, openIDService, openIDSettings)
+    lazy val provider: SteamProvider = new SteamProvider(httpLayer, openIDService, openIDSettings)
   }
 }

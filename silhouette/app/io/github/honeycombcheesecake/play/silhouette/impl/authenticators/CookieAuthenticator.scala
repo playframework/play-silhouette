@@ -30,10 +30,12 @@ import io.github.honeycombcheesecake.play.silhouette.api.util._
 import io.github.honeycombcheesecake.play.silhouette.impl.authenticators.CookieAuthenticatorService._
 import play.api.libs.json.{ Json, OFormat }
 import play.api.mvc._
+import play.api.mvc.{ Cookie, CookieHeaderEncoding }
 import play.api.mvc.request.{ Cell, RequestAttrKey }
 
 import java.time.ZonedDateTime
 import scala.concurrent.duration._
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
 
@@ -280,7 +282,7 @@ class CookieAuthenticatorService(
     val combinedCookies = filteredCookies :+ cookie
     val cookies = Cookies(combinedCookies)
 
-    request.withAttrs(request.attrs.updated(RequestAttrKey.Cookies.bindValue(Cell(cookies))))
+    request.withAttrs(request.attrs.updated(RequestAttrKey.Cookies, Cell(cookies)))
   }
 
   /**

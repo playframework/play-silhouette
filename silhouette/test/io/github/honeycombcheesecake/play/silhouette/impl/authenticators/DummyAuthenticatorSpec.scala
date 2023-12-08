@@ -17,7 +17,6 @@ package io.github.honeycombcheesecake.play.silhouette.impl.authenticators
 
 import io.github.honeycombcheesecake.play.silhouette.api.LoginInfo
 import io.github.honeycombcheesecake.play.silhouette.api.services.AuthenticatorResult
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.mvc.{ AnyContentAsEmpty, Results }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
@@ -27,7 +26,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.authenticators.DummyAuthenticator]].
  */
-class DummyAuthenticatorSpec extends PlaySpecification with Mockito {
+class DummyAuthenticatorSpec extends PlaySpecification {
 
   "The `isValid` method of the authenticator" should {
     "return true" in new Context {
@@ -78,9 +77,11 @@ class DummyAuthenticatorSpec extends PlaySpecification with Mockito {
 
   "The `touch` method of the service" should {
     "not update the authenticator" in new WithApplication with Context {
-      service.touch(authenticator) must beRight[DummyAuthenticator].like {
-        case a =>
-          a.loginInfo must be equalTo loginInfo
+      override def running() = {
+        service.touch(authenticator) must beRight[DummyAuthenticator].like {
+          case a =>
+            a.loginInfo must be equalTo loginInfo
+        }
       }
     }
   }

@@ -17,7 +17,8 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers
 
 import io.github.honeycombcheesecake.play.silhouette.api.util.{ Credentials, PasswordInfo }
 import com.warrenstrange.googleauth.GoogleAuthenticator
-import org.specs2.mock.Mockito
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers.any
 import play.api.test.WithApplication
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,58 +26,76 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.impl.providers.GoogleTotpProvider#GoogleTOTPProvider]] class.
  */
-class GoogleTotpProviderSpec extends PasswordProviderSpec with Mockito {
+class GoogleTotpProviderSpec extends PasswordProviderSpec {
   "The `authenticate` with verification code method" should {
     "return None when the sharedKey is null or empty" in new WithApplication with Context {
-      await(provider.authenticate(null.asInstanceOf[String], testVerificationCode)) should be(None)
-      await(provider.authenticate("", testVerificationCode)) should be(None)
+      override def running() = {
+        await(provider.authenticate(null.asInstanceOf[String], testVerificationCode)) should be(None)
+        await(provider.authenticate("", testVerificationCode)) should be(None)
+      }
     }
 
     "return None when the verification code is null or empty" in new WithApplication with Context {
-      await(provider.authenticate(testSharedKey, null)) should be(None)
-      await(provider.authenticate(testSharedKey, "")) should be(None)
+      override def running() = {
+        await(provider.authenticate(testSharedKey, null)) should be(None)
+        await(provider.authenticate(testSharedKey, "")) should be(None)
+      }
     }
 
     "return None when the verification code isn't a number" in new WithApplication with Context {
-      await(provider.authenticate(testSharedKey, testWrongVerificationCode)) should be(None)
+      override def running() = {
+        await(provider.authenticate(testSharedKey, testWrongVerificationCode)) should be(None)
+      }
     }
 
     "return valid `Some(TotpInfo)` when the verification code is correct" in new WithApplication with Context {
-      val googleAuthenticator = new GoogleAuthenticator()
-      val validVerificationCode = googleAuthenticator.getTotpPassword(testSharedKey)
-      await(provider.authenticate(testSharedKey, validVerificationCode.toString)) should not be empty
+      override def running() = {
+        val googleAuthenticator = new GoogleAuthenticator()
+        val validVerificationCode = googleAuthenticator.getTotpPassword(testSharedKey)
+        await(provider.authenticate(testSharedKey, validVerificationCode.toString)) should not be None
+      }
     }
   }
 
   "The `createCredentials` method" should {
     "return the correct TotpCredentials shared key" in new WithApplication with Context {
-      val result = provider.createCredentials(credentials.identifier)
-      result.totpInfo.sharedKey must not be ""
-      result.totpInfo.scratchCodes must not be empty
-      result.qrUrl must not be ""
+      override def running() = {
+        val result = provider.createCredentials(credentials.identifier)
+        result.totpInfo.sharedKey.nonEmpty must beTrue
+        result.totpInfo.scratchCodes.nonEmpty must beTrue
+        result.qrUrl.nonEmpty must beTrue
+      }
     }
   }
 
   "The `authenticate` with verification code method" should {
     "throw NullPointerException when the input totpInfo is null" in new WithApplication with Context {
-      await(provider.authenticate(null.asInstanceOf[GoogleTotpInfo], testWrongVerificationCode)) must throwA[NullPointerException]
+      override def running() = {
+        await(provider.authenticate(null.asInstanceOf[GoogleTotpInfo], testWrongVerificationCode)) must throwA[NullPointerException]
+      }
     }
 
     "return throw NullPointerException when the plain scratch code is null" in new WithApplication with Context {
-      val result = provider.createCredentials(credentials.identifier)
-      await(provider.authenticate(result.totpInfo, null.asInstanceOf[String])) must throwA[NullPointerException]
+      override def running() = {
+        val result = provider.createCredentials(credentials.identifier)
+        await(provider.authenticate(result.totpInfo, null.asInstanceOf[String])) must throwA[NullPointerException]
+      }
     }
 
     "return None when the plain scratch code is empty" in new WithApplication with Context {
-      val result = provider.createCredentials(credentials.identifier)
-      await(provider.authenticate(result.totpInfo, "")) should be(None)
+      override def running() = {
+        val result = provider.createCredentials(credentials.identifier)
+        await(provider.authenticate(result.totpInfo, "")) should be(None)
+      }
     }
 
     "return Some(PasswordInfo,TotpInfo) when the plain scratch code is valid" in new WithApplication with Context {
-      fooHasher.hash(any()) returns testPasswordInfo
-      barHasher.matches(testPasswordInfo, testScratchCode) returns true
-      val result = provider.createCredentials(credentials.identifier)
-      await(provider.authenticate(result.totpInfo, testScratchCode)) should not be empty
+      override def running() = {
+        when(fooHasher.hash(any())).thenReturn(testPasswordInfo)
+        when(barHasher.matches(testPasswordInfo, testScratchCode)).thenReturn(true)
+        val result = provider.createCredentials(credentials.identifier)
+        await(provider.authenticate(result.totpInfo, testScratchCode)) should not be None
+      }
     }
   }
 

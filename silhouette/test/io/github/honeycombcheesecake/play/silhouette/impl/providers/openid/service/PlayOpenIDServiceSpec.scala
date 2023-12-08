@@ -2,20 +2,22 @@ package io.github.honeycombcheesecake.play.silhouette.impl.providers.openid.serv
 
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.OpenIDSettings
 import io.github.honeycombcheesecake.play.silhouette.impl.providers.openid.services.PlayOpenIDService
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
+import org.mockito.Mockito.mock
 import play.api.libs.openid.OpenIdClient
 import play.api.test.{ PlaySpecification, WithApplication }
 
-class PlayOpenIDServiceSpec extends PlaySpecification with Mockito {
+class PlayOpenIDServiceSpec extends PlaySpecification {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = service.withSettings { s =>
-        s.copy("new-provider-url")
-      }
+      override def running() = {
+        val s = service.withSettings { s =>
+          s.copy("new-provider-url")
+        }
 
-      s.settings.providerURL must be equalTo "new-provider-url"
+        s.settings.providerURL must be equalTo "new-provider-url"
+      }
     }
   }
 
@@ -35,7 +37,7 @@ class PlayOpenIDServiceSpec extends PlaySpecification with Mockito {
         "image" -> "http://axschema.org/media/image/default"),
       realm = Some("http://localhost:9000"))
 
-    val service = new PlayOpenIDService(mock[OpenIdClient], openIDSettings)
+    lazy val service = new PlayOpenIDService(mock(classOf[OpenIdClient]), openIDSettings)
   }
 
 }

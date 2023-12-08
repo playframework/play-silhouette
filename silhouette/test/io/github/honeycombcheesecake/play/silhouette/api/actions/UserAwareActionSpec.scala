@@ -15,21 +15,25 @@
  */
 package io.github.honeycombcheesecake.play.silhouette.api.actions
 
+import com.google.inject.AbstractModule
+
 import javax.inject.Inject
 
 import io.github.honeycombcheesecake.play.silhouette.api._
 import io.github.honeycombcheesecake.play.silhouette.api.actions.UserAwareActionSpec._
 import io.github.honeycombcheesecake.play.silhouette.api.services.{ AuthenticatorResult, AuthenticatorService, IdentityService }
 import net.codingwell.scalaguice.ScalaModule
-import org.specs2.control.NoLanguageFeatures
 import org.specs2.matcher.JsonMatchers
-import org.specs2.mock.Mockito
 import org.specs2.specification.Scope
 import play.api.i18n.{ Lang, Langs, MessagesApi }
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.guice.GuiceableModule
 import play.api.libs.json.Json
 import play.api.mvc.{ ControllerComponents, _ }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers._
+import test.Helper.mock
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -37,217 +41,241 @@ import scala.concurrent.Future
 /**
  * Test case for the [[io.github.honeycombcheesecake.play.silhouette.api.actions.UserAwareAction]].
  */
-class UserAwareActionSpec extends PlaySpecification with Mockito with JsonMatchers with NoLanguageFeatures {
+class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
 
   "The `UserAwareAction` action" should {
     "invoke action without identity and authenticator if no authenticator could be found" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(None)
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
 
-        val result = controller.defaultAction(request)
+          val result = controller.defaultAction(request)
 
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("without.identity.and.authenticator"))
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("without.identity.and.authenticator"))
+        }
       }
     }
 
     "invoke action without identity and authenticator if invalid authenticator was found" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator.copy(isValid = false)))
-        env.authenticatorService.discard(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("without.identity.and.authenticator"))
+          verify(env.authenticatorService).discard(any(), any())(any())
         }
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("without.identity.and.authenticator"))
-        there was one(env.authenticatorService).discard(any(), any())(any())
       }
     }
 
     "invoke action with valid authenticator if no identity could be found" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Left(authenticator)
-        env.authenticatorService.update(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("without.identity.and.with.authenticator"))
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(None)
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("without.identity.and.with.authenticator"))
-        there was one(env.authenticatorService).touch(any())
-        there was one(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "invoke action with authenticator and identity" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Left(authenticator)
-        env.authenticatorService.update(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("with.identity.and.authenticator"))
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("with.identity.and.authenticator"))
-        there was one(env.authenticatorService).touch(any())
-        there was one(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "use next request provider in the chain if first isn't responsible" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        tokenRequestProvider.authenticate(any()) returns Future.successful(None)
-        basicAuthRequestProvider.authenticate(any()) returns Future.successful(Some(identity.loginInfo))
-        env.authenticatorService.retrieve(any()) returns Future.successful(None)
-        env.authenticatorService.create(any())(any()) returns Future.successful(authenticator)
-        env.authenticatorService.init(any())(any()) answers { p: Any => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
-        env.authenticatorService.embed(any(), any[Result]())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(None))
+          when(basicAuthRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
+          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain("with.identity.and.authenticator")
+          verify(env.authenticatorService).create(any())(any())
+          verify(env.authenticatorService).init(any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain("with.identity.and.authenticator")
-        there was one(env.authenticatorService).create(any())(any())
-        there was one(env.authenticatorService).init(any())(any())
       }
     }
 
     "update an initialized authenticator if it was touched" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Left(authenticator)
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-        env.authenticatorService.update(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain("with.identity.and.authenticator")
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain("with.identity.and.authenticator")
-        there was one(env.authenticatorService).touch(any())
-        there was one(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "do not update an initialized authenticator if it was not touched" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Right(authenticator)
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Right(authenticator))
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
-        val result = controller.defaultAction(request)
+          val result = controller.defaultAction(request)
 
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("with.identity.and.authenticator"))
-        there was one(env.authenticatorService).touch(any())
-        there was no(env.authenticatorService).update(any(), any())(any())
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("with.identity.and.authenticator"))
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService, never()).update(any(), any())(any())
+        }
       }
     }
 
     "init an uninitialized authenticator" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        tokenRequestProvider.authenticate(any()) returns Future.successful(Some(identity.loginInfo))
-        env.authenticatorService.retrieve(any()) returns Future.successful(None)
-        env.authenticatorService.create(any())(any()) returns Future.successful(authenticator)
-        env.authenticatorService.init(any())(any()) answers { p: Any => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
-        env.authenticatorService.embed(any(), any[Result]())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
+          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.defaultAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain("with.identity.and.authenticator")
+          verify(env.authenticatorService).create(any())(any())
+          verify(env.authenticatorService).init(any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.defaultAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain("with.identity.and.authenticator")
-        there was one(env.authenticatorService).create(any())(any())
-        there was one(env.authenticatorService).init(any())(any())
       }
     }
 
     "renew an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Left(authenticator)
-        env.authenticatorService.renew(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.renewAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("renewed"))
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).renew(any(), any())(any())
+          verify(env.authenticatorService, never()).update(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.renewAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("renewed"))
-        there was one(env.authenticatorService).touch(any())
-        there was one(env.authenticatorService).renew(any(), any())(any())
-        there was no(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "renew an uninitialized authenticator" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        tokenRequestProvider.authenticate(any()) returns Future.successful(Some(identity.loginInfo))
-        env.authenticatorService.retrieve(any()) returns Future.successful(None)
-        env.authenticatorService.create(any())(any()) returns Future.successful(authenticator)
-        env.authenticatorService.renew(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.renewAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain("renewed")
+          verify(env.authenticatorService).create(any())(any())
+          verify(env.authenticatorService).renew(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.renewAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain("renewed")
-        there was one(env.authenticatorService).create(any())(any())
-        there was one(env.authenticatorService).renew(any(), any())(any())
       }
     }
 
     "discard an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Left(authenticator)
-        env.authenticatorService.discard(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.discardAction(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must contain(messagesApi("discarded"))
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).discard(any(), any())(any())
+          verify(env.authenticatorService, never()).update(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.discardAction(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must contain(messagesApi("discarded"))
-        there was one(env.authenticatorService).touch(any())
-        there was one(env.authenticatorService).discard(any(), any())(any())
-        there was no(env.authenticatorService).update(any(), any())(any())
       }
     }
 
     "discard an uninitialized authenticator" in new InjectorContext with WithRequestProvider {
       new WithApplication(app) with Context {
-        tokenRequestProvider.authenticate(any()) returns Future.successful(Some(identity.loginInfo))
-        env.authenticatorService.retrieve(any()) returns Future.successful(None)
-        env.authenticatorService.create(any())(any()) returns Future.successful(authenticator)
-        env.authenticatorService.discard(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.discardAction(request)
+
+          status(result) must equalTo(OK)
+          verify(env.authenticatorService).create(any())(any())
+          verify(env.authenticatorService).discard(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.discardAction(request)
-
-        status(result) must equalTo(OK)
-        there was one(env.authenticatorService).create(any())(any())
-        there was one(env.authenticatorService).discard(any(), any())(any())
       }
     }
   }
@@ -255,31 +283,35 @@ class UserAwareActionSpec extends PlaySpecification with Mockito with JsonMatche
   "The `UserAwareRequestHandler`" should {
     "return status 401 if authentication was not successful" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(None)
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
 
-        val result = controller.defaultHandler(request)
+          val result = controller.defaultHandler(request)
 
-        status(result) must equalTo(UNAUTHORIZED)
-        there was no(env.authenticatorService).touch(any())
-        there was no(env.authenticatorService).update(any(), any())(any())
+          status(result) must equalTo(UNAUTHORIZED)
+          verify(env.authenticatorService, never()).touch(any())
+          verify(env.authenticatorService, never()).update(any(), any())(any())
+        }
       }
     }
 
     "return the user if authentication was successful" in new InjectorContext {
       new WithApplication(app) with Context {
-        env.authenticatorService.retrieve(any()) returns Future.successful(Some(authenticator))
-        env.authenticatorService.touch(any()) returns Left(authenticator)
-        env.authenticatorService.update(any(), any())(any()) answers { (a, m) =>
-          Future.successful(AuthenticatorResult(a.asInstanceOf[Array[Any]](1).asInstanceOf[Result]))
+        override def running() = {
+          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
+          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+            Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
+          }
+          when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
+
+          val result = controller.defaultHandler(request)
+
+          status(result) must equalTo(OK)
+          contentAsString(result) must */("providerID" -> "test") and */("providerKey" -> "1")
+          verify(env.authenticatorService).touch(any())
+          verify(env.authenticatorService).update(any(), any())(any())
         }
-        env.identityService.retrieve(identity.loginInfo) returns Future.successful(Some(identity))
-
-        val result = controller.defaultHandler(request)
-
-        status(result) must equalTo(OK)
-        contentAsString(result) must */("providerID" -> "test") and */("providerKey" -> "1")
-        there was one(env.authenticatorService).touch(any())
-        there was one(env.authenticatorService).update(any(), any())(any())
       }
     }
   }
@@ -302,13 +334,13 @@ class UserAwareActionSpec extends PlaySpecification with Mockito with JsonMatche
      * The guice application builder.
      */
     lazy val app = new GuiceApplicationBuilder()
-      .bindings(new GuiceModule)
+      .bindings(GuiceableModule.guiceable(new GuiceModule))
       .build()
 
     /**
      * The guice module.
      */
-    class GuiceModule extends ScalaModule {
+    class GuiceModule extends AbstractModule with ScalaModule {
       override def configure(): Unit = {
         bind[Silhouette[UserAwareEnv]].to[SilhouetteProvider[UserAwareEnv]]
         bind[Environment[UserAwareEnv]].toInstance(env)
@@ -433,7 +465,7 @@ object UserAwareActionSpec {
      *
      * @return The result to send to the client.
      */
-    def defaultAction = silhouette.UserAwareAction { implicit request =>
+    def defaultAction = silhouette.UserAwareAction { implicit request: UserAwareRequest[UserAwareEnv, AnyContent] =>
       if (request.identity.isDefined && request.authenticator.isDefined) {
         Ok("with.identity.and.authenticator")
       } else if (request.authenticator.isDefined) {

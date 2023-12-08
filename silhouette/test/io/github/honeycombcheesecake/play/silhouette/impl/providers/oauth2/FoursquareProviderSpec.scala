@@ -25,7 +25,10 @@ import io.github.honeycombcheesecake.play.silhouette.impl.providers.oauth2.Fours
 import play.api.mvc.AnyContentAsEmpty
 import play.api.libs.json.Json
 import play.api.test.{ FakeRequest, WithApplication }
+import org.mockito.Mockito._
+import org.mockito.ArgumentMatchers._
 import test.Helper
+import test.Helper.mock
 
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -36,205 +39,229 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
 
   "The `withSettings` method" should {
     "create a new instance with customized settings" in new WithApplication with Context {
-      val s = provider.withSettings { s =>
-        s.copy(accessTokenURL = "new-access-token-url")
-      }
+      override def running() = {
+        val s: FoursquareProvider = provider.withSettings { s =>
+          s.copy(accessTokenURL = "new-access-token-url")
+        }
 
-      s.settings.accessTokenURL must be equalTo "new-access-token-url"
+        s.settings.accessTokenURL must be equalTo "new-access-token-url"
+      }
     }
   }
 
   "The `authenticate` method" should {
     "fail with UnexpectedResponseException for an unexpected response" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 401
-      wsResponse.body returns "Unauthorized"
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        when(wsResponse.status).thenReturn(401)
+        when(wsResponse.body).thenReturn("Unauthorized")
+        when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
-      failed[UnexpectedResponseException](provider.authenticate()) {
-        case e => e.getMessage must startWith(UnexpectedResponse.format(provider.id, "Unauthorized", 401))
+        failed[UnexpectedResponseException](provider.authenticate()) {
+          case e => e.getMessage must startWith(UnexpectedResponse.format(provider.id, "Unauthorized", 401))
+        }
       }
     }
 
     "fail with UnexpectedResponseException if OAuth2Info can be build because of an unexpected response" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 200
-      wsResponse.json returns Json.obj()
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(Json.obj())
+        when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
-      failed[UnexpectedResponseException](provider.authenticate()) {
-        case e => e.getMessage must startWith(InvalidInfoFormat.format(provider.id, ""))
+        failed[UnexpectedResponseException](provider.authenticate()) {
+          case e => e.getMessage must startWith(InvalidInfoFormat.format(provider.id, ""))
+        }
       }
     }
 
     "return the auth info" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 200
-      wsResponse.json returns oAuthInfo
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(oAuthInfo)
+        when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
 
-      authInfo(provider.authenticate())(_ must be equalTo oAuthInfo.as[OAuth2Info])
+        authInfo(provider.authenticate())(_ must be equalTo oAuthInfo.as[OAuth2Info])
+      }
     }
   }
 
   "The `authenticate` method with user state" should {
     "return stateful auth info" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
-      wsResponse.status returns 200
-      wsResponse.json returns oAuthInfo
-      wsRequest.withHttpHeaders(any) returns wsRequest
-      wsRequest.post[Map[String, Seq[String]]](any)(any) returns Future.successful(wsResponse)
-      httpLayer.url(oAuthSettings.accessTokenURL) returns wsRequest
-      stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.state(any[ExecutionContext]) returns Future.successful(state)
-      stateProvider.withHandler(any[SocialStateItemHandler]) returns stateProvider
-      state.items returns Set(userStateItem)
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(oAuthInfo)
+        when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.withHandler(any[SocialStateItemHandler])).thenReturn(stateProvider)
+        when(state.items).thenReturn(Set(userStateItem))
 
-      statefulAuthInfo(provider.authenticate(userStateItem))(_ must be equalTo stateAuthInfo)
+        statefulAuthInfo(provider.authenticate(userStateItem))(_ must be equalTo stateAuthInfo)
+      }
     }
   }
 
   "The `retrieveProfile` method" should {
     "fail with ProfileRetrievalException if API returns error" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 400
-      wsResponse.json returns Helper.loadJson("providers/oauth2/foursquare.error.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token", DefaultAPIVersion)) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsResponse.status).thenReturn(400)
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/foursquare.error.json"))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(API.format("my.access.token", DefaultAPIVersion))).thenReturn(wsRequest)
 
-      failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
-        case e => e.getMessage must equalTo(SpecifiedProfileError.format(
-          provider.id,
-          400,
-          Some("param_error"),
-          Some("Must provide a valid user ID or 'self.'")))
+        failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
+          case e => e.getMessage must equalTo(SpecifiedProfileError.format(
+            provider.id,
+            400,
+            Some("param_error"),
+            Some("Must provide a valid user ID or 'self.'")))
+        }
       }
     }
 
     "fail with ProfileRetrievalException if an unexpected error occurred" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 500
-      wsResponse.json throws new RuntimeException("")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token", DefaultAPIVersion)) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsResponse.status).thenReturn(500)
+        when(wsResponse.json).thenThrow(new RuntimeException(""))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(API.format("my.access.token", DefaultAPIVersion))).thenReturn(wsRequest)
 
-      failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
-        case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
+        failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
+          case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
+        }
       }
     }
 
     "use the overridden API URL" in new WithApplication with Context {
-      val url = "https://custom.api.url?access_token=%s"
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      oAuthSettings.apiURL returns Some(url)
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/foursquare.success.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(url.format("my.access.token")) returns wsRequest
+      override def running() = {
+        val url = "https://custom.api.url?access_token=%s"
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(oAuthSettings.apiURL).thenReturn(Some(url))
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/foursquare.success.json"))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(url.format("my.access.token"))).thenReturn(wsRequest)
 
-      await(provider.retrieveProfile(oAuthInfo.as[OAuth2Info]))
+        await(provider.retrieveProfile(oAuthInfo.as[OAuth2Info]))
 
-      there was one(httpLayer).url(url.format("my.access.token"))
+        verify(httpLayer).url(url.format("my.access.token"))
+      }
     }
 
     "return the social profile" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/foursquare.success.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token", DefaultAPIVersion)) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/foursquare.success.json"))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(API.format("my.access.token", DefaultAPIVersion))).thenReturn(wsRequest)
 
-      profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "13221052"),
-          firstName = Some("Apollonia"),
-          lastName = Some("Vanova"),
-          email = Some("apollonia.vanova@watchmen.com"),
-          avatarURL = Some("https://irs0.4sqi.net/img/user/100x100/blank_girl.png"))
+        profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "13221052"),
+            firstName = Some("Apollonia"),
+            lastName = Some("Vanova"),
+            email = Some("apollonia.vanova@watchmen.com"),
+            avatarURL = Some("https://irs0.4sqi.net/img/user/100x100/blank_girl.png"))
+        }
       }
     }
 
     "return the social profile if API is deprecated" in new WithApplication with Context {
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/foursquare.deprecated.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token", DefaultAPIVersion)) returns wsRequest
+      override def running() = {
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/foursquare.deprecated.json"))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(API.format("my.access.token", DefaultAPIVersion))).thenReturn(wsRequest)
 
-      profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "13221052"),
-          firstName = Some("Apollonia"),
-          lastName = Some("Vanova"),
-          email = Some("apollonia.vanova@watchmen.com"),
-          avatarURL = Some("https://irs0.4sqi.net/img/user/100x100/blank_girl.png"))
+        profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "13221052"),
+            firstName = Some("Apollonia"),
+            lastName = Some("Vanova"),
+            email = Some("apollonia.vanova@watchmen.com"),
+            avatarURL = Some("https://irs0.4sqi.net/img/user/100x100/blank_girl.png"))
+        }
       }
     }
 
     "handle the custom API version property" in new WithApplication with Context {
-      val customProperties = Map(APIVersion -> "20120101")
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
+      override def running() = {
+        val customProperties = Map(APIVersion -> "20120101")
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/foursquare.success.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token", "20120101")) returns wsRequest
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/foursquare.success.json"))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(API.format("my.access.token", "20120101"))).thenReturn(wsRequest)
 
-      profile(provider.withSettings(_.copy(customProperties = customProperties))
-        .retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "13221052"),
-          firstName = Some("Apollonia"),
-          lastName = Some("Vanova"),
-          email = Some("apollonia.vanova@watchmen.com"),
-          avatarURL = Some("https://irs0.4sqi.net/img/user/100x100/blank_girl.png"))
+        profile(provider.withSettings(_.copy(customProperties = customProperties))
+          .retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "13221052"),
+            firstName = Some("Apollonia"),
+            lastName = Some("Vanova"),
+            email = Some("apollonia.vanova@watchmen.com"),
+            avatarURL = Some("https://irs0.4sqi.net/img/user/100x100/blank_girl.png"))
+        }
       }
     }
 
     "handle the custom avatar resolution property" in new WithApplication with Context {
-      val customProperties = Map(AvatarResolution -> "150x150")
-      val wsRequest = mock[MockWSRequest]
-      val wsResponse = mock[MockWSRequest#Response]
+      override def running() = {
+        val customProperties = Map(AvatarResolution -> "150x150")
+        val wsRequest = mock[MockWSRequest]
+        val wsResponse = mock[MockWSRequest#Response]
 
-      wsResponse.status returns 200
-      wsResponse.json returns Helper.loadJson("providers/oauth2/foursquare.success.json")
-      wsRequest.get() returns Future.successful(wsResponse)
-      httpLayer.url(API.format("my.access.token", DefaultAPIVersion)) returns wsRequest
+        when(wsResponse.status).thenReturn(200)
+        when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/foursquare.success.json"))
+        when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(API.format("my.access.token", DefaultAPIVersion))).thenReturn(wsRequest)
 
-      profile(provider.withSettings(_.copy(customProperties = customProperties))
-        .retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
-        p must be equalTo CommonSocialProfile(
-          loginInfo = LoginInfo(provider.id, "13221052"),
-          firstName = Some("Apollonia"),
-          lastName = Some("Vanova"),
-          email = Some("apollonia.vanova@watchmen.com"),
-          avatarURL = Some("https://irs0.4sqi.net/img/user/150x150/blank_girl.png"))
+        profile(provider.withSettings(_.copy(customProperties = customProperties))
+          .retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
+          p must be equalTo CommonSocialProfile(
+            loginInfo = LoginInfo(provider.id, "13221052"),
+            firstName = Some("Apollonia"),
+            lastName = Some("Vanova"),
+            email = Some("apollonia.vanova@watchmen.com"),
+            avatarURL = Some("https://irs0.4sqi.net/img/user/150x150/blank_girl.png"))
+        }
       }
     }
   }
@@ -276,6 +303,6 @@ class FoursquareProviderSpec extends OAuth2ProviderSpec {
     /**
      * The provider to test.
      */
-    lazy val provider = new FoursquareProvider(httpLayer, stateProvider, oAuthSettings)
+    lazy val provider: FoursquareProvider = new FoursquareProvider(httpLayer, stateProvider, oAuthSettings)
   }
 }
