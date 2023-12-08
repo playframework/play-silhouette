@@ -15,10 +15,6 @@ import sbt._
 
 object Dependencies {
 
-  val resolvers: Seq[MavenRepository] = Seq[MavenRepository](elems =
-    "Atlassian Releases" at "https://packages.atlassian.com/public/"
-  )
-
   object Library {
 
     val updates: Seq[ModuleID] = Seq(

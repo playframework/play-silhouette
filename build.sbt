@@ -1,21 +1,36 @@
 import Dependencies.Library
-import sbt.CrossVersion
 
-lazy val repo: String = "https://s01.oss.sonatype.org"
 lazy val scala213: String = "2.13.12"
 lazy val scala3: String = "3.3.1"
 lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
 
 Global / evictionErrorLevel   := Level.Info
 
+val previousVersion: Option[String] = None // Some("0.8.0")
+
+val mimaSettings = Seq(
+  mimaPreviousArtifacts := previousVersion.map(organization.value %% moduleName.value % _).toSet,
+  mimaBinaryIssueFilters ++= Seq(
+  )
+)
+
+// Customise sbt-dynver's behaviour to make it work with tags which aren't v-prefixed
+ThisBuild / dynverVTagPrefix := false
+
+// Sanity-check: assert that version comes from a tag (e.g. not a too-shallow clone)
+// https://github.com/dwijnand/sbt-dynver/#sanity-checking-the-version
+Global / onLoad := (Global / onLoad).value.andThen { s =>
+  dynverAssertTagVersion.value
+  s
+}
+
 ThisBuild / description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes"
 ThisBuild / homepage := Some(url("https://silhouette.readme.io/"))
 ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/playframework/play-silhouette/blob/main/LICENSE"))
-ThisBuild / publishMavenStyle := true
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / organization := "org.playframework.silhouette"
-ThisBuild / organizationName := "The play framework"
+ThisBuild / organizationName := "he Play Framework Project"
 ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
@@ -44,43 +59,25 @@ ThisBuild / Test / parallelExecution := false
 ThisBuild / Test / fork := true
 ThisBuild / javaOptions += "-Xmx1G"
 
-ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
-
-ThisBuild / publishTo := {
-  if(isSnapshot.value) {
-    Some("Sonatype Nexus Repository Manager" at s"$repo/content/repositories/snapshots/")
-  }
-  else {
-    sonatypePublishToBundle.value
-  }
-}
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
 
-dependencyCheckAssemblyAnalyzerEnabled := Some(false)
-dependencyCheckFormat := "ALL"
-dependencyCheckSkipTestScope := true
-dependencyCheckSuppressionFiles := Seq[sbt.File](new sbt.File("dependency-check-suppression.xml"))
-
-ThisBuild / pomExtra := {
-  <scm>
-    <url>git@github.com:play-silhouette/play-silhouette.git</url>
-    <connection>scm:git:git@github.com:playframework/play-silhouette.git</connection>
-  </scm>
-    <developers>
-      <developer>
-        <id>ndeverge</id>
-        <name>Nicolas Deverge</name>
-        <url>https://github.com/ndeverge</url>
-      </developer>
-      <developer>
-        <id>MathisGuillet1</id>
-        <name>Mathis Guillet</name>
-        <url>https://github.com/MathisGuillet1</url>
-      </developer>
-    </developers>
-}
+ThisBuild / developers ++= List(
+  Developer(
+    "ndeverge",
+    "Nicolas Deverge",
+    "ndeverge",
+    url("https://github.com/ndeverge")
+  ),
+  Developer(
+    "MathisGuillet1",
+    "Mathis Guillet",
+    "MathisGuillet1",
+    url("https://github.com/MathisGuillet1")
+  ),
+)
 
 lazy val root = (project in file("."))
+  .disablePlugins(MimaPlugin)
   .aggregate(
     silhouette,
     silhouetteCas,
@@ -96,12 +93,10 @@ lazy val root = (project in file("."))
     name := "play-silhouette-root",
     Defaults.coreDefaultSettings,
     publish / skip := true,
-    publishLocal := {},
-    publishM2 := {},
-    publishArtifact := false
   )
 
 lazy val silhouette = (project in file("silhouette"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette",
     libraryDependencies ++=
@@ -117,15 +112,14 @@ lazy val silhouette = (project in file("silhouette"))
         Library.scalaGuice % Test,
         Library.akkaTestkit % Test
       ),
-    resolvers ++= Dependencies.resolvers
   )
   .enablePlugins(PlayScala)
   .disablePlugins(PlayAkkaHttpServer)
 
 lazy val silhouetteCas = (project in file("silhouette-cas"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-cas",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.casClient,
@@ -139,9 +133,9 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
   .dependsOn(silhouette % "compile->compile;test->test")
 
 lazy val silhouetteTotp = (project in file("silhouette-totp"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-totp",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.googleAuth,
@@ -151,9 +145,9 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
   .dependsOn(silhouette % "compile->compile;test->test")
 
 lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-crypto-jca",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.commonsCodec,
@@ -164,9 +158,9 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
   .dependsOn(silhouette)
 
 lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-password-argon2",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.argon2,
@@ -176,9 +170,9 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
   .dependsOn(silhouette)
 
 lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-password-bcrypt",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.jbcrypt,
@@ -188,9 +182,9 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
   .dependsOn(silhouette)
 
 lazy val silhouettePersistence = (project in file("silhouette-persistence"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-persistence",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Specs2.core % Test,
@@ -202,9 +196,9 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
   .dependsOn(silhouette)
 
 lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
+  .settings(mimaSettings)
   .settings(
     name := "play-silhouette-testkit",
-    dependencyUpdatesFailBuild := false,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.test,
@@ -223,25 +217,3 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
   )
   .enablePlugins(PlayScala)
   .dependsOn(silhouette)
-
-import ReleaseTransformations._
-releaseTagComment        := s"Releasing ${(ThisBuild / version).value}"
-releaseCommitMessage     := s"Releasing ${(ThisBuild / version).value}"
-releaseCrossBuild        := true
-releaseNextCommitMessage := s"Setting version to ${(ThisBuild / version).value}"
-releaseProcess := Seq[ReleaseStep](
-  runClean,
-  releaseStepTask(dependencyCheckAggregate),
-  releaseStepTask(dependencyUpdates),
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  releaseStepTask(versionCheck),
-  commitReleaseVersion,
-  tagRelease,
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
