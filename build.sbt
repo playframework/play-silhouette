@@ -8,7 +8,8 @@ Global / evictionErrorLevel   := Level.Info
 
 val previousVersion: Option[String] = None // Some("0.8.0")
 
-val mimaSettings = Seq(
+val commonSettings = Seq(
+  sonatypeProfileName := "org.playframework",
   mimaPreviousArtifacts := previousVersion.map(organization.value %% moduleName.value % _).toSet,
   mimaBinaryIssueFilters ++= Seq(
   )
@@ -30,7 +31,7 @@ ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/playfram
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / organization := "org.playframework.silhouette"
-ThisBuild / organizationName := "he Play Framework Project"
+ThisBuild / organizationName := "The Play Framework Project"
 ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
@@ -96,7 +97,7 @@ lazy val root = (project in file("."))
   )
 
 lazy val silhouette = (project in file("silhouette"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette",
     libraryDependencies ++=
@@ -117,7 +118,7 @@ lazy val silhouette = (project in file("silhouette"))
   .disablePlugins(PlayAkkaHttpServer)
 
 lazy val silhouetteCas = (project in file("silhouette-cas"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-cas",
     libraryDependencies ++=
@@ -133,7 +134,7 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
   .dependsOn(silhouette % "compile->compile;test->test")
 
 lazy val silhouetteTotp = (project in file("silhouette-totp"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-totp",
     libraryDependencies ++=
@@ -145,7 +146,7 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
   .dependsOn(silhouette % "compile->compile;test->test")
 
 lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-crypto-jca",
     libraryDependencies ++=
@@ -158,7 +159,7 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
   .dependsOn(silhouette)
 
 lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-password-argon2",
     libraryDependencies ++=
@@ -170,7 +171,7 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
   .dependsOn(silhouette)
 
 lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-password-bcrypt",
     libraryDependencies ++=
@@ -182,7 +183,7 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
   .dependsOn(silhouette)
 
 lazy val silhouettePersistence = (project in file("silhouette-persistence"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-persistence",
     libraryDependencies ++=
@@ -196,7 +197,7 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
   .dependsOn(silhouette)
 
 lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
-  .settings(mimaSettings)
+  .settings(commonSettings)
   .settings(
     name := "play-silhouette-testkit",
     libraryDependencies ++=
