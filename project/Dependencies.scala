@@ -35,10 +35,9 @@ object Dependencies {
     }
 
     object Specs2 {
-      private val version = "4.20.3"  // Versions later than this will fail due to removed dependencies.
+      private val version = "4.20.3"
       val core = "org.specs2" %% "specs2-core" % version
       val matcherExtra = "org.specs2" %% "specs2-matcher-extra" % version
-      val mock = "org.specs2" %% "specs2-mock" % version
     }
 
     val argon2 = "de.mkammerer" % "argon2-jvm" % "2.11"
@@ -47,9 +46,11 @@ object Dependencies {
     val jwt = "com.auth0" % "java-jwt" % "3.18.3"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
+    val mockito = "org.mockito" % "mockito-core" % "5.3.0"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
-    val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
+    val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.14.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
+    val izumiReflect = "dev.zio" %% "izumi-reflect" % "2.3.8" // Scala 3 replacement for scala 2 reflect universe
   }
 }
