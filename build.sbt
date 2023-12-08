@@ -6,10 +6,12 @@ lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
 
 Global / evictionErrorLevel   := Level.Info
 
+val sonatypeProfile = "org.playframework"
+
 val previousVersion: Option[String] = None // Some("0.8.0")
 
 val commonSettings = Seq(
-  sonatypeProfileName := "org.playframework",
+  sonatypeProfileName := sonatypeProfile,
   mimaPreviousArtifacts := previousVersion.map(organization.value %% moduleName.value % _).toSet,
   mimaBinaryIssueFilters ++= Seq(
   )
@@ -92,6 +94,7 @@ lazy val root = (project in file("."))
   .enablePlugins(ScalaUnidocPlugin)
   .settings(
     name := "play-silhouette-root",
+    sonatypeProfileName := sonatypeProfile,
     Defaults.coreDefaultSettings,
     publish / skip := true,
   )
