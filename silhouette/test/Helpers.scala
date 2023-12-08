@@ -15,8 +15,8 @@
  */
 package test
 
-import io.github.honeycombcheesecake.play.silhouette.api.AuthInfo
-import io.github.honeycombcheesecake.play.silhouette.impl.providers.{ SocialProfile, SocialStateItem, StatefulAuthInfo }
+import play.silhouette.api.AuthInfo
+import play.silhouette.impl.providers.{ SocialProfile, SocialStateItem, StatefulAuthInfo }
 import org.specs2.execute.{ AsResult, Result => Specs2Result }
 import org.specs2.matcher.{ JsonMatchers, MatchResult }
 import play.api.libs.json.{ JsValue, Json }

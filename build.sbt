@@ -10,12 +10,12 @@ Global / evictionErrorLevel   := Level.Info
 
 ThisBuild / description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes"
 ThisBuild / homepage := Some(url("https://silhouette.readme.io/"))
-ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/honeycomb-cheesecake/play-silhouette/blob/main/LICENSE"))
+ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/playframework/play-silhouette/blob/main/LICENSE"))
 ThisBuild / publishMavenStyle := true
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
-ThisBuild / organization := "io.github.honeycomb-cheesecake"
-ThisBuild / organizationName := "honeycomb-cheesecake"
+ThisBuild / organization := "org.playframework.silhouette"
+ThisBuild / organizationName := "The play framework"
 ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
@@ -63,19 +63,19 @@ dependencyCheckSuppressionFiles := Seq[sbt.File](new sbt.File("dependency-check-
 
 ThisBuild / pomExtra := {
   <scm>
-    <url>git@github.com:honeycomb-cheesecake/play-silhouette.git</url>
-    <connection>scm:git:git@github.com:honeycomb-cheesecake/play-silhouette.git</connection>
+    <url>git@github.com:play-silhouette/play-silhouette.git</url>
+    <connection>scm:git:git@github.com:playframework/play-silhouette.git</connection>
   </scm>
     <developers>
-      <developer>
-        <id>honeycomb-cheesecake</id>
-        <name>Simon Ramzi</name>
-        <url>https://github.com/honeycomb-cheesecake</url>
-      </developer>
       <developer>
         <id>ndeverge</id>
         <name>Nicolas Deverge</name>
         <url>https://github.com/ndeverge</url>
+      </developer>
+      <developer>
+        <id>MathisGuillet1</id>
+        <name>Mathis Guillet</name>
+        <url>https://github.com/MathisGuillet1</url>
       </developer>
     </developers>
 }
