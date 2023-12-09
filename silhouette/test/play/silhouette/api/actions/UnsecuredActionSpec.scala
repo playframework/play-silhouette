@@ -19,8 +19,8 @@ import com.google.inject.AbstractModule
 
 import javax.inject.Inject
 
-import akka.actor.{ Actor, ActorSystem, Props }
-import akka.testkit.TestProbe
+import org.apache.pekko.actor.{ Actor, ActorSystem, Props }
+import org.apache.pekko.testkit.TestProbe
 import play.silhouette.api._
 import play.silhouette.api.actions.UnsecuredActionSpec._
 import play.silhouette.api.exceptions.NotAuthorizedException

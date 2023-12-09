@@ -15,8 +15,8 @@
  */
 package play.silhouette.api
 
-import akka.actor.{ Actor, ActorSystem, Props }
-import akka.testkit.TestProbe
+import org.apache.pekko.actor.{ Actor, ActorSystem, Props }
+import org.apache.pekko.testkit.TestProbe
 import org.specs2.specification.Scope
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 

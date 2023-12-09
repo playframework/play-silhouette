@@ -15,8 +15,8 @@
  */
 package play.silhouette.api
 
-import akka.event.{ ActorEventBus, SubchannelClassification }
-import akka.util.Subclassification
+import org.apache.pekko.event.{ ActorEventBus, SubchannelClassification }
+import org.apache.pekko.util.Subclassification
 import play.api.mvc.RequestHeader
 
 /**
