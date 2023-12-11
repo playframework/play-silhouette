@@ -6,13 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.0] && [10.0.0] - 2023-12-10
+
+Play Silhouette is now under the Playframework organisation.
+
 ### Added
 
+- Scala 3, Play 2.9.x and Play 3.0.x compatibility thanks to [@ahjohannessen](https://github.com/ahjohannessen) and [@MathisGuillet1](https://github.com/MathisGuillet1)
 - Commit information to discord bot snapshot message from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - Commit and version information to discord bot production release message from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 
 ### Changed
 
+- ***Package names has been changed from `io.github.honeycomb-cheesecake` to `org.playframework.silhouette`***
 - Version to v9.0.0-SNAPSHOT for breaking change release from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
 - JodaTime replaced with Java Date API from [Rocketeer007](https://github.com/Rocketeer007).
 - JWT provider from `com.atlassian.jwt.jwt-core` and `com.atlassian.jwt.jwt-api` to `com.auth0.java-jwt` to permit the use of signing algorithms other than HS256 from [@honeycomb-cheesecake](https://github.com/honeycomb-cheesecake).
