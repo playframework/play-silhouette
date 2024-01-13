@@ -40,7 +40,7 @@ object Dependencies {
     val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
     val jwt = "com.auth0" % "java-jwt" % "3.19.4"
-    val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
+    val scalaGuice = "net.codingwell" %% "scala-guice" % "7.0.0"
     val pekkoTestkit = "org.apache.pekko" %% "pekko-testkit" % play.core.PlayVersion.pekkoVersion
     val mockito = "org.mockito" % "mockito-core" % "5.3.1"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
