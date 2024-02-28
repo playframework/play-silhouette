@@ -39,7 +39,7 @@ object Dependencies {
     val argon2 = "de.mkammerer" % "argon2-jvm" % "2.11"
     val commonsCodec = "commons-codec" % "commons-codec" % "1.16.1"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
-    val jwt = "com.auth0" % "java-jwt" % "3.19.4"
+    val jwt = "com.auth0" % "java-jwt" % "4.4.0"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
     val mockito = "org.mockito" % "mockito-core" % "5.10.0"
