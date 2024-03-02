@@ -42,7 +42,7 @@ object Dependencies {
     val jwt = "com.auth0" % "java-jwt" % "3.19.4"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
-    val mockito = "org.mockito" % "mockito-core" % "5.10.0"
+    val mockito = "org.mockito" % "mockito-core" % "5.11.0"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.14.0"
