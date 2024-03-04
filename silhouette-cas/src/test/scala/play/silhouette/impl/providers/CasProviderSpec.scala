@@ -97,7 +97,7 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Logger {
     "return a valid profile if the CAS client validates the ticket" in new Context {
       when(principal.getName).thenReturn(userName)
       when(principal.getAttributes).thenReturn(attr)
-      when(client.validateServiceTicket(ticket)).thenReturn(Future.successful(principal))
+      doReturn(Future.successful(principal)).when(client).validateServiceTicket(ticket)
 
       implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?ticket=%s".format(ticket))
 
