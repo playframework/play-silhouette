@@ -10,4 +10,4 @@ updates:
       interval: "weekly"
     target-branch: "9.x"
     commit-message:
-      prefix: "[9.x]"
+      prefix: "[9.x] "
