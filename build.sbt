@@ -1,7 +1,7 @@
 import Dependencies.Library
 
 lazy val scala213: String = "2.13.15"
-lazy val scala3: String = "3.3.3"
+lazy val scala3: String = "3.3.4"
 lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
 
 Global / evictionErrorLevel   := Level.Info
