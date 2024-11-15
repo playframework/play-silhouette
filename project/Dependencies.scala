@@ -31,7 +31,7 @@ object Dependencies {
     }
 
     object Specs2 {
-      private val version = "4.20.8"
+      private val version = "4.20.9"
       val core = "org.specs2" %% "specs2-core" % version
       val matcherExtra = "org.specs2" %% "specs2-matcher-extra" % version
     }
@@ -42,7 +42,7 @@ object Dependencies {
     val jwt = "com.auth0" % "java-jwt" % "3.19.4"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "6.0.0"
     val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % play.core.PlayVersion.akkaVersion
-    val mockito = "org.mockito" % "mockito-core" % "5.14.1"
+    val mockito = "org.mockito" % "mockito-core" % "5.14.2"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.17.0"
