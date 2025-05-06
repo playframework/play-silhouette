@@ -80,7 +80,7 @@ final case class NotAuthorizedEvent[I <: Identity](identity: I, request: Request
  * An event bus implementation which uses a class based lookup classification.
  */
 class EventBus extends ActorEventBus with SubchannelClassification {
-  override type Classifier = Class[_ <: SilhouetteEvent]
+  override type Classifier = Class[? <: SilhouetteEvent]
   override type Event = SilhouetteEvent
 
   /**

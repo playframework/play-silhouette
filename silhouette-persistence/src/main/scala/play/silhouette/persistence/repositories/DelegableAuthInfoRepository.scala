@@ -37,7 +37,7 @@ import scala.reflect.ClassTag
  * @param daos The auth info DAO implementations.
  * @param ec The execution context to handle the asynchronous operations.
  */
-class DelegableAuthInfoRepository(daos: DelegableAuthInfoDAO[_]*)(implicit ec: ExecutionContext) extends AuthInfoRepository {
+class DelegableAuthInfoRepository(daos: DelegableAuthInfoDAO[?]*)(implicit ec: ExecutionContext) extends AuthInfoRepository {
 
   /**
    * Finds the auth info which is linked with the specified login info.

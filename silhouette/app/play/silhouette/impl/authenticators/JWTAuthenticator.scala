@@ -112,8 +112,8 @@ object JWTAuthenticator {
           case value: java.lang.String => jwtBuilder.withClaim(keyVal._1, value)
           case value: java.lang.Double => jwtBuilder.withClaim(keyVal._1, value)
           case value: java.lang.Boolean => jwtBuilder.withClaim(keyVal._1, value)
-          case value: java.util.Map[_, _] => jwtBuilder.withClaim(keyVal._1, value.asInstanceOf[java.util.Map[String, Any]])
-          case value: java.util.List[_] => jwtBuilder.withClaim(keyVal._1, value)
+          case value: java.util.Map[?, ?] => jwtBuilder.withClaim(keyVal._1, value.asInstanceOf[java.util.Map[String, Any]])
+          case value: java.util.List[?] => jwtBuilder.withClaim(keyVal._1, value)
           case _ => throw new IllegalArgumentException("Claim value format not supported.")
         }
       }
@@ -198,8 +198,8 @@ object JWTAuthenticator {
       case v: java.lang.String => JsString(v)
       case v: java.lang.Number => JsNumber(BigDecimal(v.toString))
       case v: java.lang.Boolean => JsBoolean(v)
-      case v: java.util.Map[_, _] => unserializeCustomClaims(v.asInstanceOf[java.util.Map[String, AnyRef]])
-      case v: java.util.List[_] => JsArray(v.asScala.map(toJson))
+      case v: java.util.Map[?, ?] => unserializeCustomClaims(v.asInstanceOf[java.util.Map[String, AnyRef]])
+      case v: java.util.List[?] => JsArray(v.asScala.map(toJson))
       case v => throw new AuthenticatorException(UnexpectedJsonValue.format(ID, v))
     }
 
