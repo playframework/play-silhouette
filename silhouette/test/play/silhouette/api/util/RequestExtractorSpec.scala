@@ -278,7 +278,7 @@ class RequestExtractorSpec extends PlaySpecification {
 
       val request = FakeRequest().withBody(<none>value</none>)
 
-      test(request) must beAnInstanceOf[ExtractableRequest[_]]
+      test(request) must beAnInstanceOf[ExtractableRequest[?]]
     }
 
     "be converted from implicit request" in new Context {
@@ -286,7 +286,7 @@ class RequestExtractorSpec extends PlaySpecification {
 
       implicit val request: FakeRequest[scala.xml.Elem] = FakeRequest().withBody(<none>value</none>)
 
-      test must beAnInstanceOf[ExtractableRequest[_]]
+      test must beAnInstanceOf[ExtractableRequest[?]]
     }
   }
 

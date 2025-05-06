@@ -40,7 +40,7 @@ trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with JsonMatch
    * @param b The matcher block to apply.
    * @return A specs2 match result.
    */
-  def result(providerResult: Future[Either[PlayResult, A]])(b: Future[PlayResult] => MatchResult[_]) = {
+  def result(providerResult: Future[Either[PlayResult, A]])(b: Future[PlayResult] => MatchResult[?]) = {
     await(providerResult) must beLeft[PlayResult].like {
       case result => b(Future.successful(result))
     }
@@ -53,7 +53,7 @@ trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with JsonMatch
    * @param b The matcher block to apply.
    * @return A specs2 match result.
    */
-  def authInfo(providerResult: Future[Either[PlayResult, A]])(b: A => MatchResult[_]) = {
+  def authInfo(providerResult: Future[Either[PlayResult, A]])(b: A => MatchResult[?]) = {
     await(providerResult) must beRight[A].like {
       case authInfo => b(authInfo)
     }
@@ -66,7 +66,7 @@ trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with JsonMatch
    * @param b The matcher block to apply.
    * @return A specs2 match result.
    */
-  def profile(providerResult: Future[SocialProfile])(b: SocialProfile => MatchResult[_]) = {
+  def profile(providerResult: Future[SocialProfile])(b: SocialProfile => MatchResult[?]) = {
     await(providerResult) must beLike[SocialProfile] {
       case socialProfile => b(socialProfile)
     }
@@ -82,7 +82,7 @@ trait SocialProviderSpec[A <: AuthInfo] extends PlaySpecification with JsonMatch
    * @param f A matcher function.
    * @return A specs2 match result.
    */
-  def failed[E <: Throwable: ClassTag](providerResult: Future[_])(f: => PartialFunction[Throwable, MatchResult[_]]) = {
+  def failed[E <: Throwable: ClassTag](providerResult: Future[?])(f: => PartialFunction[Throwable, MatchResult[?]]) = {
     implicit class Rethrow(t: Throwable) {
       def rethrow = { throw t; t }
     }
@@ -107,7 +107,7 @@ trait SocialStateProviderSpec[A <: AuthInfo, S <: SocialStateItem] extends Socia
    * @return A specs2 match result.
    */
   def statefulResult(providerResult: Future[Either[PlayResult, StatefulAuthInfo[A, S]]])(
-    b: Future[PlayResult] => MatchResult[_]) = {
+    b: Future[PlayResult] => MatchResult[?]) = {
     await(providerResult) must beLeft[PlayResult].like {
       case result => b(Future.successful(result))
     }
@@ -121,7 +121,7 @@ trait SocialStateProviderSpec[A <: AuthInfo, S <: SocialStateItem] extends Socia
    * @return A specs2 match result.
    */
   def statefulAuthInfo(providerResult: Future[Either[PlayResult, StatefulAuthInfo[A, S]]])(
-    b: StatefulAuthInfo[A, S] => MatchResult[_]) = {
+    b: StatefulAuthInfo[A, S] => MatchResult[?]) = {
     await(providerResult) must beRight[StatefulAuthInfo[A, S]].like {
       case info => b(info)
     }
