@@ -251,6 +251,15 @@ class JWTAuthenticatorService(
   with Logger {
 
   /**
+   * Parses a value from a field, be it headers, JSON body, etc.
+   *
+   * @param raw The raw value to parse
+   * @return The parsed value
+   */
+  private def parseValue(raw: String): Option[String] =
+    settings.valueParser.parseValue(raw)
+
+  /**
    * Creates a new authenticator for the specified login info.
    *
    * @param loginInfo The login info for which the authenticator should be created.
@@ -281,7 +290,9 @@ class JWTAuthenticatorService(
    * @return Some authenticator or None if no authenticator could be found in request.
    */
   override def retrieve[B](implicit request: ExtractableRequest[B]): Future[Option[JWTAuthenticator]] = {
-    Future.fromTry(Try(request.extractString(settings.fieldName, settings.requestParts))).flatMap {
+    val maybeToken = request.extractString(settings.fieldName, settings.requestParts)
+      .flatMap(parseValue)
+    Future.fromTry(Try(maybeToken)).flatMap {
       case Some(token) => unserialize(token, authenticatorEncoder, settings)(Some(clock)) match {
         case Success(authenticator) => repository.fold(Future.successful(Option(authenticator)))(_.find(authenticator.id))
         case Failure(e) =>
@@ -464,6 +475,11 @@ object JWTAuthenticatorService {
  * @param issuerClaim              The issuer claim identifies the principal that issued the JWT.
  * @param authenticatorIdleTimeout The duration an authenticator can be idle before it timed out.
  * @param authenticatorExpiry      The duration an authenticator expires after it was created.
+ * @param valueParser              A parser that transforms the raw extracted value (e.g., from headers or query string)
+ *                                 into a usable token. This is useful for handling formats such as
+ *                                 `Authorization: Bearer <token>`. Defaults to [[play.silhouette.api.util.DefaultValueParser]],
+ *                                 which returns the raw string as-is. To support Bearer tokens, use
+ *                                 [[play.silhouette.api.util.BearerValueParser]].
  * @param sharedSecret             The shared secret to sign the JWT.
  */
 case class JWTAuthenticatorSettings(
@@ -472,4 +488,5 @@ case class JWTAuthenticatorSettings(
   issuerClaim: String = "play-silhouette",
   authenticatorIdleTimeout: Option[FiniteDuration] = None,
   authenticatorExpiry: FiniteDuration = 12.hours,
+  valueParser: ValueParser = DefaultValueParser,
   sharedSecret: String)
