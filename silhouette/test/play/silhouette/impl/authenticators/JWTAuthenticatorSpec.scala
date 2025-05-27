@@ -18,24 +18,24 @@ package play.silhouette.impl.authenticators
 import java.util.regex.Pattern
 import play.silhouette.api.Authenticator.Implicits._
 import play.silhouette.api.LoginInfo
-import play.silhouette.api.crypto.{ Base64, Base64AuthenticatorEncoder }
+import play.silhouette.api.crypto.{Base64, Base64AuthenticatorEncoder}
 import play.silhouette.api.exceptions._
 import play.silhouette.api.repositories.AuthenticatorRepository
 import play.silhouette.api.services.AuthenticatorService._
-import play.silhouette.api.util.{ Clock, IDGenerator, RequestPart }
+import play.silhouette.api.util.{BearerValueParser, Clock, IDGenerator, RequestPart}
 import play.silhouette.impl.authenticators.JWTAuthenticator._
 import play.silhouette.impl.authenticators.JWTAuthenticatorService._
 import org.specs2.matcher.JsonMatchers
 import org.specs2.specification.Scope
-import play.api.libs.json.{ JsNull, JsObject, Json }
-import play.api.mvc.{ AnyContentAsEmpty, Results }
-import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
+import play.api.libs.json.{JsNull, JsObject, Json}
+import play.api.mvc.{AnyContentAsEmpty, Results}
+import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers.any
 import test.Helper.mockSmart
 
 import java.time.temporal.ChronoField
-import java.time.{ ZoneId, ZonedDateTime }
+import java.time.{ZoneId, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -354,6 +354,41 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
         }
       }
     }
+
+    "respect valueParser when retrieving a bearer token from the Authorization header" in new WithApplication with Context {
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
+
+        // override fieldName and valueParser
+        when(settings.fieldName).thenReturn("Authorization")
+        when(settings.valueParser).thenReturn(BearerValueParser)
+        when(clock.now).thenReturn(ZonedDateTime.now)
+
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest().withHeaders("Authorization" -> s"Bearer $jwt")
+
+        await(service(None).retrieve) must beSome(authenticator.copy(
+          expirationDateTime = authenticator.expirationDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0),
+          lastUsedDateTime = authenticator.lastUsedDateTime.`with`(ChronoField.MILLI_OF_SECOND, 0)))
+      }
+    }
+
+    "return None if valueParser rejects the Authorization header" in new WithApplication with Context {
+      override def running() = {
+        val jwt = serialize(authenticator, authenticatorEncoder, settings)
+
+        when(settings.fieldName).thenReturn("Authorization")
+        when(settings.valueParser).thenReturn(BearerValueParser)
+
+        // No "Bearer " prefix — parser will reject it
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest().withHeaders("Authorization" -> jwt)
+
+        await(service(None).retrieve) must beNone
+      }
+    }
+
+
   }
 
   "The `init` method of the service" should {
