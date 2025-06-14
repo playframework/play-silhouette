@@ -42,6 +42,7 @@ ThisBuild / scalacOptions ++= Seq(
 ) ++
   (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, _)) => Seq(
+      "-Xsource:3-cross",
       "-encoding", "utf8",
       "-unchecked",
       "-deprecation",
