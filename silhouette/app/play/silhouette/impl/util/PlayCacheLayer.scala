@@ -15,7 +15,7 @@
  */
 package play.silhouette.impl.util
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api.util.CacheLayer
 import play.api.cache.AsyncCacheApi

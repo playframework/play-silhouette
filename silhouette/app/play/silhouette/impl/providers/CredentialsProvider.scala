@@ -19,7 +19,7 @@
  */
 package play.silhouette.impl.providers
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api._
 import play.silhouette.api.exceptions.ConfigurationException

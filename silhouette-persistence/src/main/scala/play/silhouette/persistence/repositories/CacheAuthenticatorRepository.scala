@@ -15,7 +15,7 @@
  */
 package play.silhouette.persistence.repositories
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api.StorableAuthenticator
 import play.silhouette.api.repositories.AuthenticatorRepository

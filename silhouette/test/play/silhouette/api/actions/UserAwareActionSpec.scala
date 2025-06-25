@@ -17,7 +17,7 @@ package play.silhouette.api.actions
 
 import com.google.inject.AbstractModule
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api._
 import play.silhouette.api.actions.UserAwareActionSpec._

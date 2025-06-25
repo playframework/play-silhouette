@@ -24,7 +24,7 @@ import play.silhouette.api.{ AuthInfo, LoginInfo, _ }
 import play.silhouette.impl.providers.GoogleTotpProvider._
 import play.silhouette.impl.providers.PasswordProvider._
 import com.warrenstrange.googleauth.{ GoogleAuthenticator, GoogleAuthenticatorQRGenerator }
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.jdk.CollectionConverters._

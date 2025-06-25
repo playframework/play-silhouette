@@ -17,7 +17,7 @@ package play.silhouette.test
 
 import com.google.inject.AbstractModule
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api._
 import play.silhouette.api.actions.{ SecuredRequest, UserAwareRequest }

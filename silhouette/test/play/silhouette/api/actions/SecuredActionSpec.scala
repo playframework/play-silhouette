@@ -17,7 +17,7 @@ package play.silhouette.api.actions
 
 import com.google.inject.AbstractModule
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import org.apache.pekko.actor.{ Actor, ActorSystem, Props }
 import org.apache.pekko.testkit.TestProbe

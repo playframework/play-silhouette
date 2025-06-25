@@ -15,7 +15,7 @@
  */
 package play.silhouette.impl.providers.state
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api.Logger
 import play.silhouette.api.crypto.Signer

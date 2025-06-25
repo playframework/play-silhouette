@@ -21,7 +21,7 @@ package play.silhouette.impl.services
 
 import java.net.URLEncoder._
 import java.security.MessageDigest
-import javax.inject.Inject
+import jakarta.inject.Inject
 import play.silhouette.api.Logger
 import play.silhouette.api.services.AvatarService
 import play.silhouette.api.util.{ ExecutionContextProvider, HTTPLayer }

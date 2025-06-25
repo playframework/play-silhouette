@@ -15,7 +15,7 @@
  */
 package play.silhouette.api.crypto
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 /**
  * Specifies encoding/decoding of authenticator data.
