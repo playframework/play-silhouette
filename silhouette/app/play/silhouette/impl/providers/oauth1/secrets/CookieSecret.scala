@@ -15,7 +15,7 @@
  */
 package play.silhouette.impl.providers.oauth1.secrets
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 import play.silhouette.api.Authenticator.Implicits._
 import play.silhouette.api.crypto.{ Crypter, Signer }
 import play.silhouette.api.util.{ Clock, ExtractableRequest }

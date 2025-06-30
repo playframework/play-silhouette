@@ -15,7 +15,7 @@
  */
 package play.silhouette.api
 
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 import play.silhouette.api.actions._
 import play.api.mvc.AnyContent
