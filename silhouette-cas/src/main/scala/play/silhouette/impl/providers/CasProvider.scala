@@ -25,9 +25,9 @@ import play.silhouette.impl
 import play.silhouette.impl.exceptions.ProfileRetrievalException
 import play.silhouette.impl.providers
 import play.silhouette.impl.providers.CasProvider._
-import org.jasig.cas.client.Protocol
-import org.jasig.cas.client.authentication.AttributePrincipal
-import org.jasig.cas.client.validation.{ AbstractUrlBasedTicketValidator, _ }
+import org.apereo.cas.client.Protocol
+import org.apereo.cas.client.authentication.AttributePrincipal
+import org.apereo.cas.client.validation.{ AbstractUrlBasedTicketValidator, _ }
 import play.api.mvc.{ Result, Results }
 
 import scala.concurrent.duration._
