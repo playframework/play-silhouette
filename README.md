@@ -57,7 +57,7 @@ libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-testki
 This fork of `play-silhouette` shall also be releasing SNAPSHOTS of the latest passed builds which can be used for the latest, bleeding-edge features, patches and code fixes prior to official production releases. If you want to pull these for testing with your code in development environments, please ensure that you add the appropriate resolver below, and select the appropriate version with `x.x.x` (>= 7.0.1).
 
 ```
-resolvers += "snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+resolvers += Resolver.sonatypeCentralSnapshots
 libraryDependencies += "org.playframework.silhouette" %% "play-silhouette" % "x.x.x-SNAPSHOT"
 libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-cas" % "x.x.x-SNAPSHOT"
 libraryDependencies += "org.playframework.silhouette" %% "play-silhouette-crypto-jca" % "x.x.x-SNAPSHOT"
