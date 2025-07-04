@@ -19,7 +19,7 @@ import play.silhouette.api.exceptions.{ ConfigurationException, SilhouetteExcept
 import play.silhouette.api.util.HTTPLayer
 import play.silhouette.api.{ Logger, LoginInfo }
 
-import org.jasig.cas.client.authentication.AttributePrincipal
+import org.apereo.cas.client.authentication.AttributePrincipal
 import org.mockito.Mockito._
 import org.specs2.specification.Scope
 import play.api.mvc.AnyContentAsEmpty
