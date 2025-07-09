@@ -45,7 +45,7 @@ object Dependencies {
     val mockito = "org.mockito" % "mockito-core" % "5.18.0"
     val casClient = "org.jasig.cas.client" % "cas-client-core" % "3.6.4"
     val casClientSupportSAML = "org.jasig.cas.client" % "cas-client-support-saml" % "3.6.4"
-    val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.17.0"
+    val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.18.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
     val izumiReflect = "dev.zio" %% "izumi-reflect" % "3.0.5" // Scala 3 replacement for scala 2 reflect universe
   }
