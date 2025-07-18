@@ -145,7 +145,7 @@ object JWTAuthenticator {
         case None => verifier.build().verify(str)
         case Some(cl) => verifier
           .asInstanceOf[BaseVerification]
-          .build(new interfaces.Clock { override def getToday: Date = Date.from(cl.now.toInstant) })
+          .build(java.time.Clock.fixed(cl.now.toInstant, cl.now.getZone))
           .verify(str)
       }
     }
