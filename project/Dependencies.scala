@@ -18,7 +18,7 @@ object Dependencies {
   object Library {
 
     val updates: Seq[ModuleID] = Seq(
-      "commons-io" % "commons-io" % "2.19.0"
+      "commons-io" % "commons-io" % "2.20.0"
     )
 
     object Play {
