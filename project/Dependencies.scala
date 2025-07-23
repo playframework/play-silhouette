@@ -39,7 +39,7 @@ object Dependencies {
     val argon2 = "de.mkammerer" % "argon2-jvm" % "2.12"
     val commonsCodec = "commons-codec" % "commons-codec" % "1.18.0"
     val jbcrypt = "de.svenkubiak" % "jBCrypt" % "0.4.3"
-    val jwt = "com.auth0" % "java-jwt" % "3.19.4"
+    val jwt = "com.auth0" % "java-jwt" % "4.5.0"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "7.0.0"
     val pekkoTestkit = "org.apache.pekko" %% "pekko-testkit" % play.core.PlayVersion.pekkoVersion
     val mockito = "org.mockito" % "mockito-core" % "5.18.0"
@@ -48,5 +48,11 @@ object Dependencies {
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.18.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
     val izumiReflect = "dev.zio" %% "izumi-reflect" % "3.0.5" // Scala 3 replacement for scala 2 reflect universe
+    // Override jackson version used in java-jwt library to align with Play's version due to conflict
+    val jacksonVersion = "2.14.3"
+    val jacksonOverrides: Seq[ModuleID] = Seq(
+      "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
+      "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
+    )
   }
 }
