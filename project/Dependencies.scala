@@ -47,7 +47,7 @@ object Dependencies {
     val casClientSupportSAML = "org.apereo.cas.client" % "cas-client-support-saml" % "4.0.4"
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.18.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
-    val izumiReflect = "dev.zio" %% "izumi-reflect" % "3.0.5" // Scala 3 replacement for scala 2 reflect universe
+    val izumiReflect = "dev.zio" %% "izumi-reflect" % "3.0.6" // Scala 3 replacement for scala 2 reflect universe
     // Override jackson version used in java-jwt library to align with Play's version due to conflict
     val jacksonVersion = "2.14.3"
     val jacksonOverrides: Seq[ModuleID] = Seq(
