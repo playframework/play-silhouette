@@ -112,7 +112,6 @@ lazy val silhouette = (project in file("silhouette"))
         Library.scalaGuice % Test,
         Library.pekkoTestkit % Test
       ),
-    dependencyOverrides ++= Library.jacksonOverrides,
   )
   .enablePlugins(PlayScala)
   .disablePlugins(PlayPekkoHttpServer)
@@ -129,8 +128,7 @@ lazy val silhouetteCas = (project in file("silhouette-cas"))
         Library.Specs2.matcherExtra % Test,
         Library.mockito % Test,
         Library.scalaGuice % Test
-      ),
-    dependencyOverrides ++= Library.jacksonOverrides,
+      )
   )
   .dependsOn(silhouette % "compile->compile;test->test")
 
@@ -142,8 +140,7 @@ lazy val silhouetteTotp = (project in file("silhouette-totp"))
       Library.updates ++ Seq(
         Library.googleAuth,
         Library.Play.specs2 % Test
-      ),
-    dependencyOverrides ++= Library.jacksonOverrides,
+      )
   )
   .dependsOn(silhouette % "compile->compile;test->test")
 
@@ -156,8 +153,7 @@ lazy val silhouetteCryptoJca = (project in file("silhouette-crypto-jca"))
         Library.commonsCodec,
         Library.Specs2.core % Test,
         Library.Specs2.matcherExtra % Test
-      ),
-    dependencyOverrides ++= Library.jacksonOverrides,
+      )
   )
   .dependsOn(silhouette)
 
@@ -169,8 +165,7 @@ lazy val silhouetteArgon2 = (project in file("silhouette-password-argon2"))
       Library.updates ++ Seq(
         Library.argon2,
         Library.Specs2.core % Test
-      ),
-    dependencyOverrides ++= Library.jacksonOverrides,
+      )
   )
   .dependsOn(silhouette)
 
@@ -182,8 +177,7 @@ lazy val silhouetteBcrypt = (project in file("silhouette-password-bcrypt"))
       Library.updates ++ Seq(
         Library.jbcrypt,
         Library.Specs2.core % Test
-      ),
-    dependencyOverrides ++= Library.jacksonOverrides,
+      )
   )
   .dependsOn(silhouette)
 
@@ -197,8 +191,7 @@ lazy val silhouettePersistence = (project in file("silhouette-persistence"))
         Library.Specs2.matcherExtra % Test,
         Library.mockito % Test,
         Library.scalaGuice % Test
-      ),
-    dependencyOverrides ++= Library.jacksonOverrides,
+      )
   )
   .dependsOn(silhouette)
 
@@ -206,7 +199,6 @@ lazy val silhouetteTestkit = (project in file("silhouette-testkit"))
   .settings(commonSettings)
   .settings(
     name := "play-silhouette-testkit",
-    dependencyOverrides ++= Library.jacksonOverrides,
     libraryDependencies ++=
       Library.updates ++ Seq(
         Library.Play.test,
