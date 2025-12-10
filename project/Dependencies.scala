@@ -42,7 +42,7 @@ object Dependencies {
     val jwt = "com.auth0" % "java-jwt" % "4.5.0"
     val scalaGuice = "net.codingwell" %% "scala-guice" % "7.0.0"
     val pekkoTestkit = "org.apache.pekko" %% "pekko-testkit" % play.core.PlayVersion.pekkoVersion
-    val mockito = "org.mockito" % "mockito-core" % "5.20.0"
+    val mockito = "org.mockito" % "mockito-core" % "5.21.0"
     val casClient = "org.apereo.cas.client" % "cas-client-core" % "4.0.4"
     val casClientSupportSAML = "org.apereo.cas.client" % "cas-client-support-saml" % "4.0.4"
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.20.0"
