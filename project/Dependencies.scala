@@ -43,8 +43,8 @@ object Dependencies {
     val scalaGuice = "net.codingwell" %% "scala-guice" % "7.0.0"
     val pekkoTestkit = "org.apache.pekko" %% "pekko-testkit" % play.core.PlayVersion.pekkoVersion
     val mockito = "org.mockito" % "mockito-core" % "5.23.0"
-    val casClient = "org.apereo.cas.client" % "cas-client-core" % "4.0.4"
-    val casClientSupportSAML = "org.apereo.cas.client" % "cas-client-support-saml" % "4.0.4"
+    val casClient = "org.apereo.cas.client" % "cas-client-core" % "4.1.0"
+    val casClientSupportSAML = "org.apereo.cas.client" % "cas-client-support-saml" % "4.1.0"
     val apacheCommonLang = "org.apache.commons" % "commons-lang3" % "3.20.0"
     val googleAuth = "com.warrenstrange" % "googleauth" % "1.5.0"
     val izumiReflect = "dev.zio" %% "izumi-reflect" % "3.0.9" // Scala 3 replacement for scala 2 reflect universe
