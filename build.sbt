@@ -35,7 +35,7 @@ ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
   "-feature",
-  "-Xfatal-warnings"
+  "-Werror"
 ) ++
   (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, _)) => Seq(
