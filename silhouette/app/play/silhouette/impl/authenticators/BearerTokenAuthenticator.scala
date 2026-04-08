@@ -152,7 +152,7 @@ class BearerTokenAuthenticatorService(
    */
   override def embed(token: String, request: RequestHeader): RequestHeader = {
     val additional = Seq(settings.fieldName -> token)
-    request.withHeaders(request.headers.replace(additional: _*))
+    request.withHeaders(request.headers.replace(additional*))
   }
 
   /**

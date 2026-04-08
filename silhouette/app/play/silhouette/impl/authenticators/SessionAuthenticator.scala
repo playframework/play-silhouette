@@ -200,7 +200,7 @@ class SessionAuthenticatorService(
    * @return The manipulated result.
    */
   override def embed(session: Session, result: Result)(implicit request: RequestHeader): Future[AuthenticatorResult] = {
-    Future.successful(AuthenticatorResult(result.addingToSession(session.data.toSeq: _*)))
+    Future.successful(AuthenticatorResult(result.addingToSession(session.data.toSeq*)))
   }
 
   /**

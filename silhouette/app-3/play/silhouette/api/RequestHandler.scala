@@ -86,7 +86,7 @@ trait RequestHandlerBuilder[E <: Env, +R[_]] extends ExecutionContextProvider {
    * @return A handler result.
    */
   final def apply[B, T](request: Request[B])(block: R[B] => Future[HandlerResult[T]]): Future[HandlerResult[T]] = {
-    invokeBlock(block)(request)
+    invokeBlock(block)(using request)
   }
 
   /**

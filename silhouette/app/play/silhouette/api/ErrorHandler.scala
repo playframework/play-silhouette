@@ -114,7 +114,7 @@ trait DefaultNotAuthenticatedErrorHandler
   override def exceptionHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
     case e: NotAuthenticatedException =>
       logger.info(e.getMessage, e)
-      super.exceptionHandler(request)(e)
+      super.exceptionHandler(using request)(e)
   }
 
   /**
@@ -147,7 +147,7 @@ trait DefaultNotAuthorizedErrorHandler
   override def exceptionHandler(implicit request: RequestHeader): PartialFunction[Throwable, Future[Result]] = {
     case e: NotAuthorizedException =>
       logger.info(e.getMessage, e)
-      super.exceptionHandler(request)(e)
+      super.exceptionHandler(using request)(e)
   }
 
   /**
