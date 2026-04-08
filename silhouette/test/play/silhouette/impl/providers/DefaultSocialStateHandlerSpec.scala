@@ -113,8 +113,8 @@ class DefaultSocialStateHandlerSpec extends PlaySpecification with JsonMatchers 
       implicit val request: ExtractableRequest[AnyContentAsEmpty.type] = new ExtractableRequest(FakeRequest())
       val serialized = s"${Default.structure.asString}"
 
-      when(Default.itemHandler.canHandle(any[ItemStructure]())(any())).thenReturn(false)
-      when(Publishable.itemHandler.canHandle(any[ItemStructure]())(any())).thenReturn(false)
+      when(Default.itemHandler.canHandle(any[ItemStructure]())(using any())).thenReturn(false)
+      when(Publishable.itemHandler.canHandle(any[ItemStructure]())(using any())).thenReturn(false)
 
       await(stateHandler.unserialize(serialized)) must throwA[ProviderException].like {
         case e =>

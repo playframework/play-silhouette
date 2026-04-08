@@ -47,7 +47,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "invoke action without identity and authenticator if no authenticator could be found" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
 
           val result = controller.defaultAction(request)
 
@@ -60,8 +60,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "invoke action without identity and authenticator if invalid authenticator was found" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
 
@@ -69,7 +69,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
 
           status(result) must equalTo(OK)
           contentAsString(result) must contain(messagesApi("without.identity.and.authenticator"))
-          verify(env.authenticatorService).discard(any(), any())(any())
+          verify(env.authenticatorService).discard(any(), any())(using any())
         }
       }
     }
@@ -77,9 +77,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "invoke action with valid authenticator if no identity could be found" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
@@ -89,7 +89,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must contain(messagesApi("without.identity.and.with.authenticator"))
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }
@@ -97,9 +97,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "invoke action with authenticator and identity" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -109,7 +109,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must contain(messagesApi("with.identity.and.authenticator"))
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }
@@ -119,10 +119,10 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(None))
           when(basicAuthRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.init(any())(any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
-          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(using any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
+          when(env.authenticatorService.embed(any(), any[Result]())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -131,8 +131,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
 
           status(result) must equalTo(OK)
           contentAsString(result) must contain("with.identity.and.authenticator")
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).init(any())(any())
+          verify(env.authenticatorService).create(any())(using any())
+          verify(env.authenticatorService).init(any())(using any())
         }
       }
     }
@@ -140,10 +140,10 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "update an initialized authenticator if it was touched" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
 
@@ -152,7 +152,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must contain("with.identity.and.authenticator")
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }
@@ -160,7 +160,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "do not update an initialized authenticator if it was not touched" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Right(authenticator))
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
@@ -169,7 +169,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must contain(messagesApi("with.identity.and.authenticator"))
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
+          verify(env.authenticatorService, never()).update(any(), any())(using any())
         }
       }
     }
@@ -178,10 +178,10 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.init(any())(any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
-          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(using any())).thenAnswer { p => Future.successful(p.asInstanceOf[FakeAuthenticator#Value]) }
+          when(env.authenticatorService.embed(any(), any[Result]())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -190,8 +190,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
 
           status(result) must equalTo(OK)
           contentAsString(result) must contain("with.identity.and.authenticator")
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).init(any())(any())
+          verify(env.authenticatorService).create(any())(using any())
+          verify(env.authenticatorService).init(any())(using any())
         }
       }
     }
@@ -199,9 +199,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "renew an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.renew(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -211,8 +211,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must contain(messagesApi("renewed"))
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).renew(any(), any())(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
+          verify(env.authenticatorService).renew(any(), any())(using any())
+          verify(env.authenticatorService, never()).update(any(), any())(using any())
         }
       }
     }
@@ -221,9 +221,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.renew(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -232,8 +232,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
 
           status(result) must equalTo(OK)
           contentAsString(result) must contain("renewed")
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).renew(any(), any())(any())
+          verify(env.authenticatorService).create(any())(using any())
+          verify(env.authenticatorService).renew(any(), any())(using any())
         }
       }
     }
@@ -241,9 +241,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "discard an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -253,8 +253,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must contain(messagesApi("discarded"))
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).discard(any(), any())(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
+          verify(env.authenticatorService).discard(any(), any())(using any())
+          verify(env.authenticatorService, never()).update(any(), any())(using any())
         }
       }
     }
@@ -263,9 +263,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -273,8 +273,8 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           val result = controller.discardAction(request)
 
           status(result) must equalTo(OK)
-          verify(env.authenticatorService).create(any())(any())
-          verify(env.authenticatorService).discard(any(), any())(any())
+          verify(env.authenticatorService).create(any())(using any())
+          verify(env.authenticatorService).discard(any(), any())(using any())
         }
       }
     }
@@ -284,13 +284,13 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "return status 401 if authentication was not successful" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
 
           val result = controller.defaultHandler(request)
 
           status(result) must equalTo(UNAUTHORIZED)
           verify(env.authenticatorService, never()).touch(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
+          verify(env.authenticatorService, never()).update(any(), any())(using any())
         }
       }
     }
@@ -298,9 +298,9 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
     "return the user if authentication was successful" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -310,7 +310,7 @@ class UserAwareActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must */("providerID" -> "test") and */("providerKey" -> "1")
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }

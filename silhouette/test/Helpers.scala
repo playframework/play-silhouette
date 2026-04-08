@@ -141,7 +141,7 @@ object Helper {
    */
   def loadJson(file: String): JsValue = {
     Option(this.getClass.getResourceAsStream("/" + file.stripPrefix("/"))) match {
-      case Some(is) => Json.parse(Source.fromInputStream(is)(Codec.UTF8).mkString)
+      case Some(is) => Json.parse(Source.fromInputStream(is)(using Codec.UTF8).mkString)
       case None => throw new Exception("Cannot load file: " + file)
     }
   }

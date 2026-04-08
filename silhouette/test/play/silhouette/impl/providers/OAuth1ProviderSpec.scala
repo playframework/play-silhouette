@@ -82,9 +82,9 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
 
         when(c.oAuthService.retrieveRequestToken(c.oAuthSettings.callbackURL)).thenReturn(Future.successful(c.oAuthInfo))
         when(c.oAuthService.redirectUrl(any())).thenAnswer(_ => c.oAuthSettings.authorizationURL)
-        when(c.oAuthTokenSecretProvider.build(any())(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+        when(c.oAuthTokenSecretProvider.build(any())(using any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
         // when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_.getArguments.asInstanceOf[Array[Any]](0).asInstanceOf[Result])
-        when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_.getArgument(0).asInstanceOf[Result])
+        when(c.oAuthTokenSecretProvider.publish(any(), any())(using any())).thenAnswer(_.getArgument(0).asInstanceOf[Result])
 
         result(c.provider.authenticate()) { result =>
           status(result) must equalTo(SEE_OTHER)
@@ -115,12 +115,12 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
 
       when(c.oAuthSettings.callbackURL).thenReturn(callbackURL)
 
-      when(c.oAuthService.retrieveRequestToken(any())(any())).thenReturn(Future.successful(c.oAuthInfo))
+      when(c.oAuthService.retrieveRequestToken(any())(using any())).thenReturn(Future.successful(c.oAuthInfo))
 
       when(c.oAuthService.redirectUrl(c.oAuthInfo.token)).thenAnswer(_ => c.oAuthSettings.authorizationURL)
 
-      when(c.oAuthTokenSecretProvider.build(any())(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
-      when(c.oAuthTokenSecretProvider.publish(any(), any())(any())).thenAnswer(_ => Results.Redirect(c.oAuthSettings.authorizationURL))
+      when(c.oAuthTokenSecretProvider.build(any())(using any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+      when(c.oAuthTokenSecretProvider.publish(any(), any())(using any())).thenAnswer(_ => Results.Redirect(c.oAuthSettings.authorizationURL))
 
       await(c.provider.authenticate())
       verify(c.oAuthService).retrieveRequestToken(resolvedCallbackURL)
@@ -138,7 +138,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
         when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
-        when(c.oAuthTokenSecretProvider.retrieve(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+        when(c.oAuthTokenSecretProvider.retrieve(using any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
         when(c.oAuthService.retrieveAccessToken(c.oAuthInfo.copy(secret = tokenSecret), "my.verifier")).thenReturn(Future.failed(new Exception("")))
 
         failed[UnexpectedResponseException](c.provider.authenticate()) {
@@ -153,7 +153,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
         when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
-        when(c.oAuthTokenSecretProvider.retrieve(any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
+        when(c.oAuthTokenSecretProvider.retrieve(using any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
         when(c.oAuthService.retrieveAccessToken(c.oAuthInfo.copy(secret = tokenSecret), "my.verifier")).thenReturn(Future.successful(c.oAuthInfo))
 
         authInfo(c.provider.authenticate())(_ must be equalTo c.oAuthInfo)

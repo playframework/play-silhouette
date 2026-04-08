@@ -74,8 +74,8 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
             implicit val req = FakeRequest(GET, "/")
 
             when(c.stateProvider.serialize(c.state)).thenReturn("session-value")
-            when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-            when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
+            when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+            when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
             when(c.oAuthSettings.authorizationURL).thenReturn(None)
 
             failed[ConfigurationException](c.provider.authenticate()) {
@@ -95,9 +95,9 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
             val sessionValue = "session-value"
 
             when(c.stateProvider.serialize(c.state)).thenReturn(sessionValue)
-            when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-            when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
-            when(c.stateProvider.publish(any, any)(any)).thenAnswer { m =>
+            when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+            when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
+            when(c.stateProvider.publish(any, any)(using any)).thenAnswer { m =>
               val result = m.getArgument(0).asInstanceOf[Result]
               val state = m.getArgument(1).asInstanceOf[c.TestState]
 
@@ -187,9 +187,9 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           when(c.oAuthSettings.redirectURL).thenReturn(Some(redirectURL))
 
           when(c.stateProvider.serialize(c.state)).thenReturn(sessionValue)
-          when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-          when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
-          when(c.stateProvider.publish(any, any)(any)).thenAnswer { m =>
+          when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+          when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
+          when(c.stateProvider.publish(any, any)(using any)).thenAnswer { m =>
             val result = m.getArgument(0).asInstanceOf[Result]
 
             result.withSession(sessionKey -> c.stateProvider.serialize(c.state))
@@ -220,9 +220,9 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           when(c.oAuthSettings.redirectURL).thenReturn(redirectURL)
 
           when(c.stateProvider.serialize(c.state)).thenReturn(sessionValue)
-          when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-          when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
-          when(c.stateProvider.publish(any, any)(any)).thenAnswer { m =>
+          when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+          when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
+          when(c.stateProvider.publish(any, any)(using any)).thenAnswer { m =>
             val result = m.getArgument(0).asInstanceOf[Result]
 
             result.withSession(sessionKey -> c.stateProvider.serialize(c.state))
@@ -253,9 +253,9 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
             implicit val req = FakeRequest(GET, "/")
 
             when(c.stateProvider.serialize(c.state)).thenReturn("")
-            when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-            when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
-            when(c.stateProvider.publish(any, any)(any)).thenAnswer { m =>
+            when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+            when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
+            when(c.stateProvider.publish(any, any)(using any)).thenAnswer { m =>
               m.getArgument(0).asInstanceOf[Result]
             }
 
@@ -294,8 +294,8 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           }
         }
         when(c.httpLayer.url(c.oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-        when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
+        when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+        when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
 
         failed[RuntimeException](c.provider.authenticate()) {
           case e => e.getMessage must startWith("success")
@@ -315,8 +315,8 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
         when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(c.httpLayer.url(c.oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
-        when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))
+        when(c.stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
+        when(c.stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(c.state))
 
         failed[UnexpectedResponseException](c.provider.authenticate()) {
           case e => e.getMessage must startWith(

@@ -60,8 +60,8 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
         when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
         failed[UnexpectedResponseException](provider.authenticate()) {
           case e => e.getMessage must startWith(UnexpectedResponse.format(provider.id, "Unauthorized", 401))
@@ -80,8 +80,8 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
         when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
         failed[UnexpectedResponseException](provider.authenticate()) {
           case e => e.getMessage must startWith(InvalidInfoFormat.format(provider.id, ""))
@@ -100,8 +100,8 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
         when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
         authInfo(provider.authenticate())(_ must be equalTo oAuthInfo.as[OAuth2Info])
       }
@@ -119,8 +119,8 @@ class Auth0ProviderSpec extends OAuth2ProviderSpec {
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
         when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.withHandler(any[SocialStateItemHandler])).thenReturn(stateProvider)
         when(state.items).thenReturn(Set(userStateItem))
 

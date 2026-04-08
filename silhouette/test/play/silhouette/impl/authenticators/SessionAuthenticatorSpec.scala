@@ -96,7 +96,7 @@ class SessionAuthenticatorSpec extends PlaySpecification {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
       when(clock.now).thenReturn(ZonedDateTime.now)
-      when(fingerprintGenerator.generate(any)).thenReturn("test")
+      when(fingerprintGenerator.generate(using any)).thenReturn("test")
       when(settings.useFingerprinting).thenReturn(true)
 
       await(service.create(loginInfo)).fingerprint must beSome("test")
@@ -181,7 +181,7 @@ class SessionAuthenticatorSpec extends PlaySpecification {
 
     "return None if authenticator fingerprint doesn't match current fingerprint" in new WithApplication with Context {
       override def running() = {
-        when(fingerprintGenerator.generate(any)).thenReturn("false")
+        when(fingerprintGenerator.generate(using any)).thenReturn("false")
         when(settings.useFingerprinting).thenReturn(true)
         when(authenticator.fingerprint).thenReturn(Some("test"))
 
@@ -193,7 +193,7 @@ class SessionAuthenticatorSpec extends PlaySpecification {
 
     "return authenticator if authenticator fingerprint matches current fingerprint" in new WithApplication with Context {
       override def running() = {
-        when(fingerprintGenerator.generate(any)).thenReturn("test")
+        when(fingerprintGenerator.generate(using any)).thenReturn("test")
         when(settings.useFingerprinting).thenReturn(true)
         when(authenticator.fingerprint).thenReturn(Some("test"))
 
@@ -228,7 +228,7 @@ class SessionAuthenticatorSpec extends PlaySpecification {
       override def running() = {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withSession(settings.sessionKey -> authenticatorEncoder.encode(Json.toJson(authenticator).toString()))
 
-        when(fingerprintGenerator.generate(any)).thenThrow(new RuntimeException("Could not generate fingerprint"))
+        when(fingerprintGenerator.generate(using any)).thenThrow(new RuntimeException("Could not generate fingerprint"))
         when(settings.useFingerprinting).thenReturn(true)
 
         await(service.retrieve) must throwA[AuthenticatorRetrievalException].like {
@@ -519,7 +519,7 @@ class SessionAuthenticatorSpec extends PlaySpecification {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] = spy(FakeRequest()).withSession(settings.sessionKey -> "test")
         val result = mock[Result]
 
-        when(result.removingFromSession(any)(any)).thenThrow(new RuntimeException("Cannot get session"))
+        when(result.removingFromSession(any)(using any)).thenThrow(new RuntimeException("Cannot get session"))
 
         await(service.discard(authenticator, result)) must throwA[AuthenticatorDiscardingException].like {
           case e =>

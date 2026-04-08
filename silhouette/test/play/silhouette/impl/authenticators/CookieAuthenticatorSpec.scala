@@ -128,7 +128,7 @@ class CookieAuthenticatorSpec extends PlaySpecification {
 
       when(idGenerator.generate).thenReturn(Future.successful("test-id"))
       when(clock.now).thenReturn(ZonedDateTime.now)
-      when(fingerprintGenerator.generate(any())).thenReturn("test")
+      when(fingerprintGenerator.generate(using any())).thenReturn("test")
       when(settings.useFingerprinting).thenReturn(true)
 
       await(service(Some(repository)).create(loginInfo)).fingerprint must beSome("test")
@@ -225,7 +225,7 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     "[stateful] return None if authenticator fingerprint doesn't match current fingerprint" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, authenticator.id))
 
-      when(fingerprintGenerator.generate(any())).thenReturn("false")
+      when(fingerprintGenerator.generate(using any())).thenReturn("false")
       when(settings.useFingerprinting).thenReturn(true)
       when(authenticator.fingerprint).thenReturn(Some("test"))
       when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator)))
@@ -235,7 +235,7 @@ class CookieAuthenticatorSpec extends PlaySpecification {
 
     "[stateless] return None if authenticator fingerprint doesn't match current fingerprint" in new WithApplication with Context {
       override def running() = {
-        when(fingerprintGenerator.generate(any())).thenReturn("false")
+        when(fingerprintGenerator.generate(using any())).thenReturn("false")
         when(settings.useFingerprinting).thenReturn(true)
         when(authenticator.fingerprint).thenReturn(Some("test"))
 
@@ -249,7 +249,7 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     "[stateful] return authenticator if authenticator fingerprint matches current fingerprint" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, authenticator.id))
 
-      when(fingerprintGenerator.generate(any())).thenReturn("test")
+      when(fingerprintGenerator.generate(using any())).thenReturn("test")
       when(settings.useFingerprinting).thenReturn(true)
       when(authenticator.fingerprint).thenReturn(Some("test"))
       when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator)))
@@ -259,7 +259,7 @@ class CookieAuthenticatorSpec extends PlaySpecification {
 
     "[stateless] return authenticator if authenticator fingerprint matches current fingerprint" in new WithApplication with Context {
       override def running() = {
-        when(fingerprintGenerator.generate(any())).thenReturn("test")
+        when(fingerprintGenerator.generate(using any())).thenReturn("test")
         when(settings.useFingerprinting).thenReturn(true)
         when(authenticator.fingerprint).thenReturn(Some("test"))
 
@@ -294,7 +294,7 @@ class CookieAuthenticatorSpec extends PlaySpecification {
     "throws an AuthenticatorRetrievalException exception if an error occurred during retrieval" in new Context {
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCookies(Cookie(settings.cookieName, authenticator.id))
 
-      when(fingerprintGenerator.generate(any())).thenThrow(new RuntimeException("Could not generate fingerprint"))
+      when(fingerprintGenerator.generate(using any())).thenThrow(new RuntimeException("Could not generate fingerprint"))
       when(settings.useFingerprinting).thenReturn(true)
       when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator)))
 
