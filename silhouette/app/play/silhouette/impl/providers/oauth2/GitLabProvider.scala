@@ -111,7 +111,7 @@ class GitLabProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new GitLabProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.GitLabProfileParser = new GitLabProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

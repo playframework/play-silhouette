@@ -362,7 +362,7 @@ class DefaultSecuredErrorHandler @Inject() (val messagesApi: MessagesApi)
  * Play module for providing the secured action components.
  */
 class SecuredActionModule extends Module {
-  def bindings(environment: PlayEnv, configuration: Configuration) = {
+  def bindings(environment: PlayEnv, configuration: Configuration): Seq[play.api.inject.Binding[_ >: play.silhouette.api.actions.SecuredRequestHandler with play.silhouette.api.actions.SecuredAction <: Object]] = {
     Seq(
       bind[SecuredAction].to[DefaultSecuredAction],
       bind[SecuredRequestHandler].to[DefaultSecuredRequestHandler])
@@ -376,7 +376,7 @@ class SecuredActionModule extends Module {
  * without to declare bindings for the other secured action module.
  */
 class SecuredErrorHandlerModule extends Module {
-  def bindings(environment: PlayEnv, configuration: Configuration) = {
+  def bindings(environment: PlayEnv, configuration: Configuration): Seq[play.api.inject.Binding[play.silhouette.api.actions.SecuredErrorHandler]] = {
     Seq(
       bind[SecuredErrorHandler].to[DefaultSecuredErrorHandler])
   }

@@ -165,7 +165,7 @@ class CasProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new CasProfileParser
+  override val profileParser: play.silhouette.impl.providers.CasProfileParser = new CasProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

@@ -63,7 +63,7 @@ class AuthenticatorResult(result: Result)
     newSession: Option[Session],
     newFlash: Option[Flash],
     newCookies: Seq[Cookie],
-    attrs: TypedMap) = {
+    attrs: TypedMap): play.silhouette.api.services.AuthenticatorResult = {
     AuthenticatorResult(super.copy(header, body, newSession, newFlash, newCookies, attrs))
   }
 }

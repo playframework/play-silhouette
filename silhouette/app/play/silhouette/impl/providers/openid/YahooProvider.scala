@@ -98,7 +98,7 @@ class YahooProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new YahooProfileParser
+  override val profileParser: play.silhouette.impl.providers.openid.YahooProfileParser = new YahooProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

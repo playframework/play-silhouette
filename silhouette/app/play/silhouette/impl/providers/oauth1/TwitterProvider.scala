@@ -120,7 +120,7 @@ class TwitterProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new TwitterProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth1.TwitterProfileParser = new TwitterProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

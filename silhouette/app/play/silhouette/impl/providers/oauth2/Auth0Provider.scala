@@ -154,7 +154,7 @@ class Auth0Provider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new Auth0ProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.Auth0ProfileParser = new Auth0ProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.
