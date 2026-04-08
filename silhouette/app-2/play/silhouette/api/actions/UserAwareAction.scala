@@ -240,7 +240,7 @@ class DefaultUserAwareAction @Inject() (
  * Play module for providing the user-aware action components.
  */
 class UserAwareActionModule extends Module {
-  def bindings(environment: PlayEnv, configuration: Configuration) = {
+  def bindings(environment: PlayEnv, configuration: Configuration): Seq[play.api.inject.Binding[_ >: play.silhouette.api.actions.UserAwareRequestHandler with play.silhouette.api.actions.UserAwareAction <: Object]] = {
     Seq(
       bind[UserAwareAction].to[DefaultUserAwareAction],
       bind[UserAwareRequestHandler].to[DefaultUserAwareRequestHandler])

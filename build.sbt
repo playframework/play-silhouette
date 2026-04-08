@@ -1,7 +1,7 @@
 import Dependencies.Library
 
 lazy val scala213: String = "2.13.18"
-lazy val scala3: String = "3.3.7"
+lazy val scala3: String = "3.8.3"
 lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
 
 Global / evictionErrorLevel   := Level.Info
@@ -35,10 +35,11 @@ ThisBuild / scalaVersion := scala213
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
   "-feature",
-  "-Xfatal-warnings"
+  "-Werror"
 ) ++
   (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, _)) => Seq(
+      "-Xsource:3",
       "-encoding", "utf8",
       "-unchecked",
       "-deprecation",

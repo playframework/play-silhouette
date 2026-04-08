@@ -213,7 +213,7 @@ class GoogleProvider(
   /**
    * The profile parser implementation.
    */
-  val profileParser = new GoogleProfileParser
+  val profileParser: play.silhouette.impl.providers.oauth2.GoogleProfileParser = new GoogleProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

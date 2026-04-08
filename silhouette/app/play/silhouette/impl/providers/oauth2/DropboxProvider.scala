@@ -114,7 +114,7 @@ class DropboxProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new DropboxProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.DropboxProfileParser = new DropboxProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

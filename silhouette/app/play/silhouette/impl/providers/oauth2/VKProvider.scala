@@ -134,7 +134,7 @@ class VKProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new VKProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.VKProfileParser = new VKProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

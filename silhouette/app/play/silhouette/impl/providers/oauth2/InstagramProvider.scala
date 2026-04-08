@@ -118,7 +118,7 @@ class InstagramProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new InstagramProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.InstagramProfileParser = new InstagramProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

@@ -236,7 +236,7 @@ final case class FakeEnvironment[E <: Env](
   /**
    * The identity service implementation.
    */
-  val identityService: IdentityService[I[E]] = new FakeIdentityService[I[E]](identities: _*)
+  val identityService: IdentityService[I[E]] = new FakeIdentityService[I[E]](identities*)
 
   /**
    * The authenticator service implementation.

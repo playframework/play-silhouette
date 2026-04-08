@@ -143,7 +143,7 @@ class LinkedInProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new LinkedInProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.LinkedInProfileParser = new LinkedInProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

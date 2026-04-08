@@ -46,7 +46,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
       override def running() = {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-        when(c.openIDService.redirectURL(any(), any())(any())).thenReturn(Future.failed(new Exception("")))
+        when(c.openIDService.redirectURL(any(), any())(using any())).thenReturn(Future.failed(new Exception("")))
 
         failed[UnexpectedResponseException](c.provider.authenticate()) {
           case e => e.getMessage must startWith(ErrorRedirectURL.format(c.provider.id, ""))
@@ -57,7 +57,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     "redirect to provider by using the provider URL" in new WithApplication {
       override def running() = {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-        when(c.openIDService.redirectURL(any(), any())(any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
+        when(c.openIDService.redirectURL(any(), any())(using any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
 
         result(c.provider.authenticate()) { result =>
           status(result) must equalTo(SEE_OTHER)
@@ -69,7 +69,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     "redirect to provider by using a openID" in new WithApplication {
       override def running() = {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?openID=my.open.id")
-        when(c.openIDService.redirectURL(any(), any())(any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
+        when(c.openIDService.redirectURL(any(), any())(using any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
 
         result(c.provider.authenticate()) { result =>
           status(result) must equalTo(SEE_OTHER)
@@ -105,18 +105,18 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
         secure = secure)
 
       when(c.openIDSettings.callbackURL).thenReturn(callbackURL)
-      when(c.openIDService.redirectURL(any(), any())(any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
+      when(c.openIDService.redirectURL(any(), any())(using any())).thenAnswer(_ => Future.successful(c.openIDSettings.providerURL))
 
       await(c.provider.authenticate())
       val argument = ArgumentCaptor.forClass(classOf[String])
-      verify(c.openIDService).redirectURL(any(), argument.capture())(any())
+      verify(c.openIDService).redirectURL(any(), argument.capture())(using any())
       assert(argument.getValue() === resolvedCallbackURL)
     }
 
     "fail with an UnexpectedResponseException if auth info cannot be retrieved" in new WithApplication {
       override def running() = {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Mode + "=id_res")
-        when(c.openIDService.verifiedID(any(), any())).thenReturn(Future.failed(new Exception("")))
+        when(c.openIDService.verifiedID(using any(), any())).thenReturn(Future.failed(new Exception("")))
 
         failed[UnexpectedResponseException](c.provider.authenticate()) {
           case e => e.getMessage must startWith(ErrorVerification.format(c.provider.id, ""))
@@ -127,7 +127,7 @@ abstract class OpenIDProviderSpec extends SocialProviderSpec[OpenIDInfo] {
     "return the auth info" in new WithApplication {
       override def running() = {
         implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Mode + "=id_res")
-        when(c.openIDService.verifiedID(any(), any())).thenAnswer(_ => Future.successful(c.openIDInfo))
+        when(c.openIDService.verifiedID(using any(), any())).thenAnswer(_ => Future.successful(c.openIDInfo))
 
         authInfo(c.provider.authenticate())(_ must be equalTo c.openIDInfo)
       }

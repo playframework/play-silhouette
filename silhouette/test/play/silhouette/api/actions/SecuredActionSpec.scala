@@ -55,7 +55,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           withEvent[NotAuthenticatedEvent] {
-            when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+            when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
 
             val result = controller.defaultAction(request)
 
@@ -70,8 +70,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "restrict access and discard authenticator if an invalid authenticator can be retrieved" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator.copy(isValid = false))))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
 
@@ -80,7 +80,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
 
             status(result) must equalTo(UNAUTHORIZED)
             contentAsString(result) must contain("global.not.authenticated")
-            verify(env.authenticatorService).discard(any(), any())(any())
+            verify(env.authenticatorService).discard(any(), any())(using any())
             theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
           }
         }
@@ -90,8 +90,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "restrict access and discard authenticator if no identity could be found for an authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
@@ -101,7 +101,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
 
             status(result) must equalTo(UNAUTHORIZED)
             contentAsString(result) must contain("global.not.authenticated")
-            verify(env.authenticatorService).discard(any(), any())(any())
+            verify(env.authenticatorService).discard(any(), any())(using any())
             theProbe.expectMsg(500 millis, NotAuthenticatedEvent(request))
           }
         }
@@ -111,8 +111,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "display local not-authenticated result if user isn't authenticated[authorization and error handler]" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
@@ -128,8 +128,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "display local not-authenticated result if user isn't authenticated[error handler only]" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
@@ -145,8 +145,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "display global not-authenticated result if user isn't authenticated" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(None))
@@ -162,20 +162,20 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "restrict access and update authenticator if a user is authenticated but not authorized" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-          when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
+          when(authorization.isAuthorized(any(), any())(using any())).thenReturn(Future.successful(false))
 
           withEvent[NotAuthorizedEvent[FakeIdentity]] {
             val result = controller.actionWithAuthorization(request)
 
             status(result) must equalTo(FORBIDDEN)
             contentAsString(result) must contain("global.not.authorized")
-            verify(env.authenticatorService).update(any(), any())(any())
+            verify(env.authenticatorService).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, NotAuthorizedEvent(identity, request))
           }
         }
@@ -185,20 +185,20 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "display local not-authorized result if user isn't authorized" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-          when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
+          when(authorization.isAuthorized(any(), any())(using any())).thenReturn(Future.successful(false))
 
           val result = controller.actionWithAuthorizationAndErrorHandler(request)
 
           status(result) must equalTo(FORBIDDEN)
           contentAsString(result) must contain("local.not.authorized")
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }
@@ -206,20 +206,20 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "display global not-authorized result if user isn't authorized" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-          when(authorization.isAuthorized(any(), any())(any())).thenReturn(Future.successful(false))
+          when(authorization.isAuthorized(any(), any())(using any())).thenReturn(Future.successful(false))
 
           val result = controller.actionWithAuthorization(request)
 
           status(result) must equalTo(FORBIDDEN)
           contentAsString(result) must contain("global.not.authorized")
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }
@@ -227,9 +227,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "invoke action without authorization if user is authenticated" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -240,7 +240,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             status(result) must equalTo(OK)
             contentAsString(result) must contain("full.access")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService).update(any(), any())(any())
+            verify(env.authenticatorService).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -250,9 +250,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "invoke action with authorization if user is authenticated but not authorized" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -263,7 +263,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             status(result) must equalTo(OK)
             contentAsString(result) must contain("full.access")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService).update(any(), any())(any())
+            verify(env.authenticatorService).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -275,12 +275,12 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(None))
           when(basicAuthRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.init(any())(any[RequestHeader]())).thenAnswer { p =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(using any[RequestHeader]())).thenAnswer { p =>
             Future.successful(p.getArgument(0).asInstanceOf[FakeAuthenticator#Value])
           }
-          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+          when(env.authenticatorService.embed(any(), any[Result]())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -290,8 +290,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
 
             status(result) must equalTo(OK)
             contentAsString(result) must contain("full.access")
-            verify(env.authenticatorService).create(any())(any())
-            verify(env.authenticatorService).init(any())(any())
+            verify(env.authenticatorService).create(any())(using any())
+            verify(env.authenticatorService).init(any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -301,10 +301,10 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "update an initialized authenticator if it was touched" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
 
@@ -314,7 +314,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             status(result) must equalTo(OK)
             contentAsString(result) must contain("full.access")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService).update(any(), any())(any())
+            verify(env.authenticatorService).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -324,7 +324,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "do not update an initialized authenticator if it was not touched" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Right(authenticator))
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
 
@@ -334,7 +334,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             status(result) must equalTo(OK)
             contentAsString(result) must contain("full.access")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService, never()).update(any(), any())(any())
+            verify(env.authenticatorService, never()).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -345,12 +345,12 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.init(any())(any[RequestHeader]())).thenAnswer { p =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.init(any())(using any[RequestHeader]())).thenAnswer { p =>
             Future.successful(p.getArgument(0).asInstanceOf[FakeAuthenticator#Value])
           }
-          when(env.authenticatorService.embed(any(), any[Result]())(any())).thenAnswer { m =>
+          when(env.authenticatorService.embed(any(), any[Result]())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -360,8 +360,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
 
             status(result) must equalTo(OK)
             contentAsString(result) must contain("full.access")
-            verify(env.authenticatorService).create(any())(any())
-            verify(env.authenticatorService).init(any())(any())
+            verify(env.authenticatorService).create(any())(using any())
+            verify(env.authenticatorService).init(any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -371,9 +371,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "renew an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.renew(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -384,8 +384,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             status(result) must equalTo(OK)
             contentAsString(result) must contain("renewed")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService).renew(any(), any())(any())
-            verify(env.authenticatorService, never()).update(any(), any())(any())
+            verify(env.authenticatorService).renew(any(), any())(using any())
+            verify(env.authenticatorService, never()).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -396,9 +396,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.renew(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.renew(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -408,8 +408,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
 
             status(result) must equalTo(OK)
             contentAsString(result) must contain("renewed")
-            verify(env.authenticatorService).create(any())(any())
-            verify(env.authenticatorService).renew(any(), any())(any())
+            verify(env.authenticatorService).create(any())(using any())
+            verify(env.authenticatorService).renew(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -419,9 +419,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "discard an initialized authenticator" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -432,8 +432,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             status(result) must equalTo(OK)
             contentAsString(result) must contain("discarded")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService).discard(any(), any())(any())
-            verify(env.authenticatorService, never()).update(any(), any())(any())
+            verify(env.authenticatorService).discard(any(), any())(using any())
+            verify(env.authenticatorService, never()).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -444,9 +444,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
       new WithApplication(app) with Context {
         override def running() = {
           when(tokenRequestProvider.authenticate(any())).thenReturn(Future.successful(Some(identity.loginInfo)))
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.create(any())(any())).thenReturn(Future.successful(authenticator))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.create(any())(using any())).thenReturn(Future.successful(authenticator))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -455,8 +455,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             val result = controller.discardAction(request)
 
             status(result) must equalTo(OK)
-            verify(env.authenticatorService).create(any())(any())
-            verify(env.authenticatorService).discard(any(), any())(any())
+            verify(env.authenticatorService).create(any())(using any())
+            verify(env.authenticatorService).discard(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, request))
           }
         }
@@ -468,9 +468,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
         override def running() = {
           implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("Accept" -> "application/json")
 
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -482,7 +482,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
             contentType(result) must beSome("application/json")
             contentAsString(result) must /("result" -> "full.access")
             verify(env.authenticatorService).touch(any())
-            verify(env.authenticatorService).update(any(), any())(any())
+            verify(env.authenticatorService).update(any(), any())(using any())
             theProbe.expectMsg(500 millis, AuthenticatedEvent(identity, req))
           }
         }
@@ -494,13 +494,13 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "return status 401 if authentication was not successful" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
 
           val result = controller.defaultHandler(request)
 
           status(result) must equalTo(UNAUTHORIZED)
           verify(env.authenticatorService, never()).touch(any())
-          verify(env.authenticatorService, never()).update(any(), any())(any())
+          verify(env.authenticatorService, never()).update(any(), any())(using any())
         }
       }
     }
@@ -508,9 +508,9 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "return the user if authentication was successful" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(Some(authenticator)))
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(Some(authenticator)))
           when(env.authenticatorService.touch(any())).thenReturn(Left(authenticator))
-          when(env.authenticatorService.update(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.update(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
           when(env.identityService.retrieve(identity.loginInfo)).thenReturn(Future.successful(Some(identity)))
@@ -520,7 +520,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
           status(result) must equalTo(OK)
           contentAsString(result) must */("providerID" -> "test") and */("providerKey" -> "1")
           verify(env.authenticatorService).touch(any())
-          verify(env.authenticatorService).update(any(), any())(any())
+          verify(env.authenticatorService).update(any(), any())(using any())
         }
       }
     }
@@ -530,8 +530,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "translate an ForbiddenException into a 403 Forbidden result" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
 
@@ -546,8 +546,8 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
     "translate an UnauthorizedException into a 401 Unauthorized result" in new InjectorContext {
       new WithApplication(app) with Context {
         override def running() = {
-          when(env.authenticatorService.retrieve(any())).thenReturn(Future.successful(None))
-          when(env.authenticatorService.discard(any(), any())(any())).thenAnswer { m =>
+          when(env.authenticatorService.retrieve(using any())).thenReturn(Future.successful(None))
+          when(env.authenticatorService.discard(any(), any())(using any())).thenAnswer { m =>
             Future.successful(AuthenticatorResult(m.getArgument(1).asInstanceOf[Result]))
           }
 
@@ -579,7 +579,7 @@ class SecuredActionSpec extends PlaySpecification with JsonMatchers {
      */
     lazy val authorization = {
       val a = mock[Authorization[SecuredEnv#I, SecuredEnv#A]]
-      when(a.isAuthorized(any(), any())(any())).thenReturn(Future.successful(true))
+      when(a.isAuthorized(any(), any())(using any())).thenReturn(Future.successful(true))
       a
     }
 

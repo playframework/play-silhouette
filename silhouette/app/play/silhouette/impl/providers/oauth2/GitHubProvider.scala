@@ -129,7 +129,7 @@ class GitHubProvider(
   /**
    * The profile parser implementation.
    */
-  override val profileParser = new GitHubProfileParser
+  override val profileParser: play.silhouette.impl.providers.oauth2.GitHubProfileParser = new GitHubProfileParser
 
   /**
    * Gets a provider initialized with a new settings object.

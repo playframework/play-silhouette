@@ -24,9 +24,11 @@ import play.silhouette.impl.providers._
 import play.silhouette.impl.providers.oauth2.FacebookProvider._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.libs.json.Json
+import play.api.libs.ws.{ BodyWritable, DefaultBodyWritables }
+import DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.test.{ FakeRequest, WithApplication }
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.{ any, anyString, eq => eqTo }
 import test.Helper
 import test.Helper.mock
 
@@ -58,10 +60,10 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(401)
         when(wsResponse.body).thenReturn("Unauthorized")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
         failed[UnexpectedResponseException](provider.authenticate()) {
           case e => e.getMessage must startWith(UnexpectedResponse.format(provider.id, "Unauthorized", 401))
@@ -77,10 +79,10 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Json.obj())
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
         failed[UnexpectedResponseException](provider.authenticate()) {
           case e => e.getMessage must startWith(InvalidInfoFormat.format(provider.id, ""))
@@ -96,10 +98,10 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
         authInfo(provider.authenticate())(_ must be equalTo oAuthInfo.as[OAuth2Info])
       }
@@ -115,10 +117,10 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
-        when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
-        when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
+        when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
+        when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.withHandler(any[SocialStateItemHandler])).thenReturn(stateProvider)
         when(state.items).thenReturn(Set(userStateItem))
 
@@ -135,7 +137,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(400)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/facebook.error.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
           case e => e.getMessage must equalTo(SpecifiedProfileError.format(
@@ -154,7 +156,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(500)
         when(wsResponse.json).thenThrow(new RuntimeException(""))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
           case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
@@ -171,7 +173,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/facebook.success.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(url.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(url.format("my.access.token")))).thenReturn(wsRequest)
 
         await(provider.retrieveProfile(oAuthInfo.as[OAuth2Info]))
 
@@ -186,7 +188,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/facebook.success.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
           p must be equalTo CommonSocialProfile(

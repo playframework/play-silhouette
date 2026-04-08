@@ -293,7 +293,7 @@ class JWTAuthenticatorService(
     val maybeToken = request.extractString(settings.fieldName, settings.requestParts)
       .flatMap(parseValue)
     Future.fromTry(Try(maybeToken)).flatMap {
-      case Some(token) => unserialize(token, authenticatorEncoder, settings)(Some(clock)) match {
+      case Some(token) => unserialize(token, authenticatorEncoder, settings)(using Some(clock)) match {
         case Success(authenticator) => repository.fold(Future.successful(Option(authenticator)))(_.find(authenticator.id))
         case Failure(e) =>
           logger.info(e.getMessage, e)
@@ -342,7 +342,7 @@ class JWTAuthenticatorService(
    */
   override def embed(token: String, request: RequestHeader): RequestHeader = {
     val additional = Seq(settings.fieldName -> token)
-    request.withHeaders(request.headers.replace(additional: _*))
+    request.withHeaders(request.headers.replace(additional*))
   }
 
   /**

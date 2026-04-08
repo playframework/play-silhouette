@@ -38,7 +38,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = "<html>",
           expectedMessage = "silhouette.not.authenticated",
           f = {
-            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+            notAuthenticated.onNotAuthenticated(using _: RequestHeader)
           })
       }
     }
@@ -52,7 +52,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = "\"success\":false",
           expectedMessage = "silhouette.not.authenticated",
           f = {
-            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+            notAuthenticated.onNotAuthenticated(using _: RequestHeader)
           })
       }
     }
@@ -66,7 +66,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = "<success>false</success>",
           expectedMessage = "silhouette.not.authenticated",
           f = {
-            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+            notAuthenticated.onNotAuthenticated(using _: RequestHeader)
           })
       }
     }
@@ -80,7 +80,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
           expectedMessage = "silhouette.not.authenticated",
           f = {
-            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+            notAuthenticated.onNotAuthenticated(using _: RequestHeader)
           })
       }
     }
@@ -94,7 +94,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
           expectedMessage = "silhouette.not.authenticated",
           f = {
-            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+            notAuthenticated.onNotAuthenticated(using _: RequestHeader)
           })
       }
     }
@@ -108,7 +108,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = messagesApi("silhouette.not.authenticated"),
           expectedMessage = "silhouette.not.authenticated",
           f = {
-            notAuthenticated.onNotAuthenticated(_: RequestHeader)
+            notAuthenticated.onNotAuthenticated(using _: RequestHeader)
           })
       }
     }
@@ -124,7 +124,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = "<html>",
           expectedMessage = "silhouette.not.authorized",
           f = {
-            notAuthorized.onNotAuthorized(_: RequestHeader)
+            notAuthorized.onNotAuthorized(using _: RequestHeader)
           })
       }
     }
@@ -138,7 +138,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = "\"success\":false",
           expectedMessage = "silhouette.not.authorized",
           f = {
-            notAuthorized.onNotAuthorized(_: RequestHeader)
+            notAuthorized.onNotAuthorized(using _: RequestHeader)
           })
       }
     }
@@ -152,7 +152,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = "<success>false</success>",
           expectedMessage = "silhouette.not.authorized",
           f = {
-            notAuthorized.onNotAuthorized(_: RequestHeader)
+            notAuthorized.onNotAuthorized(using _: RequestHeader)
           })
       }
     }
@@ -166,7 +166,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = messagesApi("silhouette.not.authorized"),
           expectedMessage = "silhouette.not.authorized",
           f = {
-            notAuthorized.onNotAuthorized(_: RequestHeader)
+            notAuthorized.onNotAuthorized(using _: RequestHeader)
           })
       }
     }
@@ -180,7 +180,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = messagesApi("silhouette.not.authorized"),
           expectedMessage = "silhouette.not.authorized",
           f = {
-            notAuthorized.onNotAuthorized(_: RequestHeader)
+            notAuthorized.onNotAuthorized(using _: RequestHeader)
           })
       }
     }
@@ -194,7 +194,7 @@ class ErrorHandlerSpec extends PlaySpecification {
           expectedResponseFragment = messagesApi("silhouette.not.authorized"),
           expectedMessage = "silhouette.not.authorized",
           f = {
-            notAuthorized.onNotAuthorized(_: RequestHeader)
+            notAuthorized.onNotAuthorized(using _: RequestHeader)
           })
       }
     }

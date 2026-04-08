@@ -262,7 +262,7 @@ class ExtractableRequest[B](request: Request[B])(implicit extractor: RequestExtr
    * @return The extracted value as string.
    */
   def extractString(name: String, parts: Option[Seq[RequestPart.Value]] = None): Option[String] =
-    extractor.extractString(name, parts)(request)
+    extractor.extractString(name, parts)(using request)
 }
 
 /**
@@ -300,5 +300,5 @@ object ExtractableRequest {
    * @return An extractable request.
    */
   implicit def convertImplicit[B](implicit request: Request[B], extractor: RequestExtractor[B]): ExtractableRequest[B] =
-    this(request, extractor)
+    this(using request, extractor)
 }
