@@ -24,10 +24,11 @@ import play.silhouette.impl.providers._
 import play.silhouette.impl.providers.oauth2.DropboxProvider._
 import play.api.mvc.AnyContentAsEmpty
 import play.api.libs.json.Json
-import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedForm
+import play.api.libs.ws.{ BodyWritable, DefaultBodyWritables }
+import DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.test.{ FakeRequest, WithApplication }
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.{ any, anyString, eq => eqTo }
 import test.Helper
 import test.Helper.mock
 
@@ -59,8 +60,8 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(401)
         when(wsResponse.body).thenReturn("Unauthorized")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
@@ -78,8 +79,8 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Json.obj())
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
@@ -97,8 +98,8 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
@@ -116,8 +117,8 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.withHandler(any[SocialStateItemHandler])).thenReturn(stateProvider)
@@ -138,7 +139,7 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(400)
         when(wsRequest.withHttpHeaders(AUTHORIZATION -> s"Bearer ${authInfo.accessToken}")).thenReturn(wsRequest)
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         failed[ProfileRetrievalException](provider.retrieveProfile(authInfo)) {
           case e => e.getMessage must equalTo(SpecifiedProfileError.format(
@@ -158,7 +159,7 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.json).thenThrow(new RuntimeException(""))
         when(wsRequest.withHttpHeaders(AUTHORIZATION -> s"Bearer ${authInfo.accessToken}")).thenReturn(wsRequest)
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         failed[ProfileRetrievalException](provider.retrieveProfile(authInfo)) {
           case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
@@ -177,7 +178,7 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/dropbox.success.json"))
         when(wsRequest.withHttpHeaders(AUTHORIZATION -> s"Bearer ${authInfo.accessToken}")).thenReturn(wsRequest)
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(url)).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(url))).thenReturn(wsRequest)
 
         await(provider.retrieveProfile(authInfo))
 
@@ -194,7 +195,7 @@ class DropboxProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/dropbox.success.json"))
         when(wsRequest.withHttpHeaders(AUTHORIZATION -> s"Bearer ${authInfo.accessToken}")).thenReturn(wsRequest)
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         profile(provider.retrieveProfile(authInfo)) { p =>
           p must be equalTo CommonSocialProfile(

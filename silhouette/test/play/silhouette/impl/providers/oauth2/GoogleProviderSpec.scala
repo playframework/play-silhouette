@@ -23,11 +23,12 @@ import play.silhouette.impl.providers.SocialProfileBuilder._
 import play.silhouette.impl.providers._
 import play.silhouette.impl.providers.oauth2.GoogleProvider._
 import play.api.libs.json.Json
-import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedForm
+import play.api.libs.ws.{ BodyWritable, DefaultBodyWritables }
+import DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{ FakeRequest, WithApplication }
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.{ any, anyString, eq => eqTo }
 import test.Helper
 import test.Helper.mock
 
@@ -59,8 +60,8 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(401)
         when(wsResponse.body).thenReturn("Unauthorized")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
@@ -78,8 +79,8 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Json.obj())
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
@@ -97,8 +98,8 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
 
@@ -116,8 +117,8 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
+        when(wsRequest.post[Map[String, Seq[String]]](any)(using any[BodyWritable[Map[String, Seq[String]]]])).thenReturn(Future.successful(wsResponse))
+        when(httpLayer.url(eqTo(oAuthSettings.accessTokenURL))).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(using any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(using any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.withHandler(any[SocialStateItemHandler])).thenReturn(stateProvider)
@@ -136,7 +137,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(401)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.error.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
           case e => e.getMessage must equalTo(SpecifiedProfileError.format(
@@ -154,7 +155,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(403)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.error.api.missing.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         val apiErrMsg = "People API has not been used in project 1234567890 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/people.googleapis.com/overview?project=1234567890 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."
 
@@ -174,7 +175,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(500)
         when(wsResponse.json).thenThrow(new RuntimeException(""))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         failed[ProfileRetrievalException](provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) {
           case e => e.getMessage must equalTo(UnspecifiedProfileError.format(provider.id))
@@ -191,7 +192,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.success.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(url.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(url.format("my.access.token")))).thenReturn(wsRequest)
 
         await(provider.retrieveProfile(oAuthInfo.as[OAuth2Info]))
 
@@ -206,7 +207,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.success.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
           p must be equalTo CommonSocialProfile(
@@ -227,7 +228,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.without.email.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
           p must be equalTo CommonSocialProfile(
@@ -247,7 +248,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.img.non-default.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
           p must be equalTo CommonSocialProfile(
@@ -267,7 +268,7 @@ class GoogleProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Helper.loadJson("providers/oauth2/google.img.default.json"))
         when(wsRequest.get()).thenReturn(Future.successful(wsResponse))
-        when(httpLayer.url(API.format("my.access.token"))).thenReturn(wsRequest)
+        when(httpLayer.url(eqTo(API.format("my.access.token")))).thenReturn(wsRequest)
 
         profile(provider.retrieveProfile(oAuthInfo.as[OAuth2Info])) { p =>
           p must be equalTo CommonSocialProfile(
