@@ -225,7 +225,7 @@ class DefaultUnsecuredErrorHandler @Inject() (val messagesApi: MessagesApi)
  * Play module for providing the unsecured action components.
  */
 class UnsecuredActionModule extends Module {
-  def bindings(environment: PlayEnv, configuration: Configuration): Seq[play.api.inject.Binding[_ >: play.silhouette.api.actions.UnsecuredRequestHandler with play.silhouette.api.actions.UnsecuredAction <: Object]] = {
+  def bindings(environment: PlayEnv, configuration: Configuration): Seq[play.api.inject.Binding[? >: play.silhouette.api.actions.UnsecuredRequestHandler & play.silhouette.api.actions.UnsecuredAction <: Object]] = {
     Seq(
       bind[UnsecuredAction].to[DefaultUnsecuredAction],
       bind[UnsecuredRequestHandler].to[DefaultUnsecuredRequestHandler])
