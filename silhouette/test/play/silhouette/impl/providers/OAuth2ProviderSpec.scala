@@ -26,6 +26,7 @@ import play.silhouette.helpers.Transform._
 import org.specs2.matcher.ThrownExpectations
 import org.specs2.specification.Scope
 import play.api.libs.json.{ JsValue, Json }
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.mvc.{ AnyContent, AnyContentAsEmpty, Result }
 import play.api.test.{ FakeHeaders, FakeRequest, WithApplication }
 import play.mvc.Http.HeaderNames
@@ -285,7 +286,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
         // spec, because we throw an exception in both cases which stops the test once the post method was called.
         // This protects as for an NPE because of the not mocked dependencies. The other solution would be to execute
         // this test in every provider with the full mocked dependencies.
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenAnswer { m =>
+        when(wsRequest.post[Map[String, Seq[String]]](any)).thenAnswer { m =>
           if (m.getArgument(0).asInstanceOf[Map[String, Seq[String]]].equals(params)) {
             throw new RuntimeException("success")
           } else {
@@ -312,7 +313,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
         when(wsResponse.json).thenThrow(new RuntimeException("Unexpected character ('<' (code 60))"))
         when(wsResponse.body).thenReturn("<html></html>")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(c.httpLayer.url(c.oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
         when(c.stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(c.state))
         when(c.stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(c.state))

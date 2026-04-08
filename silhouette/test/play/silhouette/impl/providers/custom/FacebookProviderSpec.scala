@@ -24,6 +24,7 @@ import play.silhouette.impl.providers._
 import play.silhouette.impl.providers.oauth2.FacebookProvider._
 import play.silhouette.impl.providers.oauth2.{ BaseFacebookProvider, FacebookProfileParser }
 import play.api.libs.json.{ JsValue, Json }
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.{ FakeRequest, WithApplication }
 import test.Helper
@@ -60,7 +61,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(401)
         when(wsResponse.body).thenReturn("Unauthorized")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
@@ -79,7 +80,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Json.obj())
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
@@ -98,7 +99,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
-        when(wsRequest.post[Map[String, Seq[String]]](any)(any)).thenReturn(Future.successful(wsResponse))
+        when(wsRequest.post[Map[String, Seq[String]]](any)).thenReturn(Future.successful(wsResponse))
         when(httpLayer.url(oAuthSettings.accessTokenURL)).thenReturn(wsRequest)
         when(stateProvider.unserialize(anyString)(any[ExtractableRequest[String]], any[ExecutionContext])).thenReturn(Future.successful(state))
         when(stateProvider.state(any[ExecutionContext])).thenReturn(Future.successful(state))
