@@ -33,7 +33,7 @@ trait WaitPatience {
 
   def timeout: FiniteDuration = 1.second
 
-  implicit class WaitWithPatienceFutureMatchable[T](m: Matcher[T])(implicit ee: ExecutionEnv) extends FutureMatchable[T](m)(ee) {
+  implicit class WaitWithPatienceFutureMatchable[T](m: Matcher[T])(implicit ee: ExecutionEnv) extends FutureMatchable[T](m)(using ee) {
     def awaitWithPatience: Matcher[Future[T]] = {
       await(retries, timeout)
     }

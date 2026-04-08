@@ -271,7 +271,7 @@ class FacebookProviderSpec extends OAuth2ProviderSpec {
     /**
      * The profile parser.
      */
-    val profileParser = new CustomFacebookProfileParser
+    val profileParser: FacebookProviderSpec.this.CustomFacebookProfileParser = new CustomFacebookProfileParser
 
     /**
      * Gets a provider initialized with a new settings object.
