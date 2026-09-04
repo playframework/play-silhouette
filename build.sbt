@@ -1,6 +1,6 @@
 import Dependencies.Library
 
-lazy val scala213: String = "2.13.18"
+lazy val scala213: String = "3.9.0"
 lazy val scala3: String = "3.8.4"
 lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
 
