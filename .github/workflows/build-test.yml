@@ -31,7 +31,7 @@ jobs:
     with:
       java: 21, 17
       scala: 2.13.x, 3.x
-      cmd: sbt ++$MATRIX_SCALA doc
+      cmd: sbt "++$MATRIX_SCALA ; doc"
 
   tests:
     name: Tests
@@ -44,7 +44,7 @@ jobs:
       java: 21, 17
       scala: 2.13.x, 3.x
       cmd: >-
-        sbt ++$MATRIX_SCALA test
+        sbt "++$MATRIX_SCALA ; test"
 
   finish:
     name: Finish

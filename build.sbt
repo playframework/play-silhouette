@@ -25,8 +25,8 @@ Global / onLoad := (Global / onLoad).value.andThen { s =>
 }
 
 ThisBuild / description := "Authentication library for Play Framework applications that supports several authentication methods, including OAuth1, OAuth2, OpenID, CAS, Credentials, Basic Authentication, Two Factor Authentication or custom authentication schemes"
-ThisBuild / homepage := Some(url("https://silhouette.readme.io/"))
-ThisBuild / licenses := Seq("Apache License" -> url("https://github.com/playframework/play-silhouette/blob/main/LICENSE"))
+ThisBuild / homepage := Some(uri("https://silhouette.readme.io/"))
+ThisBuild / licenses := Seq("Apache License" -> uri("https://github.com/playframework/play-silhouette/blob/main/LICENSE"))
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / organization := "org.playframework.silhouette"
@@ -50,7 +50,7 @@ ThisBuild / scalacOptions ++= Seq(
     )
     case _ => Seq()
   })
-ThisBuild / Test / scalacOptions ~= { options: Seq[String] =>
+ThisBuild / Test / scalacOptions ~= { (options: Seq[String]) =>
   // Allow dead code in tests (to support using mockito).
   options filterNot (_ == "-Ywarn-dead-code")
 }
@@ -67,13 +67,13 @@ ThisBuild / developers ++= List(
     "ndeverge",
     "Nicolas Deverge",
     "ndeverge",
-    url("https://github.com/ndeverge")
+    uri("https://github.com/ndeverge")
   ),
   Developer(
     "MathisGuillet1",
     "Mathis Guillet",
     "MathisGuillet1",
-    url("https://github.com/MathisGuillet1")
+    uri("https://github.com/MathisGuillet1")
   ),
 )
 
