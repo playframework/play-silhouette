@@ -49,7 +49,7 @@ class DefaultFingerprintGenerator(includeRemoteAddress: Boolean = false) extends
       .append(request.headers.get(USER_AGENT).getOrElse("")).append(":")
       .append(request.headers.get(ACCEPT_LANGUAGE).getOrElse("")).append(":")
       .append(request.headers.get(ACCEPT_CHARSET).getOrElse("")).append(":")
-      .append(if (includeRemoteAddress) request.remoteAddress else "")
+      .append(if (includeRemoteAddress) request.remote.identity else "")
       .toString())
   }
 }

@@ -29,6 +29,7 @@ import play.api.libs.json.{ JsValue, Json }
 import play.api.libs.ws.{ BodyWritable, DefaultBodyWritables }
 import DefaultBodyWritables.writeableOf_urlEncodedForm
 import play.api.mvc.{ AnyContent, AnyContentAsEmpty, Result }
+import play.api.mvc.request.Scheme
 import play.api.test.{ FakeHeaders, FakeRequest, WithApplication }
 import play.mvc.Http.HeaderNames
 import test.SocialStateProviderSpec
@@ -51,7 +52,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
     val c = context
     "fail with an AccessDeniedException if `error` key with value `access_denied` exists in query string" in new WithApplication {
       override def running() = {
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Error + "=" + AccessDenied)
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Error + "=" + AccessDenied)
         failed[AccessDeniedException](c.provider.authenticate()) {
           case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, ""))
         }
@@ -60,7 +61,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
 
     "fail with an UnexpectedResponseException if `error` key with unspecified value exists in query string" in new WithApplication {
       override def running() = {
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Error + "=unspecified")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Error + "=unspecified")
         failed[UnexpectedResponseException](c.provider.authenticate()) {
           case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, "unspecified"))
         }
@@ -180,7 +181,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
             uri = "/request-path/something",
             headers = FakeHeaders(Seq((HeaderNames.HOST, "www.example.com"))),
             body = AnyContentAsEmpty,
-            secure = secure)
+            scheme = if (secure) Scheme.Https else Scheme.Http)
 
           val sessionKey = "session-key"
           val sessionValue = "session-value"
@@ -213,7 +214,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
             uri = "/request-path/something",
             headers = FakeHeaders(Seq((HeaderNames.HOST, "www.example.com"))),
             body = AnyContentAsEmpty,
-            secure = secure)
+            scheme = if (secure) Scheme.Https else Scheme.Http)
 
           val sessionKey = "session-key"
           val sessionValue = "session-value"
@@ -279,7 +280,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
           ClientSecret -> Seq(c.oAuthSettings.clientSecret),
           GrantType -> Seq(AuthorizationCode),
           Code -> Seq("my.code")) ++ c.oAuthSettings.accessTokenParams.transformValues(Seq(_)) ++ redirectParam.toMap.transformValues(Seq(_))
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Code + "=my.code")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
 
         // We must use this neat trick here because it isn't possible to check the post call with a verification,
@@ -308,7 +309,7 @@ abstract class OAuth2ProviderSpec extends SocialStateProviderSpec[OAuth2Info, So
       override def running() = {
         val wsRequest = mock[MockWSRequest]
         val wsResponse = mock[MockWSRequest#Response]
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Code + "=my.code")
 
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenThrow(new RuntimeException("Unexpected character ('<' (code 60))"))
