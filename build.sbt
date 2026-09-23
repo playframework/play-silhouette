@@ -1,10 +1,11 @@
-import Dependencies.Library
-
-lazy val scala213: String = "2.13.18"
-lazy val scala3: String = "3.9.0"
-lazy val supportedScalaVersions: Seq[String] = Seq(scala213, scala3)
+import Dependencies.{Library, publishedScalaVersions, resolveScalaVersion, scala213Version}
 
 Global / evictionErrorLevel   := Level.Info
+
+ThisBuild / resolvers ++= Seq(
+  Resolver.sonatypeCentralSnapshots,
+  Resolver.ApacheMavenSnapshotsRepo
+)
 
 val previousVersion: Option[String] = None // Some("0.8.0")
 
@@ -31,9 +32,11 @@ ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }
 ThisBuild / organization := "org.playframework.silhouette"
 ThisBuild / organizationName := "The Play Framework Project"
-ThisBuild / scalaVersion := scala213
+ThisBuild / scalaVersion := resolveScalaVersion(sys.props.getOrElse("scala.version", scala213Version))
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / scalacOptions ++= Seq(
+  "-release",
+  "17",
   "-feature",
   "-Werror"
 ) ++
@@ -49,12 +52,13 @@ ThisBuild / scalacOptions ++= Seq(
       "-Xlint:nullary-unit"
     )
     case _ => Seq()
-  })
+  }) ++
+  (if (scalaVersion.value.startsWith("3.3.")) Seq("-Yfuture-lazy-vals") else Seq.empty)
 ThisBuild / Test / scalacOptions ~= { (options: Seq[String]) =>
   // Allow dead code in tests (to support using mockito).
   options filterNot (_ == "-Ywarn-dead-code")
 }
-ThisBuild / crossScalaVersions := supportedScalaVersions
+ThisBuild / crossScalaVersions := publishedScalaVersions
 ThisBuild / crossVersion := CrossVersion.full
 ThisBuild / Test / parallelExecution := false
 ThisBuild / Test / fork := true

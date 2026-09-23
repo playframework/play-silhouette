@@ -136,7 +136,7 @@ class BearerTokenAuthenticatorSpec extends PlaySpecification {
     }
 
     "return authenticator if an authenticator is stored for the token located in the query string" in new Context {
-      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${authenticator.id}")
+      implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/?${settings.fieldName}=${authenticator.id}")
 
       when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
       when(repository.find(authenticator.id)).thenReturn(Future.successful(Some(authenticator)))

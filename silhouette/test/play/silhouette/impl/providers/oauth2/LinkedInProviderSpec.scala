@@ -56,7 +56,7 @@ class LinkedInProviderSpec extends OAuth2ProviderSpec {
       override def running() = {
         val wsRequest = mock[MockWSRequest]
         val wsResponse = mock[MockWSRequest#Response]
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Code + "=my.code")
         when(wsResponse.status).thenReturn(401)
         when(wsResponse.body).thenReturn("Unauthorized")
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
@@ -75,7 +75,7 @@ class LinkedInProviderSpec extends OAuth2ProviderSpec {
       override def running() = {
         val wsRequest = mock[MockWSRequest]
         val wsResponse = mock[MockWSRequest#Response]
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Code + "=my.code")
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(Json.obj())
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
@@ -94,7 +94,7 @@ class LinkedInProviderSpec extends OAuth2ProviderSpec {
       override def running() = {
         val wsRequest = mock[MockWSRequest]
         val wsResponse = mock[MockWSRequest#Response]
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Code + "=my.code")
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)
@@ -113,7 +113,7 @@ class LinkedInProviderSpec extends OAuth2ProviderSpec {
       override def running() = {
         val wsRequest = mock[MockWSRequest]
         val wsResponse = mock[MockWSRequest#Response]
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Code + "=my.code")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Code + "=my.code")
         when(wsResponse.status).thenReturn(200)
         when(wsResponse.json).thenReturn(oAuthInfo)
         when(wsRequest.withHttpHeaders(any)).thenReturn(wsRequest)

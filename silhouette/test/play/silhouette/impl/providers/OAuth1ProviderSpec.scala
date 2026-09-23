@@ -22,6 +22,7 @@ import play.silhouette.impl.providers.oauth1.services.PlayOAuth1Service
 import org.specs2.matcher.ThrownExpectations
 import org.specs2.specification.Scope
 import play.api.mvc.{ AnyContent, AnyContentAsEmpty, Result, Results }
+import play.api.mvc.request.Scheme
 import play.api.test.{ FakeHeaders, FakeRequest, WithApplication }
 import play.mvc.Http.HeaderNames
 import org.hamcrest.core.IsAnything
@@ -46,7 +47,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
     val c = context
     "throw a RuntimeException if the unsafe 1.0 specification should be used" in new WithApplication {
       override def running() = {
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Denied + "=")
         when(c.oAuthService.use10a).thenReturn(false)
         c.provider.authenticate() must throwA[RuntimeException]
       }
@@ -57,7 +58,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
     val c = context
     "fail with an AccessDeniedException if denied key exists in query string" in new WithApplication {
       override def running() = {
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + Denied + "=")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + Denied + "=")
         failed[AccessDeniedException](c.provider.authenticate()) {
           case e => e.getMessage must startWith(AuthorizationError.format(c.provider.id, ""))
         }
@@ -111,7 +112,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
         uri = "/request-path/something",
         headers = FakeHeaders(Seq((HeaderNames.HOST, "www.example.com"))),
         body = AnyContentAsEmpty,
-        secure = secure)
+        scheme = if (secure) Scheme.Https else Scheme.Http)
 
       when(c.oAuthSettings.callbackURL).thenReturn(callbackURL)
 
@@ -135,7 +136,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
     "fail with an UnexpectedResponseException if access token cannot be retrieved" in new WithApplication {
       override def running() = {
         val tokenSecret = "my.token.secret"
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
         when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
         when(c.oAuthTokenSecretProvider.retrieve(using any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))
@@ -150,7 +151,7 @@ abstract class OAuth1ProviderSpec extends SocialProviderSpec[OAuth1Info] {
     "return the auth info" in new WithApplication {
       override def running() = {
         val tokenSecret = "my.token.secret"
-        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
+        implicit val req: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, "/?" + OAuthVerifier + "=my.verifier&" + OAuthToken + "=my.token")
 
         when(c.oAuthTokenSecret.value).thenReturn(tokenSecret)
         when(c.oAuthTokenSecretProvider.retrieve(using any(), any())).thenReturn(Future.successful(c.oAuthTokenSecret))

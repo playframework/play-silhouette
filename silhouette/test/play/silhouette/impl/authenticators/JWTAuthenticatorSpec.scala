@@ -302,7 +302,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
 
     "return authenticator if DAO is enabled and an authenticator is stored for the token located in the the query string" in new WithApplication with Context {
       override def running() = {
-        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
         when(clock.now).thenReturn(ZonedDateTime.now)
 
         when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
@@ -330,7 +330,7 @@ class JWTAuthenticatorSpec extends PlaySpecification with JsonMatchers {
 
     "return authenticator if DAO is disabled and authenticator was found in the query string" in new WithApplication with Context {
       override def running() = {
-        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", s"/?${settings.fieldName}=${serialize(authenticator, authenticatorEncoder, settings)}")
         when(clock.now).thenReturn(ZonedDateTime.now)
 
         when(settings.requestParts).thenReturn(Some(Seq(RequestPart.QueryString)))
