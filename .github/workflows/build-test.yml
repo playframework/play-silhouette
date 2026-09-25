@@ -22,14 +22,12 @@ jobs:
   check-binary-compatibility:
     name: Binary Compatibility
     uses: playframework/.github/.github/workflows/binary-check.yml@v4
-    with:
-      java: 17
 
   check-docs:
     name: Docs
     uses: playframework/.github/.github/workflows/cmd.yml@v4
     with:
-      java: 21, 17
+      java: 25, 21, 17
       # Symbolic lanes resolve to exact versions in project/Dependencies.scala.
       scala: 2.13.x, 3.3.x, 3.9.x, 3.next
       cmd: sbt -Dscala.version=$MATRIX_SCALA doc
@@ -42,7 +40,7 @@ jobs:
       - "check-docs"
     uses: playframework/.github/.github/workflows/cmd.yml@v4
     with:
-      java: 21, 17
+      java: 25, 21, 17
       # Symbolic lanes resolve to exact versions in project/Dependencies.scala.
       scala: 2.13.x, 3.3.x, 3.9.x, 3.next
       cmd: >-
