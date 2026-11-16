@@ -32,7 +32,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{ ControllerComponents, _ }
 import play.api.test.{ FakeRequest, PlaySpecification, WithApplication }
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
+import org.mockito.ArgumentMatchers.any
 import test.Helper.mock
 
 import scala.concurrent.ExecutionContext.Implicits.global
