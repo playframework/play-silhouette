@@ -27,7 +27,7 @@ import play.api.test.{ FakeHeaders, FakeRequest, WithApplication }
 import play.mvc.Http.HeaderNames
 import org.hamcrest.core.IsAnything
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{ any, anyString }
 import org.mockito.hamcrest.MockitoHamcrest
 import test.SocialProviderSpec
 import test.Helper.mock
