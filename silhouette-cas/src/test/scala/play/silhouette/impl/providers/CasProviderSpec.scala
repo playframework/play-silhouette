@@ -61,8 +61,8 @@ class CasProviderSpec extends SocialProviderSpec[CasInfo] with Logger {
       CasSettings(
         casURL = "https://localhost/",
         redirectURL = "https://cas-redirect/",
-        samlTimeTolerance = -1.millis) must throwA[ConfigurationException].like {
-        case e => e.getMessage must be equalTo CasSettings.TimeToleranceInvalid.format(CasProvider.ID, -1.millis)
+        samlTimeTolerance = (-1).millis) must throwA[ConfigurationException].like {
+        case e => e.getMessage must be equalTo CasSettings.TimeToleranceInvalid.format(CasProvider.ID, (-1).millis)
       }
     }
   }
